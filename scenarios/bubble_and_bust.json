@@ -1,0 +1,74 @@
+{
+  "name": "bubble_and_bust",
+  "description": "A run of good news inflates sentiment, then a fraud revelation cuts fair value by 20%.",
+  "ticks": 1000,
+  "initial_price": 100.0,
+  "fundamental": {
+    "vol": 0.001,
+    "drift": 0.0
+  },
+  "sentiment": {
+    "decay": 0.98,
+    "feedback": 5.0
+  },
+  "population": {
+    "market_maker": {
+      "count": 4,
+      "cash": 2000000,
+      "shares": 0
+    },
+    "institutional": {
+      "count": 5,
+      "cash": 2000000,
+      "shares": 10000
+    },
+    "fundamentalist": {
+      "count": 30,
+      "cash": 100000,
+      "shares": 500
+    },
+    "momentum": {
+      "count": 25,
+      "cash": 100000,
+      "shares": 0
+    },
+    "mean_reversion": {
+      "count": 15,
+      "cash": 100000,
+      "shares": 0
+    },
+    "retail": {
+      "count": 150,
+      "cash": 20000,
+      "shares": 100
+    }
+  },
+  "events": [
+    {
+      "tick": 150,
+      "headline": "New product launch beats expectations",
+      "fundamental_change": 0.03,
+      "sentiment": 0.6
+    },
+    {
+      "tick": 300,
+      "headline": "Analysts pile in with upgrades",
+      "fundamental_change": 0.02,
+      "sentiment": 0.6
+    },
+    {
+      "tick": 450,
+      "headline": "Social media hype goes viral",
+      "sentiment": 0.8
+    },
+    {
+      "tick": 650,
+      "headline": "Short-seller report alleges accounting fraud",
+      "fundamental_change": -0.2,
+      "sentiment": -1.0,
+      "fundamental_vol": 0.004,
+      "duration": 40,
+      "mm_stress": 0.5
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "name": "earnings_beat",
+  "description": "Company beats earnings and raises guidance. Fair value rises 8% and sentiment improves.",
+  "ticks": 1000,
+  "initial_price": 100.0,
+  "fundamental": {
+    "vol": 0.001,
+    "drift": 0.0
+  },
+  "sentiment": {
+    "decay": 0.98,
+    "feedback": 5.0
+  },
+  "population": {
+    "market_maker": {
+      "count": 4,
+      "cash": 2000000,
+      "shares": 0
+    },
+    "institutional": {
+      "count": 5,
+      "cash": 2000000,
+      "shares": 10000
+    },
+    "fundamentalist": {
+      "count": 30,
+      "cash": 100000,
+      "shares": 500
+    },
+    "momentum": {
+      "count": 25,
+      "cash": 100000,
+      "shares": 0
+    },
+    "mean_reversion": {
+      "count": 15,
+      "cash": 100000,
+      "shares": 0
+    },
+    "retail": {
+      "count": 150,
+      "cash": 20000,
+      "shares": 100
+    }
+  },
+  "events": [
+    {
+      "tick": 300,
+      "headline": "Q3 earnings beat, guidance raised",
+      "fundamental_change": 0.08,
+      "sentiment": 0.5,
+      "fundamental_vol": 0.002,
+      "duration": 80
+    }
+  ]
+}

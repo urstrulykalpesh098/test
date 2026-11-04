@@ -1,0 +1,17 @@
+{
+  "name": "baseline",
+  "description": "Calm market, no scheduled news. Use as the control run for comparing other scenarios.",
+  "ticks": 1000,
+  "initial_price": 100.0,
+  "fundamental": {"vol": 0.001, "drift": 0.0},
+  "sentiment": {"decay": 0.98, "feedback": 5.0},
+  "population": {
+    "market_maker":   {"count": 4,   "cash": 2000000, "shares": 0},
+    "institutional":  {"count": 5,   "cash": 2000000, "shares": 10000},
+    "fundamentalist": {"count": 30,  "cash": 100000,  "shares": 500},
+    "momentum":       {"count": 25,  "cash": 100000,  "shares": 0},
+    "mean_reversion": {"count": 15,  "cash": 100000,  "shares": 0},
+    "retail":         {"count": 150, "cash": 20000,   "shares": 100}
+  },
+  "events": []
+}
