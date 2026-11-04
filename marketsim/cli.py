@@ -2,14 +2,16 @@
 from __future__ import annotations
 
 import argparse
+import math
 import sys
 from pathlib import Path
 
 from .agents import AGENT_TYPES
 from .analysis import market_stats, monte_carlo_summary, trader_stats
 from .engine import run_scenario
+from .forecast import TIMESFM_LICENSE_NOTE, load_series, make_forecast, write_forecast_csv
 from .report import write_outputs
-from .scenario import Scenario
+from .scenario import Scenario, attach_forecast
 
 ROOT = Path(__file__).resolve().parent.parent
 SCENARIO_DIR = ROOT / "scenarios"
@@ -44,12 +46,53 @@ def cmd_validate(args) -> None:
         print(f"ok  {name}")
 
 
+def _note_source(fc) -> None:
+    if fc.source == "timesfm-3":
+        print(f"  baseline forecast: TimesFM-3 (local). {TIMESFM_LICENSE_NOTE}", file=sys.stderr)
+    else:
+        print("  baseline forecast: statistical random walk "
+              "(TimesFM not installed; see requirements-timesfm.txt)", file=sys.stderr)
+
+
+def prepare_forecast(sc: Scenario, args) -> None:
+    """Attach a baseline forecast from --forecast-csv or the scenario's baseline_forecast."""
+    cfg = dict(sc.baseline_forecast or {})
+    if args.forecast_csv:
+        cfg["csv"] = args.forecast_csv
+    if not cfg.get("csv"):
+        return
+    csv_path = Path(args.forecast_csv) if args.forecast_csv else sc.resolve_path(cfg["csv"])
+    column = args.column or cfg.get("column")
+    model = args.model or cfg.get("model", "auto")
+    tps = args.ticks_per_step or int(cfg.get("ticks_per_step", 10))
+    history = load_series(csv_path, column)
+    horizon = math.ceil(sc.ticks / tps)
+    fc = make_forecast(history, horizon, model, cfg.get("checkpoint"))
+    _note_source(fc)
+    attach_forecast(sc, fc, tps, bool(cfg.get("vol_from_band", True)))
+
+
+def cmd_forecast(args) -> None:
+    history = load_series(args.csv, args.column)
+    fc = make_forecast(history, args.horizon, args.model or "auto")
+    _note_source(fc)
+    lo, hi = fc.band()
+    print(f"last value {fc.last:,.2f}; {fc.horizon}-step forecast ({fc.source}):")
+    for h in sorted({1, 5, 10, 20, fc.horizon} & set(range(1, fc.horizon + 1))):
+        band = f"   10-90%: {lo[h - 1]:,.2f} .. {hi[h - 1]:,.2f}" if lo and hi else ""
+        print(f"  step {h:>4}: median {fc.median[h - 1]:,.2f} ({fc.median[h - 1] / fc.last - 1:+.1%}){band}")
+    if args.out:
+        write_forecast_csv(fc, Path(args.out))
+        print(f"  written: {args.out}")
+
+
 def cmd_run(args) -> None:
     path = resolve(args.scenario)
     sc = Scenario.load(path)
     if args.ticks:
         sc.ticks = args.ticks
         sc.events = [e for e in sc.events if e.tick < sc.ticks]
+    prepare_forecast(sc, args)
     seeds = list(range(args.seed, args.seed + args.runs))
     runs = []
     for i, seed in enumerate(seeds, 1):
@@ -91,7 +134,19 @@ def main(argv=None) -> None:
     p.add_argument("--runs", type=int, default=1, help="Monte Carlo runs with consecutive seeds")
     p.add_argument("--ticks", type=int, help="override scenario length")
     p.add_argument("--out", help="output directory (default reports/<scenario>-seed<N>)")
+    p.add_argument("--forecast-csv", help="price history CSV; fair value follows its baseline forecast")
+    p.add_argument("--column", help="CSV column to use (default: close/price/value)")
+    p.add_argument("--model", choices=("auto", "timesfm", "statistical"), help="forecast backend (default auto)")
+    p.add_argument("--ticks-per-step", type=int, help="simulation ticks per CSV row (default 10)")
     p.set_defaults(func=cmd_run)
+
+    p = sub.add_parser("forecast", help="baseline forecast of a price history CSV (TimesFM-3 if installed)")
+    p.add_argument("csv")
+    p.add_argument("--column")
+    p.add_argument("--horizon", type=int, default=30)
+    p.add_argument("--model", choices=("auto", "timesfm", "statistical"))
+    p.add_argument("--out", help="write forecast quantiles to this CSV")
+    p.set_defaults(func=cmd_forecast)
 
     sub.add_parser("list", help="list bundled scenarios").set_defaults(func=cmd_list)
     sub.add_parser("traders", help="describe trader types and their parameters").set_defaults(func=cmd_traders)
@@ -102,9 +157,11 @@ def main(argv=None) -> None:
     args = parser.parse_args(argv)
     if getattr(args, "runs", 1) < 1:
         parser.error("--runs must be >= 1")
+    if (getattr(args, "ticks_per_step", None) or 1) < 1 or getattr(args, "horizon", 1) < 1:
+        parser.error("--ticks-per-step and --horizon must be >= 1")
     try:
         args.func(args)
-    except ValueError as exc:
+    except (ValueError, RuntimeError, OSError) as exc:
         raise SystemExit(f"error: {exc}")
 
 

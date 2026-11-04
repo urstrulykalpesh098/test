@@ -162,6 +162,55 @@ def _signed(x: float) -> str:
     return f'<span class="{cls}">{_fmt_pct(x)}</span>'
 
 
+def forecast_overlay(run: RunResult) -> dict:
+    """Baseline forecast mapped onto simulation ticks, in price units."""
+    sc = run.scenario
+    fc, tps, f0 = sc.forecast, sc.ticks_per_step, sc.initial_fundamental
+    scale = lambda vals: [f0 * r for r in fc.relative_path(sc.ticks, tps, vals)]
+    lo, hi = fc.band()
+    return {
+        "median": scale(fc.median),
+        "low": scale(lo) if lo else None,
+        "high": scale(hi) if hi else None,
+    }
+
+
+def _forecast_section(runs: List[RunResult]) -> str:
+    run = runs[0]
+    sc = run.scenario
+    fc = sc.forecast
+    ov = forecast_overlay(run)
+    n = sc.ticks
+    if len(runs) > 1:
+        sim = [_pct([r.series["price"][i] for r in runs], 0.5) for i in range(n)]
+        sim_label = "Simulated price (median of runs)"
+    else:
+        sim, sim_label = run.series["price"], "Simulated price"
+    source = "TimesFM-3" if fc.source == "timesfm-3" else "Statistical baseline (random walk; TimesFM not installed)"
+    band = (ov["low"], ov["high"]) if ov["low"] and ov["high"] else None
+    end_gap = sim[-1] / ov["median"][-1] - 1
+    gaps = [p / m - 1 for p, m in zip(sim, ov["median"])]
+    worst = max(gaps, key=abs)
+    outside = sum(1 for p, lo, hi in zip(sim, *band) if p < lo or p > hi) if band else 0
+    kpis = [
+        ("Baseline forecast end", _fmt_num(ov["median"][-1]), f'{_fmt_pct(ov["median"][-1] / sc.initial_fundamental - 1)} over the horizon'),
+        ("Scenario vs baseline (end)", _fmt_pct(end_gap), "simulated price vs forecast median"),
+        ("Largest gap from baseline", _fmt_pct(worst), "at any tick"),
+        ("Ticks outside 10–90% band", f"{outside / n * 100:.0f}%" if band else "–", "how unusual the scenario path is"),
+    ]
+    note = (f"Source: {html.escape(source)}. Fitted on {len(fc.history)} historical points (last value "
+            f"{fc.last:,.2f}, shown indexed to {sc.initial_fundamental:,.2f}); "
+            f"{fc.horizon} forecast steps × {sc.ticks_per_step} ticks per step. Fair value follows the forecast "
+            "median and scenario events push it away from there. ")
+    if fc.source == "timesfm-3":
+        note += "TimesFM-3 weights are licensed by Google for non-commercial, non-production use only."
+    return ("<h2>Scenario vs baseline forecast</h2><div class=\"card\">" + line_chart(
+        [(sim_label, sim, "price"), ("Baseline forecast median", ov["median"], "fund")],
+        run.events, band=band) + f'<p class="note">{note} Shaded band: forecast 10th–90th percentile.</p></div>'
+        + '<div class="kpis">' + "".join(
+            f'<div class="kpi"><span>{a}</span><b>{b}</b><span>{c}</span></div>' for a, b, c in kpis) + "</div>")
+
+
 def render_html(runs: List[RunResult]) -> str:
     run = runs[0]
     sc = run.scenario
@@ -184,6 +233,9 @@ def render_html(runs: List[RunResult]) -> str:
              f'{sum(p.count for p in sc.population)} traders · seed {run.seed}'
              f'{f" · {len(runs)} Monte Carlo runs" if len(runs) > 1 else ""}</p>',
              f'<div class="kpis">{kpi_html}</div>']
+
+    if sc.forecast is not None:
+        parts.append(_forecast_section(runs))
 
     if len(runs) > 1:
         mc = monte_carlo_summary(runs)
@@ -263,6 +315,16 @@ def write_outputs(runs: List[RunResult], out_dir: Path) -> dict:
         "events": event_impacts(run),
         "traders": trader_stats(run),
     }
+    if run.scenario.forecast is not None:
+        fc = run.scenario.forecast
+        summary["baseline_forecast"] = {
+            "source": fc.source,
+            "history_points": len(fc.history),
+            "horizon_steps": fc.horizon,
+            "ticks_per_step": run.scenario.ticks_per_step,
+            "median": fc.median,
+            "quantiles": {str(q): v for q, v in fc.quantiles.items()},
+        }
     if len(runs) > 1:
         mc = monte_carlo_summary(runs)
         mc.pop("final_returns")

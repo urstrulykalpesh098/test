@@ -10,9 +10,11 @@ out, across many random runs.
 ## Privacy by design
 
 - **Runs 100% locally.** Pure Python standard library, so there is nothing to
-  install and no third-party packages.
-- **No network calls, no API keys, no telemetry.** Scenarios and results never
-  leave the machine it runs on.
+  install and no third-party packages. TimesFM is an optional add-on (see below).
+- **No network calls, no API keys, no telemetry.** Scenarios, price data and
+  results never leave the machine it runs on. The only exception: the optional
+  TimesFM backend downloads Google's model weights once, unless you give it a
+  local copy.
 - Reports are written to `reports/`, which is git-ignored so results are not
   committed by accident.
 - Scenarios hold market assumptions only. Don't put personal or account data
@@ -31,6 +33,48 @@ python -m unittest discover -s tests -t .                 # tests
 
 Each run writes `report.html` (charts, event impact, who made and lost
 money), `summary.json` and `timeseries.csv`.
+
+## Baseline forecasts with TimesFM-3
+
+The simulator can start from a forecast of a real price history. Fair value
+then follows the forecast's median path, with uncertainty matched to the
+forecast's 10–90% band, and your scenario events push it off course. The
+report shows a **Scenario vs baseline forecast** chart: how far the shock
+takes the market away from where history alone says it was heading.
+
+```bash
+python -m marketsim forecast my_prices.csv --horizon 60                # just the forecast
+python -m marketsim run rate_hike_surprise --forecast-csv my_prices.csv --runs 50
+python -m marketsim run rate_hike_on_forecast --runs 50                # forecast set in the scenario file
+```
+
+Or put it in a scenario file:
+
+```json
+"baseline_forecast": {"csv": "../data/my_prices.csv", "column": "close",
+                      "ticks_per_step": 10, "model": "auto", "vol_from_band": true}
+```
+
+- **Data:** a CSV with one row per period (oldest first) and a price column.
+  `close`, `adj close`, `price` or `value` are found automatically; otherwise
+  pass `--column`. At least 32 rows are needed, and more is better. The file
+  is read locally and never uploaded.
+- **Models:**
+  - `timesfm`: Google's TimesFM-3, run on this machine. Install it with
+    `pip install -r requirements-timesfm.txt`. **Its pretrained weights are
+    licensed for non-commercial, non-production use only.** Only the model
+    weights are downloaded (once, from Hugging Face); your data is not sent
+    anywhere. Set `MARKETSIM_TIMESFM_CHECKPOINT` to a local copy to run fully
+    offline.
+  - `statistical`: a stdlib random walk with drift fitted to the same
+    history. Always available.
+  - `auto` (default): TimesFM if it is installed, otherwise statistical.
+    The CLI and the report always say which one was used.
+- **Units:** each CSV row becomes `ticks_per_step` simulation ticks. Prices
+  in the simulation are indexed so that the last observed value equals the
+  scenario's `initial_price`.
+- `examples/synthetic_prices.csv` is **synthetic** demo data. Replace it
+  with your own history.
 
 ## Trader types
 

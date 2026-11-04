@@ -2,12 +2,14 @@
 from __future__ import annotations
 
 import json
+import math
 import random
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from .agents import AGENT_TYPES, build_agent
+from .forecast import Forecast
 
 
 @dataclass
@@ -44,6 +46,12 @@ class Scenario:
     sentiment_feedback: float
     population: List[PopulationSpec]
     events: List[Event]
+    baseline_forecast: Optional[Dict[str, Any]] = None  # config from the JSON file
+    base_dir: Optional[Path] = None                     # resolves relative CSV paths
+    # Filled in by attach_forecast() before a run:
+    forecast: Optional[Forecast] = None
+    fair_value_path: Optional[List[float]] = None       # per-tick multiplier on fair value
+    ticks_per_step: int = 1
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "Scenario":
@@ -86,6 +94,15 @@ class Scenario:
             events.append(ev)
         events.sort(key=lambda e: e.tick)
 
+        baseline = data.get("baseline_forecast")
+        if baseline is not None:
+            need(isinstance(baseline, dict) and baseline.get("csv"), "baseline_forecast needs a 'csv' path")
+            unknown = set(baseline) - {"csv", "column", "ticks_per_step", "model", "vol_from_band", "checkpoint"}
+            need(not unknown, f"unknown baseline_forecast key(s): {', '.join(sorted(unknown))}")
+            need(int(baseline.get("ticks_per_step", 10)) >= 1, "baseline_forecast.ticks_per_step must be >= 1")
+            need(baseline.get("model", "auto") in ("auto", "timesfm", "statistical"),
+                 "baseline_forecast.model must be auto, timesfm or statistical")
+
         return cls(
             name=str(data.get("name", "scenario")),
             description=str(data.get("description", "")),
@@ -99,9 +116,34 @@ class Scenario:
             sentiment_feedback=float(sentiment.get("feedback", 5.0)),
             population=population,
             events=events,
+            baseline_forecast=baseline,
         )
 
     @classmethod
     def load(cls, path: str | Path) -> "Scenario":
         with open(path, encoding="utf-8") as fh:
-            return cls.from_dict(json.load(fh))
+            sc = cls.from_dict(json.load(fh))
+        sc.base_dir = Path(path).resolve().parent
+        return sc
+
+    def resolve_path(self, path: str | Path) -> Path:
+        p = Path(path)
+        if p.is_absolute() or self.base_dir is None or p.exists():
+            return p
+        return self.base_dir / p
+
+
+def attach_forecast(sc: Scenario, fc: Forecast, ticks_per_step: int, vol_from_band: bool = True) -> None:
+    """Make fair value follow the forecast's median path (events still apply on top).
+
+    With vol_from_band, per-tick fair-value noise is set from the forecast's
+    10-90% band, so the simulated spread of outcomes matches the forecast's
+    uncertainty before any scenario events are added.
+    """
+    sc.forecast = fc
+    sc.ticks_per_step = ticks_per_step
+    sc.fair_value_path = fc.relative_path(sc.ticks, ticks_per_step)
+    sc.fundamental_drift = 0.0
+    step_vol = fc.per_step_vol()
+    if vol_from_band and step_vol:
+        sc.fundamental_vol = step_vol / math.sqrt(ticks_per_step)

@@ -1,0 +1,69 @@
+{
+  "name": "rate_hike_on_forecast",
+  "description": "Rate-hike surprise layered on a baseline forecast of a price history. Fair value follows the forecast (TimesFM-3 if installed, otherwise a statistical baseline) and the hike pushes it off course. Ships pointing at synthetic example data; replace the csv with your own history.",
+  "ticks": 1000,
+  "initial_price": 100.0,
+  "fundamental": {
+    "vol": 0.001,
+    "drift": 0.0
+  },
+  "sentiment": {
+    "decay": 0.98,
+    "feedback": 5.0
+  },
+  "population": {
+    "market_maker": {
+      "count": 4,
+      "cash": 2000000,
+      "shares": 0
+    },
+    "institutional": {
+      "count": 5,
+      "cash": 2000000,
+      "shares": 10000
+    },
+    "fundamentalist": {
+      "count": 30,
+      "cash": 100000,
+      "shares": 500
+    },
+    "momentum": {
+      "count": 25,
+      "cash": 100000,
+      "shares": 0
+    },
+    "mean_reversion": {
+      "count": 15,
+      "cash": 100000,
+      "shares": 0
+    },
+    "retail": {
+      "count": 150,
+      "cash": 20000,
+      "shares": 100
+    }
+  },
+  "events": [
+    {
+      "tick": 300,
+      "headline": "Central bank surprises with a 50bp hike (25bp expected)",
+      "fundamental_change": -0.06,
+      "sentiment": -0.6,
+      "fundamental_vol": 0.003,
+      "duration": 150
+    },
+    {
+      "tick": 450,
+      "headline": "Press conference: governor signals pause",
+      "fundamental_change": 0.02,
+      "sentiment": 0.3
+    }
+  ],
+  "baseline_forecast": {
+    "csv": "../examples/synthetic_prices.csv",
+    "column": "close",
+    "ticks_per_step": 10,
+    "model": "auto",
+    "vol_from_band": true
+  }
+}

@@ -1,0 +1,10 @@
+# Optional: enables the TimesFM-3 baseline forecast backend.
+# The simulator itself needs nothing beyond the Python standard library.
+#
+# LICENSE NOTE: the TimesFM code is Apache-2.0, but Google licenses the
+# pretrained TimesFM-3 weights for NON-COMMERCIAL, NON-PRODUCTION use only.
+#
+# The weights (google/timesfm-3.0-pytorch) download from huggingface.co on
+# first use. To run fully offline, download them once and set
+#   MARKETSIM_TIMESFM_CHECKPOINT=/path/to/timesfm-3.0-pytorch
+timesfm[torch]==3.0.2

@@ -145,6 +145,10 @@ class Simulation:
         self.mm_stress = self._stress_regimes[-1][1] if self._stress_regimes else 0.0
         shock = self.rng.gauss(0, 1)
         self.fundamental *= math.exp(sc.fundamental_drift - 0.5 * vol * vol + vol * shock)
+        if sc.fair_value_path:  # follow the baseline forecast's median path
+            path = sc.fair_value_path
+            prev = path[self.t - 1] if self.t > 0 else 1.0
+            self.fundamental *= path[min(self.t, len(path) - 1)] / prev
         self.fundamental_history.append(self.fundamental)
 
         hist = self.close_history
