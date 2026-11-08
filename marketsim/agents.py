@@ -321,12 +321,17 @@ class GammaDealer(Trader):
     DEFAULTS = dict(
         activity=0.35, max_position=50000, max_short=50000, margin=5.0,
         gamma=2000.0, rehedge_threshold=150, day_ticks=390, max_order=1500,
+        flip=0.0, long_gamma_ratio=0.5,
     )
 
     def decide(self, view) -> Decision:
         ref, _ = _day_reference(view, int(self.p["day_ticks"]))
         move_pct = (view.last_price / ref - 1) * 100
-        target = self.initial_shares + self.p["gamma"] * move_pct
+        gamma = self.p["gamma"]
+        if self.p["flip"] > 0 and view.last_price > self.p["flip"]:
+            # above the gamma flip, dealers are long gamma and hedge against the move
+            gamma = -gamma * self.p["long_gamma_ratio"]
+        target = self.initial_shares + gamma * move_pct
         diff = target - self.shares
         if abs(diff) < self.p["rehedge_threshold"]:
             return Decision()
@@ -392,13 +397,20 @@ class VolTarget(Trader):
     DEFAULTS = dict(
         activity=0.5, max_position=10 ** 6, margin=0.0,
         target_fraction=0.85, drop_sensitivity=0.03, day_ticks=390, max_order=400, min_trade=10,
+        spread_days=1,
     )
 
     def decide(self, view) -> Decision:
-        ref, left = _day_reference(view, int(self.p["day_ticks"]))
+        day_ticks = int(self.p["day_ticks"])
+        ref, left = _day_reference(view, day_ticks)
+        day = view.tick // day_ticks if day_ticks > 0 else 0
+        done = min(1.0, (day + 1) / max(1, int(self.p["spread_days"])))
+        planned = 1 - (1 - self.p["target_fraction"]) * done  # cut spread evenly over spread_days sessions
         drop_pct = max(0.0, (1 - view.last_price / ref) * 100)
-        frac = clamp(self.p["target_fraction"] - self.p["drop_sensitivity"] * drop_pct, 0.0, 1.5)
-        target = self.initial_shares * frac
+        frac = clamp(planned - self.p["drop_sensitivity"] * drop_pct, 0.0, 1.5)
+        # exposure only ratchets down: trailing volatility cannot fall fast enough to re-lever within days
+        self._min_frac = min(getattr(self, "_min_frac", 1.0), frac)
+        target = self.initial_shares * self._min_frac
         remaining = target - self.shares
         if abs(remaining) < self.p["min_trade"]:
             return Decision()
@@ -410,10 +422,61 @@ class VolTarget(Trader):
         return Decision([OrderRequest(side, qty)])
 
 
+class TrendCTA(Trader):
+    """Slow trend followers (CTAs) keyed to a long moving average such as the 200-day.
+
+    The signal is checked on each daily close against ``level`` (which rises by
+    ``level_slope`` per session, as a moving average does when old low prints
+    roll out). When the close crosses, the fund moves from its long position to
+    ``short_fraction`` of it short, executing evenly over ``exec_days`` sessions.
+    """
+    kind = "cta_trend"
+    label = "Trend followers (200-day)"
+    description = "Long while the index closes above its 200-day average; flip short after a close below it."
+    DEFAULTS = dict(
+        activity=0.6, max_position=10 ** 6, max_short=10 ** 6, margin=1.0,
+        level=0.0, level_slope=0.0, buffer=0.0, short_fraction=0.5,
+        day_ticks=390, exec_days=2, max_order=60, min_trade=5,
+    )
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.long = True
+        self.flips = 0
+        self._flip_tick: Optional[int] = None
+
+    def level_at(self, day: int) -> float:
+        return self.p["level"] + self.p["level_slope"] * day
+
+    def decide(self, view) -> Decision:
+        day_ticks = int(self.p["day_ticks"])
+        t = view.tick
+        day = t // day_ticks
+        if self.p["level"] > 0 and t % day_ticks == day_ticks - 1:  # last minute: read the close
+            level = self.level_at(day)
+            below = view.last_price < level * (1 - self.p["buffer"])
+            above = view.last_price > level * (1 + self.p["buffer"])
+            if self.long and below:
+                self.long, self.flips, self._flip_tick = False, self.flips + 1, t
+            elif not self.long and above:
+                self.long, self.flips, self._flip_tick = True, self.flips + 1, t
+            return Decision()
+        target = self.initial_shares if self.long else -self.initial_shares * self.p["short_fraction"]
+        remaining = target - self.shares
+        if abs(remaining) < self.p["min_trade"] or self._flip_tick is None and self.long:
+            return Decision()
+        ticks_left = max(1, (self._flip_tick or 0) + int(self.p["exec_days"]) * day_ticks - t)
+        qty = min(self.p["max_order"], max(self.p["min_trade"], abs(remaining) / (ticks_left * self.activity)))
+        qty = int(min(qty, abs(remaining)))
+        if qty < 1:
+            return Decision()
+        return Decision([OrderRequest(BUY if remaining > 0 else SELL, qty)])
+
+
 AGENT_TYPES: Dict[str, Type[Trader]] = {
     cls.kind: cls
     for cls in (MarketMaker, GammaDealer, Institutional, Fundamentalist, VolTarget,
-                LeveragedETF, Momentum, MeanReversion, Retail)
+                LeveragedETF, TrendCTA, Momentum, MeanReversion, Retail)
 }
 
 

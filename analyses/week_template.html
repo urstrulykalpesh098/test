@@ -1,0 +1,403 @@
+<title>Week of 9 November, Simulated</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: one 860px column. Briefing header -> path picker -> week replay console -> what matters -> all paths -> flows heatmap -> inputs from the reports. Same visual family as the user's briefing series. */
+:root{
+  --bg:#0b0e13; --p1:#141922; --p2:#1b212c; --line:#262e3b; --l2:#1c222c;
+  --tx:#e9eff7; --dim:#8d9aab; --d2:#66738a;
+  --red:#f0565e; --grn:#3fb950; --amb:#e3a008; --blu:#6ea8fe; --vio:#a371f7;
+  --band:rgba(110,168,254,.10); --band2:rgba(110,168,254,.20); --redbg:rgba(240,86,94,.14); --grnbg:rgba(63,185,80,.14);
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){
+  --bg:#f5f7fa; --p1:#ffffff; --p2:#eef1f6; --line:#d8dee8; --l2:#e6eaf1;
+  --tx:#121a26; --dim:#526077; --d2:#76839a;
+  --red:#cf2f38; --grn:#1f8a3a; --amb:#a86f00; --blu:#2f6fdc; --vio:#7a4fd0;
+  --band:rgba(47,111,220,.08); --band2:rgba(47,111,220,.17); --redbg:rgba(207,47,56,.10); --grnbg:rgba(31,138,58,.10);
+  color-scheme:light}}
+:root[data-theme="light"]{
+  --bg:#f5f7fa; --p1:#ffffff; --p2:#eef1f6; --line:#d8dee8; --l2:#e6eaf1;
+  --tx:#121a26; --dim:#526077; --d2:#76839a;
+  --red:#cf2f38; --grn:#1f8a3a; --amb:#a86f00; --blu:#2f6fdc; --vio:#7a4fd0;
+  --band:rgba(47,111,220,.08); --band2:rgba(47,111,220,.17); --redbg:rgba(207,47,56,.10); --grnbg:rgba(31,138,58,.10);
+  color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.6 var(--sans);-webkit-text-size-adjust:100%}
+main{max-width:860px;margin:0 auto;padding-block:20px 72px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.kick{font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--d2)}
+h1{font-size:24px;margin:5px 0 4px;letter-spacing:-.025em;line-height:1.2;text-wrap:balance}
+.stamp{color:var(--d2);font-size:12px;margin-bottom:18px}
+h2{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:34px 0 12px;padding-bottom:7px;border-bottom:1px solid var(--line)}
+p{margin:0 0 12px} b{font-weight:640} .mut{color:var(--dim)} .sm{font-size:13px}
+.card{background:var(--p1);border:1px solid var(--line);border-radius:11px;padding:14px 15px;margin-bottom:12px}
+.lead{border-left:3px solid var(--blu)} .lead ul{margin:6px 0 0;padding-left:18px} .lead li{margin-bottom:7px}
+.dn{color:var(--red)} .up{color:var(--grn)}
+.num{font-variant-numeric:tabular-nums}
+
+/* picker */
+.pick{display:grid;gap:10px;margin-bottom:12px}
+.seg .lab{font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:var(--d2);margin-bottom:5px}
+.seg .opts{display:flex;gap:6px;flex-wrap:wrap}
+.seg button{font:inherit;font-size:13px;cursor:pointer;background:var(--p2);color:var(--dim);border:1px solid var(--line);border-radius:8px;padding:7px 11px;text-align:left}
+.seg button .pp{font-size:11px;color:var(--d2);margin-left:6px;font-variant-numeric:tabular-nums}
+.seg button[aria-pressed="true"]{background:var(--p1);color:var(--tx);border-color:var(--blu);box-shadow:0 0 0 1px var(--blu) inset}
+.seg button:focus-visible,.ctl button:focus-visible,.ctl input:focus-visible,.pathrow:focus-visible{outline:2px solid var(--blu);outline-offset:2px}
+.pathsum{display:flex;gap:14px;flex-wrap:wrap;align-items:baseline;font-size:13px;color:var(--dim);margin:-2px 0 12px}
+.pathsum b{color:var(--tx);font-size:15px}
+
+/* console */
+.console{background:var(--p1);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:1px;background:var(--line);border-bottom:1px solid var(--line)}
+.strip>div{background:var(--p1);padding:10px 12px;min-width:0}
+.strip .k{font-size:9.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--d2)}
+.strip .v{font-size:18px;font-weight:680;font-variant-numeric:tabular-nums;line-height:1.25;margin-top:2px}
+.strip .s{font-size:11.5px;color:var(--dim);font-variant-numeric:tabular-nums}
+.chips{display:flex;gap:6px;flex-wrap:wrap;padding:10px 12px 0}
+.chip{font-size:10.5px;font-weight:700;letter-spacing:.05em;padding:3px 8px;border-radius:20px;border:1px solid var(--line);color:var(--dim)}
+.chip.bad{background:var(--redbg);border-color:var(--red);color:var(--red)}
+.chip.ok{background:var(--grnbg);border-color:var(--grn);color:var(--grn)}
+.chip.vio{border-color:var(--vio);color:var(--vio)}
+.chartwrap{padding:6px 6px 0}
+canvas{display:block;width:100%;height:310px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--dim);padding:0 12px 4px}
+.legend i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:5px;vertical-align:middle}
+.ctl{display:flex;align-items:center;gap:10px;padding:10px 12px 12px;flex-wrap:wrap}
+.ctl button{font:inherit;font-size:13px;font-weight:650;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--p2);color:var(--tx);padding:7px 12px}
+.ctl button.primary{background:var(--blu);border-color:var(--blu);color:var(--bg);min-width:84px}
+.ctl input[type=range]{flex:1 1 180px;min-width:0;accent-color:var(--blu)}
+.ctl label{font-size:12px;color:var(--dim);display:flex;align-items:center;gap:6px;cursor:pointer}
+.ctl select{font:inherit;font-size:12.5px;background:var(--p2);color:var(--tx);border:1px solid var(--line);border-radius:7px;padding:5px 6px}
+
+.two{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:12px;margin-top:12px}
+@media (max-width:680px){.two{grid-template-columns:1fr}}
+.panel{background:var(--p1);border:1px solid var(--line);border-radius:11px;padding:12px 13px;min-width:0}
+.panel h3{margin:0 0 3px;font-size:13px}
+.panel .sub{font-size:11.5px;color:var(--d2);margin-bottom:10px}
+.flow{display:grid;grid-template-columns:150px 1fr 56px;gap:8px;align-items:center;margin-bottom:7px;font-size:12.5px}
+.flow .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.flow .bar{position:relative;height:12px;background:var(--p2);border-radius:3px}
+.flow .bar::after{content:"";position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:var(--d2)}
+.flow .fill{position:absolute;top:0;bottom:0;border-radius:2px}
+.flow .vv{text-align:right;font-variant-numeric:tabular-nums;font-size:11.5px}
+.tape{max-height:300px;overflow:auto;font-size:12.5px}
+.tape .e{display:grid;grid-template-columns:76px 1fr;gap:8px;padding:7px 0;border-bottom:1px solid var(--l2)}
+.tape .e:last-child{border-bottom:none}
+.tape .tm{font-family:var(--mono);font-size:11px;color:var(--blu)}
+.tape .empty{color:var(--d2);font-size:12px}
+@media (max-width:560px){.flow{grid-template-columns:110px 1fr 50px}}
+
+/* outcome pieces */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:12px}
+.kpi{background:var(--p1);border:1px solid var(--line);border-radius:10px;padding:11px 12px}
+.kpi .k{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--d2)}
+.kpi .v{font-size:21px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:2px}
+.kpi .s{font-size:11.5px;color:var(--dim)}
+.torn{display:grid;gap:10px}
+.torn .row{display:grid;grid-template-columns:170px 1fr 80px;gap:10px;align-items:center;font-size:13px}
+.torn .tr{position:relative;height:16px;background:var(--p2);border-radius:3px}
+.torn .tf{position:absolute;top:0;bottom:0;background:var(--blu);border-radius:3px}
+.torn .cap{grid-column:2;font-size:11px;color:var(--d2);margin-top:-6px;font-variant-numeric:tabular-nums}
+@media (max-width:560px){.torn .row{grid-template-columns:1fr;gap:4px}.torn .row>span:last-child{text-align:left}}
+.paths{display:grid;gap:4px}
+.pathrow{display:grid;grid-template-columns:minmax(0,230px) 1fr 70px 44px;gap:10px;align-items:center;padding:6px 8px;border-radius:7px;cursor:pointer;font-size:12.5px;border:1px solid transparent;background:none;color:inherit;font-family:inherit;text-align:left;width:100%}
+.pathrow:hover{background:var(--p2)}
+.pathrow.on{border-color:var(--blu);background:var(--p2)}
+.pathrow .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pathrow .rg{position:relative;height:14px}
+.pathrow .rg .ln{position:absolute;top:6px;height:2px;background:var(--d2);border-radius:1px}
+.pathrow .rg .bx{position:absolute;top:2px;height:10px;background:var(--band2);border-radius:2px}
+.pathrow .rg .md{position:absolute;top:0;width:2px;height:14px;background:var(--blu)}
+.pathrow .rg .fr{position:absolute;top:-2px;bottom:-2px;width:1px;background:var(--amb)}
+.pathrow .r{text-align:right;font-variant-numeric:tabular-nums}
+@media (max-width:560px){.pathrow{grid-template-columns:1fr 64px 40px}.pathrow .rg{display:none}}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--d2);font-weight:600;padding:0 8px 7px 0;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:8px 8px 8px 0;border-bottom:1px solid var(--l2);vertical-align:top}
+tr:last-child td{border-bottom:none}
+th.r,td.r{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+td.heat{text-align:center;font-variant-numeric:tabular-nums;font-size:12px;border-radius:3px;min-width:58px}
+td .who{display:block;font-size:11.5px;color:var(--d2);line-height:1.4;margin-top:2px}
+.src{font-size:11.5px;color:var(--d2)}
+ul.plain{margin:0;padding-left:18px} ul.plain li{margin-bottom:7px}
+footer{margin-top:36px;padding-top:14px;border-top:1px solid var(--line);color:var(--d2);font-size:11.5px;line-height:1.65}
+footer a,.src a{color:var(--dim)}
+</style>
+
+<main>
+<div class="kick">All 11 reports combined · simulated week · Mon 9 – Fri 13 November 2026</div>
+<h1>The week ahead, played out 600 times</h1>
+<div class="stamp">Built Sun 8 Nov · real S&amp;P 500 closes from FMP · 12 paths for CPI, CoreWeave and the forced-selling question · a simulation, not a forecast</div>
+
+<div class="card lead" id="bottom"></div>
+
+<h2>Choose the week</h2>
+<div class="pick" id="pick"></div>
+<div class="pathsum" id="pathsum"></div>
+
+<div class="console">
+  <div class="strip" id="strip"></div>
+  <div class="chips" id="chips"></div>
+  <div class="chartwrap"><canvas id="chart" aria-label="Simulated S&amp;P 500 for the week, in five-minute bars"></canvas></div>
+  <div class="legend">
+    <span><i style="background:var(--blu)"></i>Price (one representative run)</span>
+    <span><i style="background:var(--amb)"></i>Fair value</span>
+    <span><i style="background:var(--red)"></i>200-day average, rising</span>
+    <span><i style="background:var(--band2);height:9px"></i>Middle half / 90% of runs on this path</span>
+  </div>
+  <div class="ctl">
+    <button class="primary" id="play" type="button">Play</button>
+    <button id="reset" type="button">Restart</button>
+    <input id="scrub" type="range" min="0" max="389" value="389" aria-label="Point in the week">
+    <label for="speed">Speed <select id="speed"><option value="70">Slow</option><option value="25" selected>Normal</option><option value="6">Fast</option></select></label>
+  </div>
+</div>
+
+<div class="two">
+  <div class="panel">
+    <h3>Who is buying and selling this session</h3>
+    <div class="sub" id="flowsub">Net shares since the open, as a share of the session's volume so far</div>
+    <div id="flows"></div>
+  </div>
+  <div class="panel">
+    <h3>The tape</h3>
+    <div class="sub">The week's dated catalysts as this path plays them</div>
+    <div class="tape" id="tape"></div>
+  </div>
+</div>
+
+<h2>What decides where Friday closes</h2>
+<div class="card">
+  <div class="torn" id="torn"></div>
+  <p class="sm mut" style="margin:6px 0 0">Median Friday close for each outcome, with the other two questions mixed in at their odds. Every path uses the same random market noise, so the gaps come from the catalysts alone.</p>
+</div>
+
+<h2>All 12 paths</h2>
+<div class="card">
+  <div class="paths" id="paths"></div>
+  <p class="sm mut" style="margin:10px 0 0">Bar: 90% of runs (line) and middle half (box), median in blue, Friday 6 Nov close in amber. Odds on the right. Select a row to replay it.</p>
+</div>
+
+<h2>The whole week, odds-weighted</h2>
+<div class="kpis" id="kpis"></div>
+<div class="card tw"><table id="daily"></table></div>
+
+<h2>Who trades, day by day</h2>
+<div class="card tw"><table id="heat"></table></div>
+<p class="sm mut">Average net buying (green) or selling (red) as a share of each day's volume, across all 600 runs. Trend followers only appear once a close breaks the 200-day average.</p>
+
+<h2>Winners and losers by Friday</h2>
+<div class="card tw"><table id="groups"></table></div>
+
+<h2>What would tell you which path you are on</h2>
+<div class="card sm">
+  <ul class="plain">
+    <li><b>Monday close against 7,325.</b> The 200-day average. A close below it 0.3% or more starts the trend followers' selling for Tuesday and Wednesday.</li>
+    <li><b>Tuesday 8:30, core CPI.</b> The biggest single input. Hot against cool is worth about 300 S&amp;P points by Friday in the simulation.</li>
+    <li><b>Tuesday 5pm, CoreWeave's interest line</b> against the $860–940m guide, not the revenue line. Worth about 120 points.</li>
+    <li><b>20-day realised volatility by 13 Nov</b> (19.7% now). Higher means vol-target funds are still being fed, which is the "forced selling still ahead" path.</li>
+    <li><b>A close back above about 7,667.</b> The modelled gamma flip. Above it, bank dealers stop amplifying moves. That happens in only <span id="pflip"></span> of runs.</li>
+  </ul>
+</div>
+
+<h2>How your reports feed the model</h2>
+<div class="card tw"><table id="inputs"></table></div>
+
+<h2>How to read this</h2>
+<div class="card sm">
+  <ul class="plain">
+    <li><b>Real:</b> Friday's close, Thursday's low, VIX 25.64, the 200-day average (7,325, computed from a year of FMP closes) and every mechanism and date above, taken from your reports.</li>
+    <li><b>Assumed:</b> the odds of each catalyst outcome (CPI 30/45/25, CoreWeave 50/50, forced selling 50/50), how far each one moves fair value, and how much each group trades. The odds are mine, not the market's.</li>
+    <li><b>Good for:</b> seeing which question matters most, how forced flows and the 200-day trigger shape the path, and who absorbs the selling. It does not say which path the week takes.</li>
+    <li><b>Left out:</b> Nvidia (17 Nov), the data-centre loan auction (19 Nov), the FOMC (9 Dec), and the January legislatures your Proactive Report ranks above all of these.</li>
+  </ul>
+</div>
+
+<footer>
+  Simulation: marketsim, <span class="num">analyses/week_nov9.py</span> in urstrulykalpesh098/test. Inputs from your reports: The Week the AI Trade Broke, Weekend Update (7 Nov), 6 Nov and 5 Nov Adversarial Briefings, Proactive Report, Mechanism School, Morning Brief (6 Nov), and the 5 and 6 Nov Signal reports. S&amp;P 500 daily closes from FMP.
+  Information and analysis only. <b>Not investment advice</b>, and nothing here recommends any position or trade.
+</footer>
+</main>
+
+<script id="simdata" type="application/json">__DATA__</script>
+<script>
+(function(){
+var D=JSON.parse(document.getElementById('simdata').textContent);
+var M=D.meta,P=D.paths,A=D.all,F=M.factors,BPD=M.bars_per_day,NB=BPD*M.days.length;
+var ORDER=['vol_target','cta_trend','dealer_gamma','leveraged_etf','momentum','retail','market_maker','mean_reversion','fundamentalist','institutional'];
+var sel={cpi:'inline',crwv:'good',forced:'done'},t=NB-1,timer=null;
+var $=function(id){return document.getElementById(id)};
+var fmt=function(x,d){d=d===undefined?0:d;return x.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d})};
+var pct=function(x,d){d=d===undefined?1:d;return (x>=0?'+':'−')+Math.abs(x*100).toFixed(d)+'%'};
+var cls=function(x){return x>0.00005?'up':x<-0.00005?'dn':''};
+var key=function(){return sel.cpi+'|'+sel.crwv+'|'+sel.forced};
+var fri=M.friday_close,thu=M.thursday_low,flip=M.gamma_flip;
+var ma=function(day){return M.ma200+M.ma200_slope*day};
+var when=function(i){var d=Math.floor(i/BPD),m=570+(i%BPD)*5+5,h=Math.floor(m/60),mm=m%60;return M.days[Math.min(d,4)]+' '+h+':'+(mm<10?'0':'')+mm};
+var label=function(k){var s=k.split('|');return F.cpi[s[0]].label+' · '+(s[1]==='bad'?'CoreWeave bad':'CoreWeave good')+' · '+(s[2]==='ahead'?'selling ahead':'selling done')};
+$('pflip').textContent=Math.round(A.p_above_gamma_flip*100)+'%';
+
+/* bottom line */
+var fe=D.factor_effects;
+$('bottom').innerHTML='<b>Bottom line</b><ul>'+
+ '<li><b>The week leans slightly lower, with a wide range.</b> Weighted across all paths, the median Friday close is '+fmt(A.fri_close['0.5'])+' ('+pct(A.fri_return_median)+'), with 90% of runs between '+fmt(A.fri_close['0.05'])+' and '+fmt(A.fri_close['0.95'])+'. The week ends higher in '+Math.round(A.p_up_week*100)+'% of runs.</li>'+
+ '<li><b>CPI decides the week.</b> Hot CPI gives a median Friday of '+fmt(fe.cpi.hot)+', cool gives '+fmt(fe.cpi.cool)+', a gap of '+fmt(fe.cpi.cool-fe.cpi.hot)+' points. CoreWeave is worth '+fmt(fe.crwv.good-fe.crwv.bad)+' points. Your red team\'s open question, whether forced selling is still ahead, moves the Friday median by only '+fmt(Math.abs(fe.forced.done-fe.forced.ahead))+' points, though it deepens the worst outcomes.</li>'+
+ '<li><b>The 200-day break is the likely mechanical event.</b> At least one close lands below the rising 200-day average in '+Math.round(A.p_any_close_below_200d*100)+'% of runs, and trend followers flip to selling in '+Math.round(A.p_cta_flip*100)+'%. Once they flip, they become the main new seller from Wednesday to Friday. Pensions and value funds are the buyers on every day.</li>'+
+ '</ul>';
+
+/* picker */
+var groups=[['cpi','Tuesday 8:30 · CPI',F.cpi],['crwv','Tuesday 5pm · CoreWeave',F.crwv],['forced','The open question · forced selling',F.forced]];
+$('pick').innerHTML=groups.map(function(g){return '<div class="seg" data-g="'+g[0]+'"><div class="lab">'+g[1]+'</div><div class="opts">'+
+  Object.keys(g[2]).map(function(k){return '<button type="button" data-k="'+k+'" title="'+g[2][k].detail+'">'+g[2][k].label+'<span class="pp">'+Math.round(g[2][k].p*100)+'%</span></button>'}).join('')+'</div></div>'}).join('');
+$('pick').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;sel[b.closest('.seg').dataset.g]=b.dataset.k;choose()});
+
+/* chart */
+var cv=$('chart'),ctx=cv.getContext('2d');
+function css(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()}
+function draw(){
+  var p=P[key()],R=p.replay,bd=p.bands,dpr=window.devicePixelRatio||1,W=cv.clientWidth,H=cv.clientHeight;if(!W)return;
+  cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);
+  var vals=R.bars.concat(R.fair,bd['0.05'],bd['0.95'],[fri,thu,ma(0),ma(4)]);
+  var lo=Math.min.apply(null,vals),hi=Math.max.apply(null,vals),pad=(hi-lo)*0.05;lo-=pad;hi+=pad;
+  var showFlip=flip<=hi+(hi-lo)*0.15; if(showFlip)hi=Math.max(hi,flip+(hi-lo)*0.03);
+  var L=50,Rr=W<480?8:70,T=12,B=24,n=NB;
+  var X=function(i){return L+(W-L-Rr)*i/(n-1)},Y=function(v){return T+(H-T-B)*(1-(v-lo)/(hi-lo))};
+  ctx.font='11px '+css('--sans');ctx.lineWidth=1;
+  var step=[25,50,100,200,250].find(function(s){return (hi-lo)/s<=6})||500;
+  ctx.fillStyle=css('--d2');ctx.strokeStyle=css('--l2');ctx.textAlign='right';ctx.textBaseline='middle';
+  for(var v=Math.ceil(lo/step)*step;v<=hi;v+=step){var y=Y(v);ctx.beginPath();ctx.moveTo(L,y);ctx.lineTo(W-Rr,y);ctx.stroke();ctx.fillText(fmt(v),L-6,y)}
+  // day separators + labels
+  ctx.textAlign='center';ctx.textBaseline='top';
+  for(var d=0;d<5;d++){var x0=X(d*BPD);if(d){ctx.strokeStyle=css('--line');ctx.beginPath();ctx.moveTo(x0,T);ctx.lineTo(x0,H-B);ctx.stroke()}
+    ctx.fillStyle=css('--d2');ctx.fillText(W<480?M.days[d].split(' ')[0]:M.days[d],X(d*BPD+BPD/2),H-B+7)}
+  // bands
+  [['0.05','0.95','--band'],['0.25','0.75','--band2']].forEach(function(q){ctx.fillStyle=css(q[2]);ctx.beginPath();
+    for(var i=0;i<n;i++)ctx.lineTo(X(i),Y(bd[q[1]][i]));for(var j=n-1;j>=0;j--)ctx.lineTo(X(j),Y(bd[q[0]][j]));ctx.closePath();ctx.fill()});
+  // levels
+  var used=[];function place(y){y=Math.round(y);for(var k=0;k<8;k++){var hit=used.some(function(u){return Math.abs(u-y)<12});if(!hit)break;y+=12}used.push(y);return y}
+  function hline(v,c,lab,dash){var y=Y(v);ctx.strokeStyle=css(c);ctx.setLineDash(dash||[3,4]);ctx.beginPath();ctx.moveTo(L,y);ctx.lineTo(W-Rr,y);ctx.stroke();ctx.setLineDash([]);
+    if(Rr>20){ctx.fillStyle=css(c);ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(lab,W-Rr+5,place(y))}}
+  hline(fri,'--dim','Fri close');hline(thu,'--amb','Thu low');if(showFlip)hline(flip,'--vio','γ flip');
+  ctx.strokeStyle=css('--red');ctx.lineWidth=1.4;ctx.beginPath();
+  for(d=0;d<5;d++){var ya=Y(ma(d));ctx.moveTo(X(d*BPD),ya);ctx.lineTo(X(d*BPD+BPD-1),ya)}ctx.stroke();
+  if(Rr>20){ctx.fillStyle=css('--red');ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText('200-day',W-Rr+5,place(Y(ma(4))))}
+  // event markers
+  R.events.forEach(function(e){var x=X(e.t);ctx.fillStyle=css('--vio');ctx.beginPath();ctx.moveTo(x-4,T-2);ctx.lineTo(x+4,T-2);ctx.lineTo(x,T+5);ctx.closePath();ctx.fill()});
+  // fair + price
+  ctx.lineWidth=1.3;ctx.strokeStyle=css('--amb');ctx.setLineDash([4,3]);ctx.beginPath();
+  for(var i=0;i<=t;i++){i?ctx.lineTo(X(i),Y(R.fair[i])):ctx.moveTo(X(i),Y(R.fair[i]))}ctx.stroke();ctx.setLineDash([]);
+  ctx.lineWidth=1.9;ctx.strokeStyle=css('--blu');ctx.beginPath();
+  for(i=0;i<=t;i++){i?ctx.lineTo(X(i),Y(R.bars[i])):ctx.moveTo(X(i),Y(R.bars[i]))}ctx.stroke();
+  var px=X(t);ctx.strokeStyle=css('--d2');ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(px,T);ctx.lineTo(px,H-B);ctx.stroke();
+  ctx.fillStyle=css('--blu');ctx.beginPath();ctx.arc(px,Y(R.bars[t]),4,0,Math.PI*2);ctx.fill();
+}
+
+/* live panels */
+function update(){
+  var p=P[key()],R=p.replay,price=R.bars[t],day=Math.floor(t/BPD),d0=day*BPD;
+  var lowWeek=Math.min.apply(null,R.bars.slice(0,t+1));
+  var prevClose=day?R.bars[d0-1]:fri;
+  $('strip').innerHTML=
+   '<div><div class="k">When</div><div class="v" style="font-size:16px">'+when(t)+'</div><div class="s">'+(t%BPD===BPD-1?'closing print':'five-minute bar '+(t%BPD+1)+' of '+BPD)+'</div></div>'+
+   '<div><div class="k">S&amp;P 500</div><div class="v">'+fmt(price,2)+'</div><div class="s"><span class="'+cls(price/prevClose-1)+'">'+pct(price/prevClose-1,2)+' today</span> · <span class="'+cls(price/fri-1)+'">'+pct(price/fri-1,2)+' week</span></div></div>'+
+   '<div><div class="k">Fair value</div><div class="v">'+fmt(R.fair[t])+'</div><div class="s">price '+pct(price/R.fair[t]-1,2)+' vs value</div></div>'+
+   '<div><div class="k">200-day today</div><div class="v">'+fmt(ma(day))+'</div><div class="s">'+pct(price/ma(day)-1,2)+' cushion</div></div>'+
+   '<div><div class="k">Week low so far</div><div class="v">'+fmt(lowWeek)+'</div><div class="s">'+pct(lowWeek/fri-1,2)+'</div></div>';
+  var below=price<ma(day),closesBelow=0;for(var d=0;d<day;d++)if(R.bars[d*BPD+BPD-1]<ma(d)*(1-0.003))closesBelow++;
+  $('chips').innerHTML='<span class="chip '+(below?'bad':'ok')+'">'+(below?'Below':'Above')+' 200-day</span>'+
+   '<span class="chip '+(price<thu?'bad':'ok')+'">'+(price<thu?'Below':'Above')+' Thursday low</span>'+
+   (closesBelow?'<span class="chip bad">Trend followers triggered</span>':'')+
+   '<span class="chip vio">'+(price>flip?'Dealers long gamma':'Dealers short gamma')+'</span>';
+  // flows this session
+  var vol=0;for(var i=d0;i<=t;i++)vol+=R.bar_vol[i];
+  var rows=ORDER.filter(function(k){return R.bar_flows[k]}).map(function(k){var s=0;for(var i=d0;i<=t;i++)s+=R.bar_flows[k][i];return {k:k,v:vol?s/vol:0}});
+  var mx=Math.max(0.04,Math.max.apply(null,rows.map(function(x){return Math.abs(x.v)})));
+  $('flowsub').textContent=M.days[day]+': net shares since the open, as a share of the session\'s volume so far';
+  $('flows').innerHTML=rows.map(function(x){var w=Math.abs(x.v)/mx*50,left=x.v<0?50-w:50;
+    return '<div class="flow"><span class="nm" title="'+M.population[x.k].who+'">'+M.population[x.k].label+'</span><span class="bar"><span class="fill" style="left:'+left+'%;width:'+w+'%;background:var('+(x.v<0?'--red':'--grn')+')"></span></span><span class="vv '+cls(x.v)+'">'+pct(x.v,1)+'</span></div>'}).join('');
+  var ev=R.events.filter(function(e){return e.t<=t}).slice().reverse();
+  $('tape').innerHTML=ev.length?ev.map(function(e){return '<div class="e"><span class="tm">'+when(Math.max(0,e.t-1)).replace(/ \d+:\d+$/,'')+'</span><span>'+e.headline+'</span></div>'}).join(''):'<div class="empty">Press Play to start Monday at 9:30.</div>';
+  $('scrub').value=t;draw();
+}
+
+/* selection summary + path list */
+function choose(){
+  stop();Array.prototype.forEach.call($('pick').querySelectorAll('.seg'),function(s){Array.prototype.forEach.call(s.querySelectorAll('button'),function(b){b.setAttribute('aria-pressed',String(sel[s.dataset.g]===b.dataset.k))})});
+  var p=P[key()],s=p.stats;
+  $('pathsum').innerHTML='<span>Odds of this path <b>'+(p.p*100).toFixed(1)+'%</b></span><span>Median Friday <b class="'+cls(s.fri_return_median)+'">'+fmt(s.fri_close['0.5'])+' ('+pct(s.fri_return_median)+')</b></span><span>90% of runs '+fmt(s.fri_close['0.05'])+'–'+fmt(s.fri_close['0.95'])+'</span><span>Closes below 200-day '+Math.round(s.p_any_close_below_200d*100)+'%</span><span>Down 5%+ '+Math.round(s.p_down_5pct*100)+'%</span>';
+  t=NB-1;paths();update();
+}
+function paths(){
+  var keys=Object.keys(P).sort(function(a,b){return P[a].stats.fri_close['0.5']-P[b].stats.fri_close['0.5']});
+  var lo=Math.min.apply(null,keys.map(function(k){return P[k].stats.fri_close['0.05']})),hi=Math.max.apply(null,keys.map(function(k){return P[k].stats.fri_close['0.95']}));
+  var pos=function(v){return ((v-lo)/(hi-lo)*100).toFixed(2)+'%'};
+  $('paths').innerHTML=keys.map(function(k){var s=P[k].stats.fri_close;
+    return '<button type="button" class="pathrow'+(k===key()?' on':'')+'" data-k="'+k+'"><span class="nm">'+label(k)+'</span><span class="rg">'+
+     '<span class="ln" style="left:'+pos(s['0.05'])+';width:calc('+pos(s['0.95'])+' - '+pos(s['0.05'])+')"></span>'+
+     '<span class="bx" style="left:'+pos(s['0.25'])+';width:calc('+pos(s['0.75'])+' - '+pos(s['0.25'])+')"></span>'+
+     '<span class="md" style="left:'+pos(s['0.5'])+'"></span><span class="fr" style="left:'+pos(fri)+'"></span></span>'+
+     '<span class="r '+cls(s['0.5']/fri-1)+'">'+fmt(s['0.5'])+'</span><span class="r mut">'+(P[k].p*100).toFixed(1)+'%</span></button>'}).join('');
+}
+$('paths').addEventListener('click',function(e){var b=e.target.closest('.pathrow');if(!b)return;var s=b.dataset.k.split('|');sel={cpi:s[0],crwv:s[1],forced:s[2]};choose()});
+
+/* static outcome sections */
+(function(){
+  var rows=[['CPI (Tuesday 8:30)',fe.cpi,F.cpi],['CoreWeave (Tuesday 5pm)',fe.crwv,F.crwv],['Forced selling ahead or done',fe.forced,F.forced]];
+  var all=[];rows.forEach(function(r){Object.keys(r[1]).forEach(function(k){all.push(r[1][k])})});
+  var lo=Math.min.apply(null,all)-40,hi=Math.max.apply(null,all)+40,pos=function(v){return (v-lo)/(hi-lo)*100};
+  $('torn').innerHTML=rows.map(function(r){var ks=Object.keys(r[1]).sort(function(a,b){return r[1][a]-r[1][b]}),a=r[1][ks[0]],b=r[1][ks[ks.length-1]];
+    return '<div class="row"><span>'+r[0]+'</span><span class="tr"><span class="tf" style="left:'+pos(a)+'%;width:'+Math.max(0.8,pos(b)-pos(a))+'%"></span></span><span class="r num"><b>'+fmt(b-a)+'</b> pts</span>'+
+     '<span class="cap">'+ks.map(function(k){return r[2][k].label+' '+fmt(r[1][k])}).join(' · ')+'</span></div>'}).join('');
+  $('kpis').innerHTML=[
+   ['Median Friday close',fmt(A.fri_close['0.5']),pct(A.fri_return_median)+' on the week'],
+   ['90% of runs',fmt(A.fri_close['0.05'])+'–'+fmt(A.fri_close['0.95']),'Friday close'],
+   ['Week ends higher',Math.round(A.p_up_week*100)+'%','of 600 runs'],
+   ['Any close below 200-day',Math.round(A.p_any_close_below_200d*100)+'%','your briefing: 72% within 21 sessions'],
+   ['Trend followers flip',Math.round(A.p_cta_flip*100)+'%','the last trend signal standing'],
+   ['Friday down 5% or more',Math.round(A.p_down_5pct*100)+'%','below '+fmt(fri*0.95)]
+  ].map(function(k){return '<div class="kpi"><div class="k">'+k[0]+'</div><div class="v">'+k[1]+'</div><div class="s">'+k[2]+'</div></div>'}).join('');
+  $('daily').innerHTML='<thead><tr><th>Close</th>'+M.days.map(function(d){return '<th class="r">'+d+'</th>'}).join('')+'</tr></thead><tbody>'+
+   '<tr><td>Median</td>'+A.daily_close_median.map(function(v){return '<td class="r '+cls(v/fri-1)+'">'+fmt(v)+'</td>'}).join('')+'</tr>'+
+   '<tr><td>1-in-20 low</td>'+A.daily_close_p05.map(function(v){return '<td class="r">'+fmt(v)+'</td>'}).join('')+'</tr>'+
+   '<tr><td>1-in-20 high</td>'+A.daily_close_p95.map(function(v){return '<td class="r">'+fmt(v)+'</td>'}).join('')+'</tr>'+
+   '<tr><td>200-day average</td>'+M.days.map(function(d,i){return '<td class="r mut">'+fmt(ma(i))+'</td>'}).join('')+'</tr></tbody>';
+  var FL=A.flows_pct_volume,mx=0;ORDER.forEach(function(k){if(FL[k])FL[k].forEach(function(v){mx=Math.max(mx,Math.abs(v))})});
+  $('heat').innerHTML='<thead><tr><th>Group</th>'+M.days.map(function(d){return '<th class="r">'+d+'</th>'}).join('')+'</tr></thead><tbody>'+
+   ORDER.filter(function(k){return FL[k]}).map(function(k){return '<tr><td>'+M.population[k].label+'</td>'+FL[k].map(function(v){var a=Math.min(1,Math.abs(v)/mx);
+     return '<td class="heat" style="background:'+(Math.abs(v)<0.0005?'transparent':'color-mix(in srgb,var('+(v<0?'--red':'--grn')+') '+Math.round(a*55)+'%,transparent)')+'">'+(Math.abs(v)<0.0005?'·':pct(v,1))+'</td>'}).join('')+'</tr>'}).join('')+'</tbody>';
+  var G=A.returns;
+  $('groups').innerHTML='<thead><tr><th>Group</th><th class="r">Median return</th><th class="r">Bad / good run</th></tr></thead><tbody>'+
+   ORDER.filter(function(k){return G[k]}).sort(function(a,b){return G[a].median-G[b].median}).map(function(k){var x=G[k];
+    return '<tr><td>'+M.population[k].label+'<span class="who">'+M.population[k].who+'</span></td><td class="r '+cls(x.median)+'">'+pct(x.median,2)+'</td><td class="r mut">'+pct(x.p05)+' / '+pct(x.p95)+'</td></tr>'}).join('')+'</tbody>';
+  var IN=[
+   ['Friday 7,376.86, Thursday low 7,350.35, VIX 25.64','Starting point and a 1.6% daily volatility','Weekend Update'],
+   ['200-day average 7,325, rising ~2.2 pts a session; trend followers\' 200- and 252-day signals still long; 72% base rate of a close below within 21 sessions','Trend followers flip from long to half short on a close 0.3% below the rising average, and execute over two sessions','6 Nov Briefing'],
+   ['Vol-target funds face a 36% exposure cut from the 20-day vol jump, over 1–10 sessions. The red team says it already happened','The forced-selling branch: 20% cut over three sessions, or 5% over two','6 Nov Briefing, Proactive Report'],
+   ['Dealers swung to about −$52bn of gamma per 1%, below a ~7,667 flip','Bank dealers sell into falls and buy into rallies below 7,667, and do the reverse above it','6 Nov Briefing'],
+   ['Leveraged ETFs trade L(L−1)×r of assets at every close','A 3× fund rebalances in the last 20 minutes of each session','Mechanism School'],
+   ['October CPI on Tuesday is the only inflation print before the 9 Dec FOMC; December hike odds 76.8%; wages +0.4%','CPI branch: hot −1.6%, in line +0.2%, cool +1.3% to fair value; PPI on Friday confirms it','Weekend Update, Proactive Report'],
+   ['CoreWeave reports Tuesday after the close: record low, 2031 bonds above 16%, ~$50bn of debt','CoreWeave branch felt at Wednesday\'s open: −0.9% with dealers stepping back, or +0.6%','Weekend Update'],
+   ['Korea suspends its 140% margin rule and Taiwan caps short sales from Monday; China tariff exclusions expire Monday night','A flat Monday open; no shock either way','6 Nov Briefing, Proactive Report'],
+   ['Heavy buying of SPY $730 and QQQ $660 puts expiring Monday','Not modelled separately; folded into the dealers\' short-gamma position','6 Nov Signal report'],
+   ['Equity risk premium rebuilt to +88bp; Berkshire at a record inside the drop; the deepest pockets buying','Institutions and value investors buy below fair value','Proactive Report, Week report'],
+   ['Retail were the largest net sellers since March 2020, while Korean retail kept buying a 3× chip ETF','Retail traders herd on mood and chase recent moves','Week report, Mechanism School']];
+  $('inputs').innerHTML='<thead><tr><th>Your reports say</th><th>In the simulation</th><th>Source</th></tr></thead><tbody>'+IN.map(function(r){return '<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td class="src">'+r[2]+'</td></tr>'}).join('')+'</tbody>';
+})();
+
+/* controls */
+function stop(){if(timer){clearInterval(timer);timer=null}$('play').textContent=t>=NB-1?'Replay':'Play'}
+function play(){if(timer){stop();return}if(t>=NB-1)t=0;$('play').textContent='Pause';timer=setInterval(function(){t=Math.min(NB-1,t+1);update();if(t>=NB-1)stop()},+$('speed').value)}
+$('play').addEventListener('click',play);
+$('reset').addEventListener('click',function(){stop();t=0;update()});
+$('scrub').max=NB-1;
+$('scrub').addEventListener('input',function(){stop();t=+this.value;update()});
+$('speed').addEventListener('change',function(){if(timer){stop();play()}});
+window.addEventListener('resize',draw);
+try{window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',draw)}catch(e){}
+new MutationObserver(draw).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+choose();
+})();
+</script>
