@@ -298,9 +298,122 @@ class MarketMaker(Trader):
         return Decision(orders, cancel_all=True)
 
 
+def _day_reference(view, day_ticks: int) -> tuple:
+    """(previous close, ticks left in the session) for intraday mechanics."""
+    t = view.tick
+    start = (t // day_ticks) * day_ticks if day_ticks > 0 else 0
+    ref = view.prices[min(start, len(view.prices) - 1)]
+    left = (start + day_ticks - t) if day_ticks > 0 else 1
+    return ref, left
+
+
+class GammaDealer(Trader):
+    """Bank options desks delta-hedging their book.
+
+    ``gamma`` is the hedge change in shares per 1% index move. Positive means
+    dealers are SHORT gamma (customers own the options): they buy as the
+    market rises and sell as it falls, amplifying moves. Negative means long
+    gamma, which dampens moves.
+    """
+    kind = "dealer_gamma"
+    label = "Bank options dealers"
+    description = "Delta-hedge an options book; short gamma means selling into falls and buying into rallies."
+    DEFAULTS = dict(
+        activity=0.35, max_position=50000, max_short=50000, margin=5.0,
+        gamma=2000.0, rehedge_threshold=150, day_ticks=390, max_order=1500,
+    )
+
+    def decide(self, view) -> Decision:
+        ref, _ = _day_reference(view, int(self.p["day_ticks"]))
+        move_pct = (view.last_price / ref - 1) * 100
+        target = self.initial_shares + self.p["gamma"] * move_pct
+        diff = target - self.shares
+        if abs(diff) < self.p["rehedge_threshold"]:
+            return Decision()
+        return self._trade_toward(target, view, aggressive=True)
+
+
+class LeveragedETF(Trader):
+    """A daily-reset leveraged (or inverse) index fund.
+
+    It holds ``leverage`` x NAV of exposure. Near the close it must restore
+    that ratio, which always means trading in the direction of the day's move:
+    the required trade is about L*(L-1)*r*NAV. The fund spreads it over the
+    final ``rebalance_window`` ticks of the session.
+    """
+    kind = "leveraged_etf"
+    label = "Leveraged ETFs"
+    description = "Daily-reset 3x / -3x funds: rebalance into the close in the direction of the day's move."
+    DEFAULTS = dict(
+        activity=1.0, max_position=10 ** 7, max_short=10 ** 7, margin=10.0,
+        leverage=3.0, rebalance_window=20, day_ticks=390, max_order=10 ** 6, min_trade=1,
+    )
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self._day_start_shares: Optional[int] = None
+        self._day = -1
+
+    def decide(self, view) -> Decision:
+        day_ticks = int(self.p["day_ticks"])
+        day = view.tick // day_ticks if day_ticks > 0 else 0
+        ref, left = _day_reference(view, day_ticks)
+        if day != self._day:
+            self._day, self._day_start_shares = day, self.shares
+        window = int(self.p["rebalance_window"])
+        if left > window:
+            return Decision()
+        lev = self.p["leverage"]
+        r = view.last_price / ref - 1
+        exposure0 = self._day_start_shares * ref          # signed $ exposure at last close
+        nav0 = exposure0 / lev
+        target_exposure = lev * nav0 * (1 + lev * r)
+        target = target_exposure / view.last_price
+        remaining = target - self.shares
+        step = remaining / max(1, left)  # slice evenly over what is left of the window
+        if abs(step) < 1:
+            return Decision()
+        side = BUY if step > 0 else SELL
+        return Decision([OrderRequest(side, int(round(abs(step))) or 1)])
+
+
+class VolTarget(Trader):
+    """Volatility-control / risk-parity funds.
+
+    They size equity exposure to a volatility target using a *trailing*
+    estimate, so after a volatility spike their selling arrives over the
+    following days. ``target_fraction`` is the share of the starting
+    position they want to hold by the end of the session; any further
+    intraday fall cuts it by ``drop_sensitivity`` per 1% decline.
+    """
+    kind = "vol_target"
+    label = "Vol-target funds"
+    description = "Cut equity exposure when trailing volatility rises; their selling lags the spike by days."
+    DEFAULTS = dict(
+        activity=0.5, max_position=10 ** 6, margin=0.0,
+        target_fraction=0.85, drop_sensitivity=0.03, day_ticks=390, max_order=400, min_trade=10,
+    )
+
+    def decide(self, view) -> Decision:
+        ref, left = _day_reference(view, int(self.p["day_ticks"]))
+        drop_pct = max(0.0, (1 - view.last_price / ref) * 100)
+        frac = clamp(self.p["target_fraction"] - self.p["drop_sensitivity"] * drop_pct, 0.0, 1.5)
+        target = self.initial_shares * frac
+        remaining = target - self.shares
+        if abs(remaining) < self.p["min_trade"]:
+            return Decision()
+        # work the order evenly through the session (TWAP-style), never chasing faster than max_order
+        slice_qty = min(abs(remaining) / max(1.0, left * self.activity), self.p["max_order"])
+        qty = max(int(self.p["min_trade"]), int(round(slice_qty)))
+        qty = min(qty, int(abs(remaining)))
+        side = BUY if remaining > 0 else SELL
+        return Decision([OrderRequest(side, qty)])
+
+
 AGENT_TYPES: Dict[str, Type[Trader]] = {
     cls.kind: cls
-    for cls in (MarketMaker, Institutional, Fundamentalist, Momentum, MeanReversion, Retail)
+    for cls in (MarketMaker, GammaDealer, Institutional, Fundamentalist, VolTarget,
+                LeveragedETF, Momentum, MeanReversion, Retail)
 }
 
 

@@ -78,6 +78,7 @@ class RunResult:
     series: Dict[str, list]
     events: List[dict]
     agents: List[Trader]
+    flows: Dict[str, List[int]] = None  # net shares bought (+) / sold (-) per tick, by trader kind
 
     @property
     def final_price(self) -> float:
@@ -116,6 +117,8 @@ class Simulation:
         self.series: Dict[str, list] = {
             k: [] for k in ("price", "fundamental", "volume", "trades", "bid", "ask", "spread_bps", "sentiment", "mm_stress")
         }
+        self.flows: Dict[str, List[int]] = {k: [] for k in dict.fromkeys(a.kind for a in self.agents)}
+        self._tick_flow: Dict[str, int] = defaultdict(int)
         self.view = MarketView(self)
 
     @property
@@ -189,6 +192,8 @@ class Simulation:
             for a in (buyer, seller):
                 a.n_trades += 1
                 a.volume += tr.qty
+            self._tick_flow[buyer.kind] += tr.qty
+            self._tick_flow[seller.kind] -= tr.qty
             volume += tr.qty
         return volume, len(trades)
 
@@ -212,6 +217,10 @@ class Simulation:
                 volume += v
                 n_trades += n
 
+        for kind, lst in self.flows.items():
+            lst.append(self._tick_flow.get(kind, 0))
+        self._tick_flow.clear()
+
         close = self.last_price
         self.close_history.append(close)
         bid, ask = self.book.best_bid(), self.book.best_ask()
@@ -229,7 +238,7 @@ class Simulation:
     def run(self) -> RunResult:
         for t in range(self.scenario.ticks):
             self.step(t)
-        return RunResult(self.scenario, self.seed, self.series, self.event_log, self.agents)
+        return RunResult(self.scenario, self.seed, self.series, self.event_log, self.agents, self.flows)
 
 
 def run_scenario(scenario: Scenario, seed: int = 0) -> RunResult:

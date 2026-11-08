@@ -1,0 +1,343 @@
+<title>Monday Replay</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: one column, 820px max — briefing header, then the replay console (chart + who's trading + tape), then outcomes. Matches the user's briefing series. */
+:root{
+  --bg:#0b0e13; --p1:#141922; --p2:#1b212c; --line:#262e3b; --l2:#1c222c;
+  --tx:#e9eff7; --dim:#8d9aab; --d2:#66738a;
+  --red:#f0565e; --grn:#3fb950; --amb:#e3a008; --blu:#6ea8fe; --vio:#a371f7;
+  --band:rgba(110,168,254,.10); --band2:rgba(110,168,254,.18); --redbg:rgba(240,86,94,.14); --grnbg:rgba(63,185,80,.14);
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){
+  --bg:#f5f7fa; --p1:#ffffff; --p2:#eef1f6; --line:#d8dee8; --l2:#e6eaf1;
+  --tx:#121a26; --dim:#526077; --d2:#76839a;
+  --red:#cf2f38; --grn:#1f8a3a; --amb:#a86f00; --blu:#2f6fdc; --vio:#7a4fd0;
+  --band:rgba(47,111,220,.08); --band2:rgba(47,111,220,.16); --redbg:rgba(207,47,56,.10); --grnbg:rgba(31,138,58,.10);
+  color-scheme:light}}
+:root[data-theme="light"]{
+  --bg:#f5f7fa; --p1:#ffffff; --p2:#eef1f6; --line:#d8dee8; --l2:#e6eaf1;
+  --tx:#121a26; --dim:#526077; --d2:#76839a;
+  --red:#cf2f38; --grn:#1f8a3a; --amb:#a86f00; --blu:#2f6fdc; --vio:#7a4fd0;
+  --band:rgba(47,111,220,.08); --band2:rgba(47,111,220,.16); --redbg:rgba(207,47,56,.10); --grnbg:rgba(31,138,58,.10);
+  color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.6 var(--sans);-webkit-text-size-adjust:100%}
+main{max-width:820px;margin:0 auto;padding-block:20px 72px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.kick{font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--d2)}
+h1{font-size:24px;margin:5px 0 4px;letter-spacing:-.025em;line-height:1.2;text-wrap:balance}
+.stamp{color:var(--d2);font-size:12px;margin-bottom:18px}
+h2{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:34px 0 12px;padding-bottom:7px;border-bottom:1px solid var(--line)}
+p{margin:0 0 12px} b{font-weight:640} .mut{color:var(--dim)} .sm{font-size:13px}
+.card{background:var(--p1);border:1px solid var(--line);border-radius:11px;padding:14px 15px;margin-bottom:12px}
+.lead{border-left:3px solid var(--blu)} .lead ul{margin:6px 0 0;padding-left:18px} .lead li{margin-bottom:7px}
+.num{font-variant-numeric:tabular-nums}
+.dn{color:var(--red)} .up{color:var(--grn)} .am{color:var(--amb)}
+
+/* branch picker */
+.br{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:12px}
+.br button{font:inherit;text-align:left;cursor:pointer;background:var(--p2);color:var(--dim);border:1px solid var(--line);border-radius:10px;padding:11px 12px;min-width:0}
+.br button .t{display:block;color:var(--tx);font-weight:650;font-size:13.5px;margin-bottom:3px}
+.br button .c{display:block;font-size:12px;line-height:1.4}
+.br button .r{display:block;font-size:12.5px;margin-top:6px;font-weight:650}
+.br button[aria-pressed="true"]{border-color:var(--blu);background:var(--p1);box-shadow:0 0 0 1px var(--blu) inset}
+.br button:focus-visible,.ctl button:focus-visible,.ctl input:focus-visible{outline:2px solid var(--blu);outline-offset:2px}
+@media (max-width:560px){.br{grid-template-columns:1fr}}
+
+/* console */
+.console{background:var(--p1);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:1px;background:var(--line);border-bottom:1px solid var(--line)}
+.strip>div{background:var(--p1);padding:10px 12px;min-width:0}
+.strip .k{font-size:9.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--d2)}
+.strip .v{font-size:18px;font-weight:680;font-variant-numeric:tabular-nums;line-height:1.25;margin-top:2px}
+.strip .s{font-size:11.5px;color:var(--dim);font-variant-numeric:tabular-nums}
+.clock{font-family:var(--mono)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;padding:10px 12px 0}
+.chip{font-size:10.5px;font-weight:700;letter-spacing:.05em;padding:3px 8px;border-radius:20px;border:1px solid var(--line);color:var(--dim)}
+.chip.on.bad{background:var(--redbg);border-color:var(--red);color:var(--red)}
+.chip.on.ok{background:var(--grnbg);border-color:var(--grn);color:var(--grn)}
+.chartwrap{position:relative;padding:6px 6px 0}
+canvas{display:block;width:100%;height:300px}
+.ctl{display:flex;align-items:center;gap:10px;padding:10px 12px 12px;flex-wrap:wrap}
+.ctl button{font:inherit;font-size:13px;font-weight:650;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--p2);color:var(--tx);padding:7px 12px}
+.ctl button.primary{background:var(--blu);border-color:var(--blu);color:var(--bg);min-width:84px}
+.ctl input[type=range]{flex:1 1 180px;min-width:0;accent-color:var(--blu)}
+.ctl label{font-size:12px;color:var(--dim);display:flex;align-items:center;gap:6px;cursor:pointer}
+.ctl select{font:inherit;font-size:12.5px;background:var(--p2);color:var(--tx);border:1px solid var(--line);border-radius:7px;padding:5px 6px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--dim);padding:0 12px 4px}
+.legend i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:5px;vertical-align:middle}
+
+.two{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:12px;margin-top:12px}
+@media (max-width:680px){.two{grid-template-columns:1fr}}
+.panel{background:var(--p1);border:1px solid var(--line);border-radius:11px;padding:12px 13px;min-width:0}
+.panel h3{margin:0 0 3px;font-size:13px}
+.panel .sub{font-size:11.5px;color:var(--d2);margin-bottom:10px}
+.flow{display:grid;grid-template-columns:118px 1fr 58px;gap:8px;align-items:center;margin-bottom:7px;font-size:12.5px}
+.flow .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.flow .bar{position:relative;height:12px;background:var(--p2);border-radius:3px}
+.flow .bar::after{content:"";position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:var(--d2)}
+.flow .fill{position:absolute;top:0;bottom:0;border-radius:2px;transition:left .12s,width .12s}
+.flow .vv{text-align:right;font-variant-numeric:tabular-nums;font-size:11.5px}
+.axislab{display:flex;justify-content:space-between;font-size:10px;color:var(--d2);margin:-2px 66px 4px 126px}
+.tape{max-height:290px;overflow:auto;font-size:12.5px}
+.tape .e{display:grid;grid-template-columns:44px 1fr;gap:8px;padding:7px 0;border-bottom:1px solid var(--l2)}
+.tape .e:last-child{border-bottom:none}
+.tape .tm{font-family:var(--mono);font-size:11.5px;color:var(--blu)}
+.tape .auto .tx{color:var(--dim)}
+.tape .empty{color:var(--d2);font-size:12px}
+
+/* outcomes */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:12px}
+.kpi{background:var(--p1);border:1px solid var(--line);border-radius:10px;padding:11px 12px}
+.kpi .k{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--d2)}
+.kpi .v{font-size:21px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:2px}
+.kpi .s{font-size:11.5px;color:var(--dim)}
+.hist{display:flex;align-items:flex-end;gap:2px;height:120px;padding:0 2px;border-bottom:1px solid var(--line)}
+.hist div{flex:1 1 0;background:var(--blu);opacity:.75;border-radius:2px 2px 0 0;min-height:1px}
+.hist div.lo{background:var(--red)}
+.histax{display:flex;justify-content:space-between;font-size:10.5px;color:var(--d2);margin-top:4px;font-variant-numeric:tabular-nums}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--d2);font-weight:600;padding:0 8px 7px 0;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:8px 8px 8px 0;border-bottom:1px solid var(--l2);vertical-align:top}
+tr:last-child td{border-bottom:none}
+th.r,td.r{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+td .who{display:block;font-size:11.5px;color:var(--d2);line-height:1.4;margin-top:2px}
+.cast{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:8px}
+.cast .c{background:var(--p1);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:12.5px;color:var(--dim)}
+.cast .c b{display:block;color:var(--tx);font-size:13.5px;margin-bottom:2px}
+.cast .c .n{float:right;font-size:11px;color:var(--d2);font-variant-numeric:tabular-nums}
+ul.plain{margin:0;padding-left:18px} ul.plain li{margin-bottom:7px}
+footer{margin-top:36px;padding-top:14px;border-top:1px solid var(--line);color:var(--d2);font-size:11.5px;line-height:1.65}
+footer a{color:var(--dim)}
+#groups td:first-child{min-width:150px}
+@media (max-width:560px){#groups th:nth-child(4),#groups td:nth-child(4){display:none}.flow{grid-template-columns:104px 1fr 52px}.axislab{margin:-2px 60px 4px 112px}}
+@media (prefers-reduced-motion:reduce){.flow .fill{transition:none}}
+</style>
+
+<main>
+<div class="kick">Simulated session · Monday 9 November 2026 · 9:30–16:00 ET</div>
+<h1>Monday, played out by the traders who moved last week</h1>
+<div class="stamp">Built Sun 8 Nov from your weekend reports and real S&amp;P 500 closes · 3 possible paths × 120 runs · a simulation, not a forecast</div>
+
+<div class="card lead" id="bottom"></div>
+
+<h2>Pick how the weekend lands</h2>
+<div class="br" id="branches" role="group" aria-label="Choose a path for Monday"></div>
+<p class="sm mut" id="story"></p>
+
+<div class="console">
+  <div class="strip" id="strip"></div>
+  <div class="chips" id="chips"></div>
+  <div class="chartwrap"><canvas id="chart" aria-label="Simulated S&amp;P 500 for Monday, minute by minute"></canvas></div>
+  <div class="legend">
+    <span><i style="background:var(--blu)"></i>Price (one representative run)</span>
+    <span><i style="background:var(--amb)"></i>Fair value</span>
+    <span><i style="background:var(--band2);height:9px"></i>Middle half / 90% of all runs</span>
+  </div>
+  <div class="ctl">
+    <button class="primary" id="play" type="button">Play</button>
+    <button id="reset" type="button">Restart</button>
+    <input id="scrub" type="range" min="0" max="389" value="389" aria-label="Time of day">
+    <label for="speed">Speed <select id="speed"><option value="80">Slow</option><option value="30" selected>Normal</option><option value="8">Fast</option></select></label>
+    <label for="showband"><input id="showband" type="checkbox" checked> All runs</label>
+  </div>
+</div>
+
+<div class="two">
+  <div class="panel">
+    <h3>Who is buying and selling</h3>
+    <div class="sub" id="flowsub">Net shares traded since the open, as a share of the day's volume</div>
+    <div class="axislab"><span>◀ selling</span><span>buying ▶</span></div>
+    <div id="flows"></div>
+  </div>
+  <div class="panel">
+    <h3>The tape</h3>
+    <div class="sub">Scenario headlines, plus moments the simulation flagged on its own (grey)</div>
+    <div class="tape" id="tape"></div>
+  </div>
+</div>
+
+<h2>How the day ends across all 120 runs</h2>
+<div class="kpis" id="kpis"></div>
+<div class="card">
+  <div class="sm" style="margin-bottom:8px"><b>Where the S&amp;P closes</b> <span class="mut">· red bars close below Thursday's low</span></div>
+  <div class="hist" id="hist"></div>
+  <div class="histax" id="histax"></div>
+</div>
+
+<h2>Winners and losers at the close</h2>
+<div class="card tw"><table id="groups"></table></div>
+<p class="sm mut">Median across runs. Return is on each group's own money for the day; leveraged ETFs move about 3× the index by design.</p>
+
+<h2>The three paths side by side</h2>
+<div class="card tw"><table id="compare"></table></div>
+
+<h2>The cast</h2>
+<div class="cast" id="cast"></div>
+
+<h2>How to read this</h2>
+<div class="card sm">
+  <ul class="plain">
+    <li><b>What is real:</b> Friday's close (7,376.86), Thursday's low (7,350.35), the 200-day average (<span id="ma200"></span>, computed from a year of FMP closes), VIX 25.64, and the cast of traders and mechanisms from your reports.</li>
+    <li><b>What is assumed:</b> the three weekend paths, how big each shock is, and how much each group trades. Volatility-target funds are sized to sell about 3–11% of the day's volume, depending on the path.</li>
+    <li><b>What it is good for:</b> seeing <i>how</i> a day unfolds, meaning who absorbs the selling, when forced flows hit and how much they add. It does not say which path Monday takes.</li>
+    <li><b>Why not MiroFish:</b> MiroFish simulates people posting on social media. Prices move when traders place orders, so this runs our own order-book engine with trader agents. It runs entirely inside the session, so nothing goes to MiroFish's makers.</li>
+  </ul>
+</div>
+
+<footer>
+  Simulation by marketsim (repo <span class="num">urstrulykalpesh098/test</span>, <span class="num">analyses/monday_nov9.py</span>). Inputs from your reports "The Week the AI Trade Broke", "Weekend Update 7 Nov" and "5 Nov Adversarial Briefing"; S&amp;P 500 daily closes from FMP. Week-ahead calendar: <a href="https://www.cnbc.com/2026/11/06/cramer-coreweave-nebius-earnings.html" target="_blank" rel="noopener">CNBC</a>, <a href="https://www.schwab.com/learn/story/stock-market-update-open" target="_blank" rel="noopener">Schwab</a>.
+  Information and analysis only. <b>Not investment advice</b>, and nothing here recommends any position or trade.
+</footer>
+</main>
+
+<script id="simdata" type="application/json">__DATA__</script>
+<script>
+(function(){
+var D=JSON.parse(document.getElementById('simdata').textContent);
+var M=D.meta, B=D.branches, KEYS=['grind','contagion','relief'];
+var ORDER=['vol_target','dealer_gamma','leveraged_etf','momentum','retail','market_maker','mean_reversion','fundamentalist','institutional'];
+var cur='grind', t=389, timer=null;
+var $=function(id){return document.getElementById(id)};
+var fmt=function(x,d){return x.toLocaleString('en-US',{minimumFractionDigits:d===undefined?2:d,maximumFractionDigits:d===undefined?2:d})};
+var pct=function(x,d){d=d===undefined?2:d;return (x>=0?'+':'−')+Math.abs(x*100).toFixed(d)+'%'};
+var cls=function(x){return x>0.00005?'up':x<-0.00005?'dn':''};
+var clock=function(i){var m=570+(i>=389?390:i),h=Math.floor(m/60),mm=m%60;return h+':'+(mm<10?'0':'')+mm};
+var ma200=M.ma200, thu=M.thursday_low, fri=M.friday_close;
+$('ma200').textContent=fmt(ma200);
+
+/* ---------- bottom line ---------- */
+var g=B.grind.stats,c=B.contagion.stats,r=B.relief.stats;
+$('bottom').innerHTML='<b>Bottom line</b><ul>'+
+ '<li><b>Even the calm path leans lower.</b> With no new shock, the median close is '+fmt(g.close['0.5'])+' ('+pct(g.close_return_median)+'). The S&amp;P closes below Thursday\'s low in '+Math.round(g.p_close_below_thu_low*100)+'% of runs and below the 200-day average in '+Math.round(g.p_close_below_200d*100)+'%. Most of that lean comes from one source: volatility-target funds still selling off Thursday\'s spike ('+pct(B.grind.forced_effect_median)+' on the close).</li>'+
+ '<li><b>Institutions are the buyers in every path.</b> Pensions, asset managers and value funds take the other side of the forced sellers. That is why even the bad path is a grind lower instead of a crash: median '+pct(c.close_return_median,1)+', with a 1-in-20 low near '+fmt(c.low['0.05'],0)+'.</li>'+
+ '<li><b>Forced flows cut both ways.</b> They add '+pct(B.contagion.forced_effect_median)+' to the contagion fall and take '+pct(B.relief.forced_effect_median)+' off the relief bounce. The leveraged-ETF rebalance at the close barely moves the S&amp;P (the median last-30-minute move is about '+pct(g.last30_median)+'). That flow matters for chip stocks, not the index.</li>'+
+ '</ul>';
+
+/* ---------- branch buttons ---------- */
+$('branches').innerHTML=KEYS.map(function(k){var b=B[k],s=b.stats;
+  return '<button type="button" data-k="'+k+'" aria-pressed="'+(k===cur)+'"><span class="t">'+b.title+'</span><span class="c">'+b.tells+'</span>'
+   +'<span class="r '+cls(s.close_return_median)+'">Median close '+fmt(s.close['0.5'],0)+' · '+pct(s.close_return_median)+'</span></button>'}).join('');
+$('branches').addEventListener('click',function(e){var bt=e.target.closest('button');if(!bt)return;select(bt.dataset.k)});
+
+/* ---------- chart ---------- */
+var cv=$('chart'),ctx=cv.getContext('2d');
+function css(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()}
+function draw(){
+  var b=B[cur],R=b.replay,bd=b.bands,dpr=window.devicePixelRatio||1;
+  var W=cv.clientWidth,H=cv.clientHeight; if(!W)return;
+  cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);
+  var showBand=$('showband').checked;
+  var vals=R.price.concat(R.fair,[fri,thu,ma200]); if(showBand)vals=vals.concat(bd['0.05'],bd['0.95']);
+  var lo=Math.min.apply(null,vals),hi=Math.max.apply(null,vals),pad=(hi-lo)*0.06; lo-=pad;hi+=pad;
+  var L=54,Rr=W<480?8:74,T=14,Bt=24,n=R.price.length;
+  var X=function(i){return L+(W-L-Rr)*i/(n-1)},Y=function(v){return T+(H-T-Bt)*(1-(v-lo)/(hi-lo))};
+  ctx.font='11px '+css('--sans');ctx.lineWidth=1;
+  // grid + y labels
+  var step=[10,20,25,50,100,200].find(function(s){return (hi-lo)/s<=6})||250;
+  ctx.fillStyle=css('--d2');ctx.strokeStyle=css('--l2');ctx.textAlign='right';ctx.textBaseline='middle';
+  for(var v=Math.ceil(lo/step)*step;v<=hi;v+=step){var y=Y(v);ctx.beginPath();ctx.moveTo(L,y);ctx.lineTo(W-Rr,y);ctx.stroke();ctx.fillText(fmt(v,0),L-6,y)}
+  // x labels (hours)
+  ctx.textAlign='center';ctx.textBaseline='top';
+  (W<480?[0,90,210,330,389]:[0,30,90,150,210,270,330,389]).forEach(function(i){ctx.fillText(clock(i),X(i),H-Bt+7)});
+  // bands
+  if(showBand){[['0.05','0.95','--band'],['0.25','0.75','--band2']].forEach(function(q){
+    ctx.fillStyle=css(q[2]);ctx.beginPath();for(var i=0;i<n;i++)ctx.lineTo(X(i),Y(bd[q[1]][i]));for(var j=n-1;j>=0;j--)ctx.lineTo(X(j),Y(bd[q[0]][j]));ctx.closePath();ctx.fill()})}
+  // key levels
+  [[fri,'Fri close','--dim'],[thu,'Thu low','--amb'],[ma200,'200-day','--red']].forEach(function(k){
+    var y=Y(k[0]);ctx.strokeStyle=css(k[2]);ctx.setLineDash([3,4]);ctx.beginPath();ctx.moveTo(L,y);ctx.lineTo(W-Rr,y);ctx.stroke();ctx.setLineDash([]);
+    if(Rr>20){ctx.fillStyle=css(k[2]);ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(k[1],W-Rr+5,y)}});
+  // events
+  R.events.forEach(function(e){if(e.auto)return;var x=X(e.t);ctx.fillStyle=css('--vio');ctx.beginPath();ctx.moveTo(x-4,T-2);ctx.lineTo(x+4,T-2);ctx.lineTo(x,T+5);ctx.closePath();ctx.fill()});
+  // fair value
+  ctx.strokeStyle=css('--amb');ctx.lineWidth=1.3;ctx.setLineDash([4,3]);ctx.beginPath();
+  for(var i=0;i<=t;i++){i?ctx.lineTo(X(i),Y(R.fair[i])):ctx.moveTo(X(i),Y(R.fair[i]))}ctx.stroke();ctx.setLineDash([]);
+  // price
+  ctx.strokeStyle=css('--blu');ctx.lineWidth=1.9;ctx.beginPath();
+  for(i=0;i<=t;i++){i?ctx.lineTo(X(i),Y(R.price[i])):ctx.moveTo(X(i),Y(R.price[i]))}ctx.stroke();
+  // playhead
+  var px=X(t),py=Y(R.price[t]);ctx.strokeStyle=css('--d2');ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(px,T);ctx.lineTo(px,H-Bt);ctx.stroke();
+  ctx.fillStyle=css('--blu');ctx.beginPath();ctx.arc(px,py,4,0,Math.PI*2);ctx.fill();
+}
+
+/* ---------- live panels ---------- */
+function update(){
+  var b=B[cur],R=b.replay,p=R.price[t],ch=p/fri-1;
+  var vol=0;for(var i=0;i<=t;i++)vol+=R.volume[i];
+  var lowSoFar=Math.min.apply(null,R.price.slice(0,t+1));
+  $('strip').innerHTML=
+   '<div><div class="k">Time (ET)</div><div class="v clock">'+clock(t)+'</div><div class="s">'+(t>=389?'Closing print':'minute '+(t+1)+' of 390')+'</div></div>'+
+   '<div><div class="k">S&amp;P 500</div><div class="v">'+fmt(p)+'</div><div class="s '+cls(ch)+'">'+pct(ch)+' vs Friday</div></div>'+
+   '<div><div class="k">Fair value</div><div class="v">'+fmt(R.fair[t],0)+'</div><div class="s">price '+pct(p/R.fair[t]-1)+' vs value</div></div>'+
+   '<div><div class="k">Day low so far</div><div class="v">'+fmt(lowSoFar,0)+'</div><div class="s">'+pct(lowSoFar/fri-1)+'</div></div>'+
+   '<div><div class="k">Spread</div><div class="v">'+(R.spread_bps[t]==null?'—':R.spread_bps[t].toFixed(1))+'<span class="sm mut"> bp</span></div><div class="s">mood '+(R.sentiment[t]>=0?'+':'')+R.sentiment[t].toFixed(2)+'</div></div>';
+  var belowThu=p<thu,below200=p<ma200,touched=lowSoFar<ma200;
+  $('chips').innerHTML=
+   '<span class="chip on '+(belowThu?'bad':'ok')+'">'+(belowThu?'Below':'Above')+' Thursday low</span>'+
+   '<span class="chip on '+(below200?'bad':'ok')+'">'+(below200?'Below':'Above')+' 200-day average</span>'+
+   (touched&&!below200?'<span class="chip on bad">Traded below 200-day earlier</span>':'')+
+   (t>=370?'<span class="chip on bad" style="border-color:var(--vio);color:var(--vio);background:transparent">Closing rebalance window</span>':'');
+  // flows: cumulative net as % of volume so far
+  var rows=ORDER.filter(function(k){return R.flows[k]}).map(function(k){var s=0;for(var i=0;i<=t;i++)s+=R.flows[k][i];return {k:k,v:vol?s/vol:0}});
+  var mx=Math.max(0.04,Math.max.apply(null,rows.map(function(x){return Math.abs(x.v)})));
+  $('flows').innerHTML=rows.map(function(x){var w=Math.abs(x.v)/mx*50,left=x.v<0?50-w:50;
+    return '<div class="flow"><span class="nm" title="'+M.population[x.k].who+'">'+M.population[x.k].label+'</span><span class="bar"><span class="fill" style="left:'+left+'%;width:'+w+'%;background:var('+(x.v<0?'--red':'--grn')+')"></span></span><span class="vv '+cls(x.v)+'">'+pct(x.v,1)+'</span></div>'}).join('');
+  // tape
+  var ev=R.events.filter(function(e){return e.t<=t}).slice().reverse();
+  $('tape').innerHTML=ev.length?ev.map(function(e){return '<div class="e'+(e.auto?' auto':'')+'"><span class="tm">'+clock(e.t)+'</span><span class="tx">'+e.headline+'</span></div>'}).join(''):'<div class="empty">Press Play to start the session at 9:30.</div>';
+  $('scrub').value=t;draw();
+}
+
+/* ---------- outcomes for the selected branch ---------- */
+function outcomes(){
+  var b=B[cur],s=b.stats,s0=b.stats_without_forced;
+  $('story').textContent=b.story;
+  $('kpis').innerHTML=[
+   ['Median close',fmt(s.close['0.5'],0),pct(s.close_return_median)+' · 90% of runs '+fmt(s.close['0.05'],0)+'–'+fmt(s.close['0.95'],0)],
+   ['Closes up on the day',Math.round(s.p_close_up*100)+'%','of 120 runs'],
+   ['Closes below Thursday low',Math.round(s.p_close_below_thu_low*100)+'%','7,350.35'],
+   ['Closes below 200-day',Math.round(s.p_close_below_200d*100)+'%','trades below it in '+Math.round(s.p_trade_below_200d*100)+'% of runs'],
+   ['Forced flows add',pct(b.forced_effect_median),'median close '+fmt(s0.close['0.5'],0)+' without them'],
+   ['Typical day range',(s.range_median_pct*100).toFixed(1)+'%','high to low']
+  ].map(function(k){return '<div class="kpi"><div class="k">'+k[0]+'</div><div class="v">'+k[1]+'</div><div class="s">'+k[2]+'</div></div>'}).join('');
+  var cl=s.closes,lo=Math.floor(Math.min.apply(null,cl)/25)*25,hi=Math.ceil(Math.max.apply(null,cl)/25)*25,nb=Math.max(1,Math.round((hi-lo)/25));
+  var bins=new Array(nb).fill(0);cl.forEach(function(x){bins[Math.min(nb-1,Math.floor((x-lo)/25))]++});
+  var top=Math.max.apply(null,bins);
+  $('hist').innerHTML=bins.map(function(n,i){var a=lo+i*25;return '<div class="'+(a+25<=thu?'lo':'')+'" style="height:'+(n/top*100)+'%" title="'+fmt(a,0)+'–'+fmt(a+25,0)+': '+n+' runs"></div>'}).join('');
+  $('histax').innerHTML='<span>'+fmt(lo,0)+'</span><span>'+fmt((lo+hi)/2,0)+'</span><span>'+fmt(hi,0)+'</span>';
+  var G=b.groups;
+  $('groups').innerHTML='<thead><tr><th>Group</th><th class="r">Net buying</th><th class="r">Return</th><th class="r">Bad / good run</th></tr></thead><tbody>'+
+    ORDER.filter(function(k){return G[k]}).sort(function(a,b2){return G[a].net_pct_volume-G[b2].net_pct_volume}).map(function(k){var x=G[k];
+      return '<tr><td>'+M.population[k].label+'<span class="who">'+M.population[k].who+'</span></td><td class="r '+cls(x.net_pct_volume)+'">'+pct(x.net_pct_volume,1)+' of vol</td><td class="r '+cls(x.return_median)+'">'+pct(x.return_median)+'</td><td class="r mut">'+pct(x.return_p05,1)+' / '+pct(x.return_p95,1)+'</td></tr>'}).join('')+'</tbody>';
+}
+function compare(){
+  var rows=[['Median close',function(s){return fmt(s.close['0.5'],0)}],['vs Friday',function(s){return '<span class="'+cls(s.close_return_median)+'">'+pct(s.close_return_median)+'</span>'}],
+   ['90% of runs close between',function(s){return fmt(s.close['0.05'],0)+'–'+fmt(s.close['0.95'],0)}],['Closes up',function(s){return Math.round(s.p_close_up*100)+'%'}],
+   ['Below Thursday low',function(s){return Math.round(s.p_close_below_thu_low*100)+'%'}],['Below 200-day',function(s){return Math.round(s.p_close_below_200d*100)+'%'}],
+   ['Typical range',function(s){return (s.range_median_pct*100).toFixed(1)+'%'}]];
+  $('compare').innerHTML='<thead><tr><th></th>'+KEYS.map(function(k){return '<th class="r">'+B[k].title+'</th>'}).join('')+'</tr></thead><tbody>'+
+   rows.map(function(rw){return '<tr><td>'+rw[0]+'</td>'+KEYS.map(function(k){return '<td class="r">'+rw[1](B[k].stats)+'</td>'}).join('')+'</tr>'}).join('')+
+   '<tr><td>Forced flows add</td>'+KEYS.map(function(k){return '<td class="r '+cls(B[k].forced_effect_median)+'">'+pct(B[k].forced_effect_median)+'</td>'}).join('')+'</tr></tbody>';
+}
+$('cast').innerHTML=ORDER.slice().reverse().map(function(k){var p=M.population[k];return '<div class="c"><span class="n">'+p.count+' agents</span><b>'+p.label+'</b>'+p.who+'. '+p.does+'</div>'}).join('');
+
+/* ---------- controls ---------- */
+function stop(){if(timer){clearInterval(timer);timer=null}$('play').textContent=t>=389?'Replay':'Play'}
+function play(){if(timer){stop();return}if(t>=389)t=0;$('play').textContent='Pause';
+  timer=setInterval(function(){t=Math.min(389,t+1);update();if(t>=389)stop()},+$('speed').value)}
+function select(k){cur=k;stop();Array.prototype.forEach.call($('branches').querySelectorAll('button'),function(b){b.setAttribute('aria-pressed',String(b.dataset.k===k))});t=389;outcomes();update()}
+$('play').addEventListener('click',play);
+$('reset').addEventListener('click',function(){stop();t=0;update()});
+$('scrub').addEventListener('input',function(){stop();t=+this.value;update()});
+$('speed').addEventListener('change',function(){if(timer){stop();play()}});
+$('showband').addEventListener('change',draw);
+window.addEventListener('resize',draw);
+try{window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',draw)}catch(e){}
+new MutationObserver(draw).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+compare();select('grind');
+})();
+</script>
