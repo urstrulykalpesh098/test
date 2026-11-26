@@ -1,0 +1,99 @@
+/* Eye View desk theme v1 (26 Nov 2026). Shared by Desk Daily, Desk Ledger, CFA card and the HQ hub.
+   VOICE work: a research desk read at 8am and after the close
+   IDEA a newspaper markets page: deep-teal masthead, fine rules, figures in a ruled strip, each section headed by what it shows
+   PICTURE the desk's main chart in each page's first screen (S&P against the desk's band on Daily, the due-next list on Ledger)
+   COLOUR white ground (night #0d1416), ink, deep teal = the desk's own marks, claret = down/miss, green = up/hit, amber = flags
+   TYPE Libre Franklin 800 for headings and figures, Libre Franklin 400/500 for text
+   LAYOUT full-width masthead band with page links, sticky section bar, 1120px content; lead row splits 1.35:1 on a laptop, stacks on a phone
+   Token names (--vio, --amb, --grn, --red, --blu, --p1, --p2, --line, --l2, --tx, --dim, --d2) are kept from the old pages so existing render code keeps working. */
+:root{
+  --bg:#ffffff;--p1:#ffffff;--p2:#f1f4f4;--lead:#e7f1f1;--line:#d9dfe1;--l2:#e9edee;
+  --tx:#14181b;--dim:#4f5a61;--d2:#6b767d;
+  --band:#0b3b41;--bandtx:#ffffff;--banddim:#b7d0d2;--lens:#7fd6cf;
+  --red:#b3123f;--grn:#16794a;--amb:#9a5b00;--blu:#2a5db0;--vio:#0d7680;
+  --viobg:rgba(13,118,128,.12);--redbg:rgba(179,18,63,.08);--grnbg:rgba(22,121,74,.09);--ambbg:rgba(196,128,0,.12);
+  --sans:"Libre Franklin",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;--mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  color-scheme:light}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0d1416;--p1:#121b1e;--p2:#182428;--lead:#10292c;--line:#25363a;--l2:#1b2a2e;
+  --tx:#e8eff0;--dim:#a3b3b7;--d2:#82959a;
+  --band:#08262a;--bandtx:#f2f7f7;--banddim:#9dbcbf;--lens:#5fd0c6;
+  --red:#ff6f8e;--grn:#4cc38a;--amb:#f0b429;--blu:#7fa9ff;--vio:#4fc3c9;
+  --viobg:rgba(79,195,201,.16);--redbg:rgba(255,111,142,.12);--grnbg:rgba(76,195,138,.12);--ambbg:rgba(240,180,41,.13);
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d1416;--p1:#121b1e;--p2:#182428;--lead:#10292c;--line:#25363a;--l2:#1b2a2e;
+  --tx:#e8eff0;--dim:#a3b3b7;--d2:#82959a;
+  --band:#08262a;--bandtx:#f2f7f7;--banddim:#9dbcbf;--lens:#5fd0c6;
+  --red:#ff6f8e;--grn:#4cc38a;--amb:#f0b429;--blu:#7fa9ff;--vio:#4fc3c9;
+  --viobg:rgba(79,195,201,.16);--redbg:rgba(255,111,142,.12);--grnbg:rgba(76,195,138,.12);--ambbg:rgba(240,180,41,.13);
+  color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.55 var(--sans);-webkit-text-size-adjust:100%;overflow-x:clip}
+a{color:var(--blu)}
+.gut{max-width:1120px;margin:0 auto;padding-left:max(5vw,16px,env(safe-area-inset-left,0px));padding-right:max(5vw,16px,env(safe-area-inset-right,0px))}
+/* masthead */
+.mast{background:var(--band);color:var(--bandtx);margin-top:calc(-1*env(safe-area-inset-top,0px));padding-top:calc(env(safe-area-inset-top,0px) + 14px);padding-bottom:26px}
+.mast a{color:inherit}
+.brand{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 20px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,.16)}
+.mark{display:flex;align-items:center;gap:9px;font-weight:800;font-size:16px;letter-spacing:-.01em;text-decoration:none}
+.mark svg{width:34px;height:20px;flex:none}
+.pages{display:flex;flex-wrap:wrap;gap:2px 4px;font-size:14px}
+.pages a{text-decoration:none;color:var(--banddim);padding:6px 9px;border-radius:4px}
+.pages a:hover{color:var(--bandtx);background:rgba(255,255,255,.08)}
+.pages a[aria-current="page"]{color:var(--bandtx);box-shadow:inset 0 -2px 0 var(--lens);border-radius:0}
+.mast h1{font-size:clamp(34px,5vw,50px);font-weight:800;line-height:1.05;letter-spacing:-.02em;margin:22px 0 8px}
+.stamp{color:var(--banddim);font-size:15px;max-width:70ch;margin:0}
+.stamp a{color:var(--bandtx)}
+.status{display:inline-flex;align-items:center;gap:8px;margin-top:12px;font-size:14px;color:var(--bandtx)}
+.status::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--lens);flex:none}
+/* sticky section bar */
+body::before{content:"";position:fixed;left:0;right:0;top:0;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:6}
+.jump{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.jump .gut{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+.jump .gut::-webkit-scrollbar{display:none}
+.jump a{flex:none;font-size:14px;font-weight:500;color:var(--dim);text-decoration:none;padding:12px 10px;white-space:nowrap;border-bottom:2px solid transparent}
+.jump a:hover{color:var(--tx)}
+.jump a.on{color:var(--tx);border-bottom-color:var(--vio)}
+main{padding-block:24px 72px}
+/* the section pattern */
+.sec{margin-top:44px;padding-top:20px;border-top:2px solid var(--tx);scroll-margin-top:calc(env(safe-area-inset-top,0px) + 56px)}
+.sec-h{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 24px;margin-bottom:16px}
+h2{font-size:clamp(22px,2.6vw,27px);font-weight:800;line-height:1.15;letter-spacing:-.015em;margin:0}
+.sec-n,h2 .n{font-size:15px;color:var(--dim);margin:0;font-weight:400;letter-spacing:0}
+h3{font-size:16px;font-weight:700;margin:18px 0 6px}
+p{margin:0 0 12px}
+.card{background:var(--p1);border:1px solid var(--line);border-radius:6px;padding:16px 18px;margin-bottom:14px}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border-block:1px solid var(--line);margin-bottom:14px}
+.tile{background:var(--bg);padding:14px 16px 14px 0;min-width:0}
+.tile+.tile{padding-left:16px}
+.tile .k{font-size:14px;font-weight:600;color:var(--tx)}
+.tile .v{font-size:clamp(24px,2.8vw,30px);font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.15;margin:4px 0 2px}
+.tile .s{font-size:13px;color:var(--dim);line-height:1.45}
+@media (max-width:700px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}.tile,.tile+.tile{padding:12px 12px 12px 0}.tile:nth-child(2n){padding-left:12px}}
+.flag{background:var(--ambbg);border-radius:4px;padding:9px 12px;font-size:14px;margin-bottom:8px}
+.flag::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--amb);margin-right:8px;vertical-align:2px}
+.alert{background:var(--redbg);border-radius:4px;padding:9px 12px;font-size:15px;margin-top:10px}
+.alert::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--red);margin-right:8px;vertical-align:2px}
+.up{color:var(--grn)}.dn{color:var(--red)}.am{color:var(--amb)}.mut{color:var(--dim)}.sm{font-size:14px}
+.note{font-size:14px;color:var(--dim);margin:10px 0 0;max-width:80ch}
+.empty{color:var(--d2);font-size:14px;padding:6px 0}
+svg{display:block;width:100%;height:auto}
+svg text{font-family:var(--sans)}
+.legend{display:flex;gap:6px 16px;flex-wrap:wrap;font-size:13px;color:var(--dim);margin-top:8px}
+.legend i{display:inline-block;width:12px;height:8px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-size:13px;font-weight:600;color:var(--dim);padding:0 10px 8px 0;border-bottom:1px solid var(--tx);white-space:nowrap}
+td{padding:9px 10px 9px 0;border-bottom:1px solid var(--l2);vertical-align:top;font-variant-numeric:tabular-nums}
+tr:last-child td{border-bottom:none}
+th.r,td.r{text-align:right;white-space:nowrap}
+td .sub{display:block;font-size:13px;color:var(--d2);line-height:1.4;margin-top:2px}
+.pill,.phase{display:inline-block;font-size:13px;font-weight:600;padding:1px 9px;border-radius:20px;white-space:nowrap;background:var(--viobg);color:var(--vio)}
+button{font-family:inherit}
+:focus-visible{outline:2px solid var(--vio);outline-offset:2px}
+footer{margin-top:48px;padding-top:16px;border-top:2px solid var(--tx);color:var(--dim);font-size:14px;line-height:1.6;max-width:90ch}
+footer b{color:var(--tx)}
+@media (max-width:600px){table{font-size:13px}th,td{padding:7px 8px 7px 0}}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+@media (max-width:600px){.card{padding:14px 12px}}

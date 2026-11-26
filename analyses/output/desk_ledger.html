@@ -1,124 +1,198 @@
 <title>Desk Ledger</title>
 <meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-/* Layout: one 900px column — scoreboard tiles, due-next strip, predictions table with filters, calibration bars, thesis tracker, event calendar, run log and report library. Briefing-series palette; violet marks the desk's own instruments. */
+/* Eye View desk theme v1 (26 Nov 2026). Shared by Desk Daily, Desk Ledger, CFA card and the HQ hub.
+   VOICE work: a research desk read at 8am and after the close
+   IDEA a newspaper markets page: deep-teal masthead, fine rules, figures in a ruled strip, each section headed by what it shows
+   PICTURE the desk's main chart in each page's first screen (S&P against the desk's band on Daily, the due-next list on Ledger)
+   COLOUR white ground (night #0d1416), ink, deep teal = the desk's own marks, claret = down/miss, green = up/hit, amber = flags
+   TYPE Libre Franklin 800 for headings and figures, Libre Franklin 400/500 for text
+   LAYOUT full-width masthead band with page links, sticky section bar, 1120px content; lead row splits 1.35:1 on a laptop, stacks on a phone
+   Token names (--vio, --amb, --grn, --red, --blu, --p1, --p2, --line, --l2, --tx, --dim, --d2) are kept from the old pages so existing render code keeps working. */
 :root{
-  --bg:#0b0e13;--p1:#141922;--p2:#1b212c;--line:#262e3b;--l2:#1c222c;
-  --tx:#e9eff7;--dim:#8d9aab;--d2:#66738a;
-  --red:#f0565e;--grn:#3fb950;--amb:#e3a008;--blu:#6ea8fe;--vio:#a371f7;
-  --redbg:rgba(240,86,94,.13);--grnbg:rgba(63,185,80,.13);--viobg:rgba(163,113,247,.13);--ambbg:rgba(227,160,8,.13);
-  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;--mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  --bg:#ffffff;--p1:#ffffff;--p2:#f1f4f4;--lead:#e7f1f1;--line:#d9dfe1;--l2:#e9edee;
+  --tx:#14181b;--dim:#4f5a61;--d2:#6b767d;
+  --band:#0b3b41;--bandtx:#ffffff;--banddim:#b7d0d2;--lens:#7fd6cf;
+  --red:#b3123f;--grn:#16794a;--amb:#9a5b00;--blu:#2a5db0;--vio:#0d7680;
+  --viobg:rgba(13,118,128,.12);--redbg:rgba(179,18,63,.08);--grnbg:rgba(22,121,74,.09);--ambbg:rgba(196,128,0,.12);
+  --sans:"Libre Franklin",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;--mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  color-scheme:light}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0d1416;--p1:#121b1e;--p2:#182428;--lead:#10292c;--line:#25363a;--l2:#1b2a2e;
+  --tx:#e8eff0;--dim:#a3b3b7;--d2:#82959a;
+  --band:#08262a;--bandtx:#f2f7f7;--banddim:#9dbcbf;--lens:#5fd0c6;
+  --red:#ff6f8e;--grn:#4cc38a;--amb:#f0b429;--blu:#7fa9ff;--vio:#4fc3c9;
+  --viobg:rgba(79,195,201,.16);--redbg:rgba(255,111,142,.12);--grnbg:rgba(76,195,138,.12);--ambbg:rgba(240,180,41,.13);
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d1416;--p1:#121b1e;--p2:#182428;--lead:#10292c;--line:#25363a;--l2:#1b2a2e;
+  --tx:#e8eff0;--dim:#a3b3b7;--d2:#82959a;
+  --band:#08262a;--bandtx:#f2f7f7;--banddim:#9dbcbf;--lens:#5fd0c6;
+  --red:#ff6f8e;--grn:#4cc38a;--amb:#f0b429;--blu:#7fa9ff;--vio:#4fc3c9;
+  --viobg:rgba(79,195,201,.16);--redbg:rgba(255,111,142,.12);--grnbg:rgba(76,195,138,.12);--ambbg:rgba(240,180,41,.13);
   color-scheme:dark}
-@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){
-  --bg:#f5f7fa;--p1:#fff;--p2:#eef1f6;--line:#d8dee8;--l2:#e6eaf1;--tx:#121a26;--dim:#526077;--d2:#76839a;
-  --red:#cf2f38;--grn:#1f8a3a;--amb:#a86f00;--blu:#2f6fdc;--vio:#7a4fd0;
-  --redbg:rgba(207,47,56,.09);--grnbg:rgba(31,138,58,.09);--viobg:rgba(122,79,208,.09);--ambbg:rgba(168,111,0,.10);color-scheme:light}}
-:root[data-theme="light"]{
-  --bg:#f5f7fa;--p1:#fff;--p2:#eef1f6;--line:#d8dee8;--l2:#e6eaf1;--tx:#121a26;--dim:#526077;--d2:#76839a;
-  --red:#cf2f38;--grn:#1f8a3a;--amb:#a86f00;--blu:#2f6fdc;--vio:#7a4fd0;
-  --redbg:rgba(207,47,56,.09);--grnbg:rgba(31,138,58,.09);--viobg:rgba(122,79,208,.09);--ambbg:rgba(168,111,0,.10);color-scheme:light}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.6 var(--sans);-webkit-text-size-adjust:100%}
-main{max-width:900px;margin:0 auto;padding-block:20px 72px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-.kick{font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--vio)}
-h1{font-size:25px;margin:5px 0 4px;letter-spacing:-.025em;line-height:1.18}
-.stamp{color:var(--d2);font-size:12px;margin-bottom:18px}
-h2{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:34px 0 12px;padding-bottom:7px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;align-items:baseline}
-h2 .n{font-size:11px;letter-spacing:0;text-transform:none;color:var(--d2)}
-p{margin:0 0 12px}b{font-weight:640}.mut{color:var(--dim)}.sm{font-size:13px}
-.card{background:var(--p1);border:1px solid var(--line);border-radius:11px;padding:14px 15px;margin-bottom:12px}
-.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
-@media (max-width:620px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.tile{background:var(--p1);border:1px solid var(--line);border-radius:10px;padding:11px 12px}
-.tile .k{font-size:9.8px;text-transform:uppercase;letter-spacing:.08em;color:var(--d2)}
-.tile .v{font-size:23px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:2px;line-height:1.2}
-.tile .s{font-size:11.5px;color:var(--dim)}
-.status{font-size:12px;color:var(--d2);margin:-6px 0 14px}
-.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
-.filters button{font:inherit;font-size:12.5px;cursor:pointer;background:var(--p2);color:var(--dim);border:1px solid var(--line);border-radius:7px;padding:6px 10px}
-.filters button[aria-pressed="true"]{background:var(--p1);color:var(--tx);border-color:var(--vio);box-shadow:0 0 0 1px var(--vio) inset}
-.filters button:focus-visible{outline:2px solid var(--vio);outline-offset:2px}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.55 var(--sans);-webkit-text-size-adjust:100%;overflow-x:clip}
+a{color:var(--blu)}
+.gut{max-width:1120px;margin:0 auto;padding-left:max(5vw,16px,env(safe-area-inset-left,0px));padding-right:max(5vw,16px,env(safe-area-inset-right,0px))}
+/* masthead */
+.mast{background:var(--band);color:var(--bandtx);margin-top:calc(-1*env(safe-area-inset-top,0px));padding-top:calc(env(safe-area-inset-top,0px) + 14px);padding-bottom:26px}
+.mast a{color:inherit}
+.brand{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 20px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,.16)}
+.mark{display:flex;align-items:center;gap:9px;font-weight:800;font-size:16px;letter-spacing:-.01em;text-decoration:none}
+.mark svg{width:34px;height:20px;flex:none}
+.pages{display:flex;flex-wrap:wrap;gap:2px 4px;font-size:14px}
+.pages a{text-decoration:none;color:var(--banddim);padding:6px 9px;border-radius:4px}
+.pages a:hover{color:var(--bandtx);background:rgba(255,255,255,.08)}
+.pages a[aria-current="page"]{color:var(--bandtx);box-shadow:inset 0 -2px 0 var(--lens);border-radius:0}
+.mast h1{font-size:clamp(34px,5vw,50px);font-weight:800;line-height:1.05;letter-spacing:-.02em;margin:22px 0 8px}
+.stamp{color:var(--banddim);font-size:15px;max-width:70ch;margin:0}
+.stamp a{color:var(--bandtx)}
+.status{display:inline-flex;align-items:center;gap:8px;margin-top:12px;font-size:14px;color:var(--bandtx)}
+.status::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--lens);flex:none}
+/* sticky section bar */
+body::before{content:"";position:fixed;left:0;right:0;top:0;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:6}
+.jump{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.jump .gut{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+.jump .gut::-webkit-scrollbar{display:none}
+.jump a{flex:none;font-size:14px;font-weight:500;color:var(--dim);text-decoration:none;padding:12px 10px;white-space:nowrap;border-bottom:2px solid transparent}
+.jump a:hover{color:var(--tx)}
+.jump a.on{color:var(--tx);border-bottom-color:var(--vio)}
+main{padding-block:24px 72px}
+/* the section pattern */
+.sec{margin-top:44px;padding-top:20px;border-top:2px solid var(--tx);scroll-margin-top:calc(env(safe-area-inset-top,0px) + 56px)}
+.sec-h{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 24px;margin-bottom:16px}
+h2{font-size:clamp(22px,2.6vw,27px);font-weight:800;line-height:1.15;letter-spacing:-.015em;margin:0}
+.sec-n,h2 .n{font-size:15px;color:var(--dim);margin:0;font-weight:400;letter-spacing:0}
+h3{font-size:16px;font-weight:700;margin:18px 0 6px}
+p{margin:0 0 12px}
+.card{background:var(--p1);border:1px solid var(--line);border-radius:6px;padding:16px 18px;margin-bottom:14px}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border-block:1px solid var(--line);margin-bottom:14px}
+.tile{background:var(--bg);padding:14px 16px 14px 0;min-width:0}
+.tile+.tile{padding-left:16px}
+.tile .k{font-size:14px;font-weight:600;color:var(--tx)}
+.tile .v{font-size:clamp(24px,2.8vw,30px);font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.15;margin:4px 0 2px}
+.tile .s{font-size:13px;color:var(--dim);line-height:1.45}
+@media (max-width:700px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}.tile,.tile+.tile{padding:12px 12px 12px 0}.tile:nth-child(2n){padding-left:12px}}
+.flag{background:var(--ambbg);border-radius:4px;padding:9px 12px;font-size:14px;margin-bottom:8px}
+.flag::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--amb);margin-right:8px;vertical-align:2px}
+.alert{background:var(--redbg);border-radius:4px;padding:9px 12px;font-size:15px;margin-top:10px}
+.alert::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--red);margin-right:8px;vertical-align:2px}
+.up{color:var(--grn)}.dn{color:var(--red)}.am{color:var(--amb)}.mut{color:var(--dim)}.sm{font-size:14px}
+.note{font-size:14px;color:var(--dim);margin:10px 0 0;max-width:80ch}
+.empty{color:var(--d2);font-size:14px;padding:6px 0}
+svg{display:block;width:100%;height:auto}
+svg text{font-family:var(--sans)}
+.legend{display:flex;gap:6px 16px;flex-wrap:wrap;font-size:13px;color:var(--dim);margin-top:8px}
+.legend i{display:inline-block;width:12px;height:8px;border-radius:2px;margin-right:6px;vertical-align:middle}
 .tw{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:13px}
-th{text-align:left;font-size:9.8px;text-transform:uppercase;letter-spacing:.08em;color:var(--d2);font-weight:600;padding:0 8px 7px 0;border-bottom:1px solid var(--line);white-space:nowrap}
-td{padding:8px 8px 8px 0;border-bottom:1px solid var(--l2);vertical-align:top}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-size:13px;font-weight:600;color:var(--dim);padding:0 10px 8px 0;border-bottom:1px solid var(--tx);white-space:nowrap}
+td{padding:9px 10px 9px 0;border-bottom:1px solid var(--l2);vertical-align:top;font-variant-numeric:tabular-nums}
 tr:last-child td{border-bottom:none}
-th.r,td.r{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
-td .sub{display:block;font-size:11.5px;color:var(--d2);line-height:1.4;margin-top:2px}
-.pill{display:inline-block;font-size:9.5px;font-weight:700;letter-spacing:.05em;padding:2px 7px;border-radius:20px;white-space:nowrap;text-transform:uppercase}
+th.r,td.r{text-align:right;white-space:nowrap}
+td .sub{display:block;font-size:13px;color:var(--d2);line-height:1.4;margin-top:2px}
+.pill,.phase{display:inline-block;font-size:13px;font-weight:600;padding:1px 9px;border-radius:20px;white-space:nowrap;background:var(--viobg);color:var(--vio)}
+button{font-family:inherit}
+:focus-visible{outline:2px solid var(--vio);outline-offset:2px}
+footer{margin-top:48px;padding-top:16px;border-top:2px solid var(--tx);color:var(--dim);font-size:14px;line-height:1.6;max-width:90ch}
+footer b{color:var(--tx)}
+@media (max-width:600px){table{font-size:13px}th,td{padding:7px 8px 7px 0}}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+@media (max-width:600px){.card{padding:14px 12px}}
+
+/* Desk Ledger: figure strip, then due-next beside calibration, then the full record */
+.lead{display:grid;gap:22px 32px;grid-template-columns:minmax(0,1fr)}
+.lead .sec{margin-top:0}
+@media (min-width:900px){.lead{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);align-items:start}}
+.strip{margin:0 0 22px}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.filters button{font-size:14px;cursor:pointer;background:var(--p2);color:var(--dim);border:1px solid transparent;border-radius:4px;padding:8px 13px;min-height:40px}
+.filters button:hover{color:var(--tx)}
+.filters button[aria-pressed="true"]{background:var(--vio);color:var(--bg);font-weight:600}
 .st-open{background:var(--viobg);color:var(--vio)}.st-hit{background:var(--grnbg);color:var(--grn)}.st-miss{background:var(--redbg);color:var(--red)}.st-void{background:var(--p2);color:var(--d2)}
 .th-alive{background:var(--grnbg);color:var(--grn)}.th-weakened{background:var(--ambbg);color:var(--amb)}.th-dead{background:var(--redbg);color:var(--red)}.th-confirmed{background:var(--viobg);color:var(--vio)}
-.cal{display:grid;gap:8px}
-.calrow{display:grid;grid-template-columns:150px 1fr 70px;gap:10px;align-items:center;font-size:12.5px}
-.calbar{position:relative;height:14px;background:var(--p2);border-radius:3px}
-.calbar .exp{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--d2)}
-.calbar .act{position:absolute;top:2px;bottom:2px;left:0;border-radius:2px;background:var(--vio)}
-@media (max-width:560px){.calrow{grid-template-columns:110px 1fr 56px}}
-.ev{display:grid;grid-template-columns:96px 1fr;gap:3px 12px;padding:9px 0;border-bottom:1px solid var(--l2)}
+.cal{display:grid;gap:12px}
+.calrow{display:grid;grid-template-columns:110px minmax(0,1fr) 88px;gap:12px;align-items:center;font-size:14px}
+.calbar{position:relative;height:16px;background:var(--p2);border-radius:2px}
+.calbar .exp{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--tx)}
+.calbar .act{position:absolute;top:0;bottom:0;left:0;border-radius:2px;background:var(--vio)}
+@media (max-width:560px){.calrow{grid-template-columns:92px minmax(0,1fr) 74px;gap:8px;font-size:13px}}
+.ev{display:grid;grid-template-columns:104px minmax(0,1fr);gap:3px 14px;padding:10px 0;border-bottom:1px solid var(--l2)}
 .ev:last-child{border-bottom:none}
-.ev .d{font-family:var(--mono);font-size:11.5px;color:var(--vio);padding-top:2px}
-.ev .d.past{color:var(--d2)}
-.ev .n{font-size:13.6px}.ev .w{grid-column:2;font-size:12.3px;color:var(--dim)}
-.empty{color:var(--d2);font-size:13px;padding:6px 0}
-.lib{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:6px 18px;font-size:12.8px}
-.lib a{color:var(--blu);text-decoration:none}.lib a:hover{text-decoration:underline}
-.lib span{color:var(--d2);font-size:11.5px}
-footer{margin-top:36px;padding-top:14px;border-top:1px solid var(--line);color:var(--d2);font-size:11.5px;line-height:1.65}
+.ev .d{font-size:14px;font-weight:700;color:var(--vio);font-variant-numeric:tabular-nums}
+.ev .d.past{color:var(--d2);font-weight:500}
+.ev .n{font-size:15px;overflow-wrap:anywhere}.ev .w{grid-column:2;font-size:14px;color:var(--dim);overflow-wrap:anywhere}
+@media (max-width:480px){.ev{grid-template-columns:84px minmax(0,1fr)}}
+.lib{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px 22px;font-size:14px}
+.lib a{text-decoration:none;font-weight:500}.lib a:hover{text-decoration:underline}
+.lib span{color:var(--d2);font-size:13px}
+#method ol{font-size:15px!important}
 </style>
 
-<main>
-<div class="kick">The desk · scorecard, thesis tracker, calendar</div>
+<header class="mast"><div class="gut">
+<div class="brand"><a class="mark" href="https://claude.ai/artifact/TcxbaSnEiAddmETVgBKL8q" target="_blank" rel="noopener"><svg viewBox="0 0 34 20" aria-hidden="true"><path d="M1.5 10C7 2.2 27 2.2 32.5 10C27 17.8 7 17.8 1.5 10Z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17" cy="10" r="5.4" fill="var(--lens)"/><circle cx="17" cy="10" r="2.2" fill="var(--band)"/></svg>Eye View</a><nav class="pages" aria-label="Desk pages"><a href="https://claude.ai/artifact/R7i5cJx8SC6fpW9oQm7ZcM" target="_blank" rel="noopener">HQ</a><a href="https://claude.ai/artifact/TcxbaSnEiAddmETVgBKL8q" target="_blank" rel="noopener">Daily</a><a href="https://claude.ai/artifact/7jU3VUdjX9x22fNqXoYbCL" target="_blank" rel="noopener" aria-current="page">Ledger</a><a href="https://claude.ai/artifact/M2T7uHbVzqydb38BcrRi8F" target="_blank" rel="noopener">Scorecard</a><a href="https://claude.ai/artifact/7L9ApUMePWy4aWrt4ZY5kW" target="_blank" rel="noopener">CFA card</a></nav></div>
 <h1>Desk Ledger</h1>
-<div class="stamp">Every call from every report, graded when it resolves. Updated by scheduled desk runs after each US close.</div>
-<div class="status" id="status">Loading the ledger…</div>
-
-<div class="tiles" id="tiles">
-  <div class="tile"><div class="k">Open calls</div><div class="v">–</div><div class="s">waiting to resolve</div></div>
-  <div class="tile"><div class="k">Resolved</div><div class="v">–</div><div class="s">hits and misses</div></div>
-  <div class="tile"><div class="k">Brier score</div><div class="v">–</div><div class="s">lower is better · coin flip 0.25</div></div>
-  <div class="tile"><div class="k">Theses alive</div><div class="v">–</div><div class="s">of those tracked</div></div>
-</div>
-
-<h2>Due next <span class="n" id="duecount"></span></h2>
+<p class="stamp">Every call from every report, with the probability it was given, graded when it resolves. Also the theses the desk is tracking, the lessons it has learned, and the dated catalysts ahead. Updated by the scheduled runs after each US close.</p>
+<div class="status" id="status">Loading…</div>
+</div></header>
+<nav class="jump" aria-label="Sections"><div class="gut" id="jump"></div></nav>
+<main class="gut">
+<div class="tiles strip" id="tiles"><div class="tile"><div class="k">Open calls</div><div class="v">–</div><div class="s">waiting to resolve</div></div><div class="tile"><div class="k">Resolved</div><div class="v">–</div><div class="s">hits and misses</div></div><div class="tile"><div class="k">Brier score</div><div class="v">–</div><div class="s">lower is better · coin flip 0.25</div></div><div class="tile"><div class="k">Theses alive</div><div class="v">–</div><div class="s">of those tracked</div></div></div>
+<div class="lead">
+<section class="sec" id="due-next" data-nav="Due next">
+<header class="sec-h"><h2>Due next</h2><p class="sec-n" id="duecount"></p></header>
 <div class="card tw"><table id="due"></table></div>
-
-<h2>All calls <span class="n">probability is what the report said would happen</span></h2>
+</section>
+<section class="sec" id="calibration" data-nav="Calibration">
+<header class="sec-h"><h2>Calibration</h2><p class="sec-n">When we said X%, how often did it happen?</p></header>
+<div class="card"><div class="cal" id="cal"></div>
+<p class="sm" id="vsbase" style="margin:14px 0 0"></p>
+<p class="note">Black tick: what was promised (the bucket's average probability). Teal bar: what actually happened. Well-calibrated calls put the bar on the tick. Needs about 30 resolved calls before it means much.</p></div>
+</section>
+</div>
+<section class="sec" id="calls" data-nav="All calls">
+<header class="sec-h"><h2>All calls</h2><p class="sec-n">Probability is what the report said would happen</p></header>
 <div class="filters" id="filters" role="group" aria-label="Filter calls by status">
-  <button type="button" data-f="all" aria-pressed="true">All</button>
-  <button type="button" data-f="open" aria-pressed="false">Open</button>
-  <button type="button" data-f="hit" aria-pressed="false">Hit</button>
-  <button type="button" data-f="miss" aria-pressed="false">Missed</button>
+<button type="button" data-f="all" aria-pressed="true">All</button>
+<button type="button" data-f="open" aria-pressed="false">Open</button>
+<button type="button" data-f="hit" aria-pressed="false">Hit</button>
+<button type="button" data-f="miss" aria-pressed="false">Missed</button>
 </div>
 <div class="card tw"><table id="preds"></table></div>
-
-<h2>Calibration <span class="n">when we said X%, how often did it happen?</span></h2>
-<div class="card"><div class="cal" id="cal"></div>
-<p class="sm" id="vsbase" style="margin:10px 0 0"></p>
-<p class="sm mut" style="margin:10px 0 0">Grey tick: what was promised (the bucket's average probability). Violet bar: what actually happened. Well-calibrated reports put the bar on the tick. Needs about 30 resolved calls before it means much.</p></div>
-
-<h2>Thesis tracker <span class="n">alive until its kill condition shows up</span></h2>
+</section>
+<section class="sec" id="theses-sec" data-nav="Theses">
+<header class="sec-h"><h2>Thesis tracker</h2><p class="sec-n">Alive until its kill condition shows up</p></header>
 <div class="card tw"><table id="theses"></table></div>
-
-<h2>Lessons memory <span class="n">rules the desk has learned, kept only while they keep working</span></h2>
+</section>
+<section class="sec" id="lessons-sec" data-nav="Lessons">
+<header class="sec-h"><h2>Lessons memory</h2><p class="sec-n">Rules the desk has learned, kept only while they keep working</p></header>
 <div class="card tw"><table id="lessons"></table></div>
-
-<h2>Method notes <span class="n">rewritten each Sunday by the desk's self-review</span></h2>
+</section>
+<section class="sec" id="method-sec" data-nav="Method">
+<header class="sec-h"><h2>Method notes</h2><p class="sec-n">Rewritten each Sunday by the desk's self-review</p></header>
 <div class="card" id="method"><div class="empty">The first self-review runs Sunday 29 Nov.</div></div>
-
-<h2>Event engine <span class="n">previews and post-mortems for earnings and big data releases</span></h2>
-<div class="card"><p class="sm" id="engsum" style="margin:0 0 10px"></p><div class="tw"><table id="engine"></table></div>
-<p class="sm mut" style="margin:10px 0 0">Implied move = what options priced for the reaction session (source named on each row; "hist" means no options figure was found and the stock's own average reaction was used). Baseline = a no-judgment forecaster: for earnings, how often the stock's last 8 reactions beat today's implied move; for data, how often the last 12 prints beat consensus. Analysis only, not investment advice.</p></div>
-
-<h2>Calendar <span class="n">dated catalysts from all reports</span></h2>
+</section>
+<section class="sec" id="engine-sec" data-nav="Event engine">
+<header class="sec-h"><h2>Event engine</h2><p class="sec-n">Previews and post-mortems for earnings and big data releases</p></header>
+<div class="card"><p class="sm" id="engsum" style="margin:0 0 12px"></p><div class="tw"><table id="engine"></table></div>
+<p class="note">Implied move = what options priced for the reaction session (source named on each row; "hist" means no options figure was found and the stock's own average reaction was used). Baseline = a no-judgment forecaster: for earnings, how often the stock's last 8 reactions beat today's implied move; for data, how often the last 12 prints beat consensus. Analysis only, not investment advice.</p></div>
+</section>
+<section class="sec" id="calendar" data-nav="Calendar">
+<header class="sec-h"><h2>Calendar</h2><p class="sec-n">Dated catalysts from all reports</p></header>
 <div class="card" id="events"></div>
-
-<h2>Desk runs <span class="n">what each scheduled run did</span></h2>
+</section>
+<section class="sec" id="runs-sec" data-nav="Runs">
+<header class="sec-h"><h2>Desk runs</h2><p class="sec-n">What each scheduled run did</p></header>
 <div class="card tw"><table id="runs"></table></div>
-
-<h2>Report library</h2>
+</section>
+<section class="sec" id="library" data-nav="Reports">
+<header class="sec-h"><h2>Report library</h2><p class="sec-n">Every report the desk has written</p></header>
 <div class="card lib" id="lib"></div>
-
-<footer>Scoring: each call is a yes/no event with the probability its report gave. Brier score = average of (probability − outcome)², where outcome is 1 if it happened and 0 if not. 0 is perfect, 0.25 is what always saying 50% earns. Calls without a probability are not scored. Data lives in this page's own store and is written by Claude's scheduled desk runs; it is analysis only, not investment advice.</footer>
+</section>
+<footer>Scoring: each call is a yes/no event with the probability its report gave. Brier score = average of (probability − outcome)², where outcome is 1 if it happened and 0 if not. 0 is perfect, 0.25 is what always saying 50% earns. Calls without a probability are not scored. Data is written by Claude's scheduled desk runs. Analysis only. <b>Not investment advice</b>, and nothing here recommends any position or trade.</footer>
 </main>
 
 <script>
@@ -179,7 +253,7 @@ function render(){
   var mv=function(x){return typeof x==='number'?'\u00b1'+x.toFixed(1)+'%':'\u2013'};
   $('engine').innerHTML=EG.length?'<thead><tr><th>Date</th><th>Event</th><th class="r">Implied</th><th class="r">Actual</th><th>Calls</th><th>Post-mortem</th></tr></thead><tbody>'+EG.map(function(e){
     var cs=P.filter(function(p){return p.event_id===e.id});
-    return '<tr><td class="r" style="text-align:left">'+esc(e.date)+'<span class="sub">'+esc(e.time||'')+'</span></td><td><b>'+esc(e.ticker||'')+'</b> '+esc(e.event)+(e.consensus?'<span class="sub">Consensus: '+esc(e.consensus)+(e.actual?' \u00b7 actual: '+esc(e.actual):'')+'</span>':'')+'</td><td class="r">'+mv(e.implied_move_pct)+'<span class="sub">'+esc(e.implied_source||'')+'</span></td><td class="r">'+(typeof e.reaction_pct==='number'?(e.reaction_pct>=0?'+':'\u2212')+Math.abs(e.reaction_pct).toFixed(1)+'%':'\u2013')+'</td><td class="sm">'+(cs.length?cs.map(function(p){return '<span class="pill st-'+esc(p.status)+'">'+esc(p.status)+'</span> '+esc(p.claim)+' ('+(typeof p.prob==='number'?pct(p.prob):'\u2013')+(typeof p.prob_base==='number'?' vs base '+pct(p.prob_base):'')+')'}).join('<br>'):'<span class="mut">none</span>')+'</td><td class="sm">'+esc(e.postmortem||e.preview||'')+(e.page?' <a href="'+esc(e.page)+'" target="_blank" rel="noopener" style="color:var(--blu)">page</a>':'')+'</td></tr>'}).join('')+'</tbody>':'<tbody><tr><td class="empty">No engine events yet.</td></tr></tbody>';
+    return '<tr><td class="r" style="text-align:left">'+esc(e.date)+'<span class="sub">'+esc(e.time||'')+'</span></td><td><b>'+esc(e.ticker||'')+'</b> '+esc(e.event)+(e.consensus?'<span class="sub">Consensus: '+esc(e.consensus)+(e.actual?' \u00b7 actual: '+esc(e.actual):'')+'</span>':'')+'</td><td class="r">'+mv(e.implied_move_pct)+'<span class="sub">'+esc(e.implied_source||'')+'</span></td><td class="r">'+(typeof e.reaction_pct==='number'?(e.reaction_pct>=0?'+':'\u2212')+Math.abs(e.reaction_pct).toFixed(1)+'%':'\u2013')+'</td><td class="sm">'+(cs.length?cs.map(function(p){return '<span class="pill st-'+esc(p.status)+'">'+esc(p.status)+'</span> '+esc(p.claim)+' ('+(typeof p.prob==='number'?pct(p.prob):'\u2013')+(typeof p.prob_base==='number'?' vs base '+pct(p.prob_base):'')+')'}).join('<br>'):'<span class="mut">none</span>')+'</td><td class="sm">'+esc(e.postmortem||e.preview||'')+(e.page?' <a href="'+esc(e.page)+'" target="_blank" rel="noopener">page</a>':'')+'</td></tr>'}).join('')+'</tbody>':'<tbody><tr><td class="empty">No engine events yet.</td></tr></tbody>';
 
   var ev=S.events.slice().sort(function(a,b){return (a.date+(a.time||'')).localeCompare(b.date+(b.time||''))});
   $('events').innerHTML=ev.length?ev.map(function(e){var past=e.date<today;
@@ -187,7 +261,7 @@ function render(){
 
   var runs=S.runs.slice().sort(function(a,b){return (b.at||'').localeCompare(a.at||'')});
   $('runs').innerHTML=runs.length?'<thead><tr><th>When</th><th>Run</th><th>What it did</th></tr></thead><tbody>'+runs.map(function(r){
-    return '<tr><td class="r" style="text-align:left">'+esc(r.at)+'</td><td>'+(r.url?'<a href="'+esc(r.url)+'" target="_blank" rel="noopener" style="color:var(--blu)">'+esc(r.name)+'</a>':esc(r.name))+'</td><td class="sm">'+esc(r.summary)+'</td></tr>'}).join('')+'</tbody>':'<tbody><tr><td class="empty">The first scheduled run is Monday 9 Nov before the open.</td></tr></tbody>';
+    return '<tr><td class="r" style="text-align:left">'+esc(r.at)+'</td><td>'+(r.url?'<a href="'+esc(r.url)+'" target="_blank" rel="noopener">'+esc(r.name)+'</a>':esc(r.name))+'</td><td class="sm">'+esc(r.summary)+'</td></tr>'}).join('')+'</tbody>':'<tbody><tr><td class="empty">The first scheduled run is Monday 9 Nov before the open.</td></tr></tbody>';
 
   var lib=S.reports.slice().sort(function(a,b){return (b.date||'').localeCompare(a.date||'')});
   $('lib').innerHTML=lib.length?lib.map(function(r){return '<div><a href="'+esc(r.url)+'" target="_blank" rel="noopener">'+esc(r.title)+'</a> <span>'+esc(r.date)+' · '+esc(r.kind)+'</span></div>'}).join(''):'<div class="empty">No reports listed yet.</div>';
@@ -209,4 +283,10 @@ var timer=setTimeout(function(){setStatus('The ledger store did not answer. Show
   });
 }).catch(function(){clearTimeout(timer);setStatus('The ledger store is unavailable in this view.')});
 })();
+</script>
+<script>
+{const j=document.getElementById('jump');if(j){const S=[...document.querySelectorAll('section.sec[data-nav]')];
+j.innerHTML=S.map(s=>'<a href="#'+s.id+'">'+s.dataset.nav.replace(/[&<>"]/g,'')+'</a>').join('');
+const as=[...j.querySelectorAll('a')];
+if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){as.forEach(a=>{const on=a.getAttribute('href')==='#'+e.target.id;a.classList.toggle('on',on);if(on&&j.scrollWidth>j.clientWidth){j.scrollLeft=a.offsetLeft-24}})}})},{rootMargin:'-15% 0px -75% 0px'});S.forEach(s=>io.observe(s))}}}
 </script>
