@@ -41,3 +41,8 @@ EVENT ENGINE (built 26 Nov): scheduled task "Desk: event engine" 18:23 ET weekda
 HOUSE RULES: plain words, cite sources, flag unverified numbers, never invent data, "not investment advice" on every page, and don't republish the Desk Daily page from scheduled runs (they write data only).
 
 FIRST TASK: read the two pages and their data, tell me in 5 lines how the desk has done since 26 Nov (calls, forecasters, paper book), then ask which idea to build.
+
+SCORECARD, BASELINE, PRE-MORTEM, REVERSAL STUDY (built 26 Nov, desk v2.5)
+- Desk Scorecard https://claude.ai/artifact/M2T7uHbVzqydb38BcrRi8F: weekly desk vs VIX formula vs simulator vs "trend follows yesterday" (60/40 toward the last session's direction), plus paper book vs SPY. Built by analyses/scorecard/scorecard.py (copy in the ledger as method/scorecard_script); the Sunday self-review refreshes it (step 2c). First read: on up/down calls the desk 0.229, follow-yesterday 0.224, always-down 0.205 over 12 days; not significant.
+- Pre-mortem tag (method/notes rule 6): every call stores wrong_if and wrong_tag; misses get miss_cause and premortem_hit; the Sunday review counts them. Record only.
+- Streak and reversal study: analyses/studies/reversal.py and reversal_2026-11-26.md. One year of S&P days: faint follow tilt on ordinary days, bounce after 1%+ drops and 3 down days; every interval crosses 50%. Re-run on the longer FRED history when analyses/data/history/ lands.
