@@ -346,25 +346,44 @@ def summarize(chain, oi, spot, now):
     }
 
 
-def price_legs(chain, legs, expiry, spot, now, atm_iv=None, skew=None):
-    """legs [[qty, 'C'|'P', K]], qty>0 long. Per share. Fill = mid + half width per leg, against us."""
+def price_legs(chain, legs, expiry, spot, now, atm_iv=None, skew=None, snap=False):
+    """legs [[qty, 'C'|'P', K]], qty>0 long. Per share. Fill = mid + half width per leg, against us.
+    snap=True (new, unfilled trades only): if a strike has no usable quote, use the nearest listed
+    strike within $3 that has one, and report it. Open trades never snap (their strikes are fixed)."""
     T = years(expiry, now)
     mid = fill_in = fill_out = 0.0
-    detail, src = [], "alpaca"
+    detail, out_legs = [], []
+    same = [c for c in chain.values() if c["expiry"] == expiry]
     for q, kind, K in legs:
-        sym = next((s for s, c in chain.items()
-                    if c["kind"] == kind and abs(c["K"] - K) < 1e-6 and c["expiry"] == expiry), None)
-        c = chain.get(sym) if sym else None
-        if c and usable(c) and c["ask"] > 0:
-            m, h = (c["bid"] + c["ask"]) / 2, (c["ask"] - c["bid"]) / 2
-            leg_src = "alpaca"
+        exact = next((c for c in same if c["kind"] == kind and abs(c["K"] - K) < 1e-6), None)
+        why = None
+        if exact is None:
+            why = "no such contract in the pull"
+        elif not usable(exact):
+            why = f"unusable quote (bid {exact['bid']}, ask {exact['ask']})"
+        c = exact if why is None else None
+        if c is None and snap:
+            near = sorted((x for x in same if x["kind"] == kind and usable(x) and abs(x["K"] - K) <= 3),
+                          key=lambda x: abs(x["K"] - K))
+            if near:
+                c, why = near[0], f"{why}; snapped {K} -> {near[0]['K']:g}"
+                K = near[0]["K"]
+        if c is not None:
+            m, h, leg_src = (c["bid"] + c["ask"]) / 2, (c["ask"] - c["bid"]) / 2, "quote"
         else:
             iv = _model_iv(spot, K, atm_iv, skew)
-            m, h, leg_src, src = bs(spot, K, T, iv, kind), 0.03, "model", "mixed" if src == "alpaca" else src
+            m, h, leg_src = bs(spot, K, T, iv, kind), 0.03, "model"
         mid += q * m
         fill_in += q * m + abs(q) * h    # opening: pay half the width on every leg
         fill_out += q * m - abs(q) * h   # closing: give up half the width again
-        detail.append({"q": q, "kind": kind, "K": K, "mid": round(m, 3), "half_width": round(h, 3), "src": leg_src})
+        d = {"q": q, "kind": kind, "K": K, "mid": round(m, 3), "half_width": round(h, 3), "src": leg_src}
+        if why:
+            d["note"] = why
+        detail.append(d)
+        out_legs.append([q, kind, K])
+    legs = out_legs
+    kinds = {d["src"] for d in detail}
+    src = "quotes" if kinds == {"quote"} else ("model" if kinds == {"model"} else "mixed (model-priced legs)")
     ks = sorted({float(K) for _, _, K in legs})
     grid = [0.0] + ks + [ks[-1] * 2]
     pay = [sum(q * (max(0.0, S - K) if kd == "C" else max(0.0, K - S)) for q, kd, K in legs) for S in grid]
@@ -372,7 +391,8 @@ def price_legs(chain, legs, expiry, spot, now, atm_iv=None, skew=None):
     return {"expiry": expiry.isoformat(), "mid": round(mid, 3), "open_fill": round(fill_in, 3),
             "max_loss_per_share": round(max_loss, 3), "max_gain_per_share": round(max_gain, 3),
             "max_value_per_share": round(max(pay), 3),
-            "close_fill": round(fill_out, 3), "source": src, "legs": detail}
+            "close_fill": round(fill_out, 3), "source": src, "legs": detail,
+            "legs_used": legs}
 
 
 def _model_iv(spot, K, atm_iv, skew):
@@ -542,7 +562,8 @@ def cmd_summary(args):
             out.setdefault("book", {})[item["id"]] = {"skipped": "expired before these quotes"}
             continue
         out.setdefault("book", {})[item["id"]] = price_legs(
-            chain, item["legs"], exp, spot, now, atm_iv=e.get("atm_iv"), skew=out.get("fallback_skew"))
+            chain, item["legs"], exp, spot, now, atm_iv=e.get("atm_iv"), skew=out.get("fallback_skew"),
+            snap=bool(item.get("snap")))
     print(json.dumps(out, indent=1, default=str))
 
 
@@ -592,7 +613,7 @@ def cmd_selftest(_):
     ok.append(("gamma computed", s["gamma"] is not None, s["gamma"] and s["gamma"]["gex_usd_per_1pct"]))
     e7 = now.date() + dt.timedelta(days=7)
     p = price_legs(chain, [[1, "P", 690], [-1, "P", 680]], e7, spot, now)
-    ok.append(("spread priced from quotes", p["source"] == "alpaca" and 0 < p["mid"] < 10, p["mid"]))
+    ok.append(("spread priced from quotes", p["source"] == "quotes" and 0 < p["mid"] < 10, p["mid"]))
     ok.append(("fills straddle mid", p["close_fill"] < p["mid"] < p["open_fill"], (p["close_fill"], p["open_fill"])))
     ok.append(("debit spread risk", abs(p["max_loss_per_share"] - p["open_fill"]) < 1e-6
                and abs(p["max_gain_per_share"] - (10 - p["open_fill"])) < 1e-6, (p["max_loss_per_share"], p["max_gain_per_share"])))
@@ -600,7 +621,10 @@ def cmd_selftest(_):
     ok.append(("credit spread risk", abs(cr["max_loss_per_share"] - (10 + cr["open_fill"])) < 1e-6 and cr["open_fill"] < 0,
                (cr["open_fill"], cr["max_loss_per_share"])))
     pm = price_legs(chain, [[1, "P", 690], [-1, "P", 123]], e7, spot, now, atm_iv=20)
-    ok.append(("missing leg falls back to model", pm["source"] == "mixed", pm["source"]))
+    ok.append(("missing leg falls back to model", pm["source"].startswith("mixed"), pm["source"]))
+    ps_ = price_legs(chain, [[1, "P", 690.5], [-1, "P", 680]], e7, spot, now, snap=True)
+    ok.append(("snap to nearest listed strike", ps_["source"] == "quotes" and ps_["legs_used"][0][2] in (690.0, 691.0),
+               ps_["legs_used"]))
     iv_c = _model_iv(spot, 721, 20.0, s["fallback_skew"]) * 100
     iv_p = _model_iv(spot, 679, 20.0, s["fallback_skew"]) * 100
     ok.append(("fallback skew: OTM call IV < ATM < OTM put IV", iv_c < 20 < iv_p, (round(iv_c, 2), round(iv_p, 2))))
