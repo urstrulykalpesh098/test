@@ -481,8 +481,9 @@ def live(args):
             if p["expiry"]:
                 args.expiry = p["expiry"]
             args.plan = p["mode"]
+        pull_exp = getattr(args, "expiry", None) if getattr(args, "plan", "manual") != "wide" else None
         chain, oi, spot, as_of = fetch_marketdata("SPY", lo_e, hi_e, args.band, args.date,
-                                                  getattr(args, "expiry", None), args.strike_limit)
+                                                  pull_exp, args.strike_limit)
         if not chain:
             raise SystemExit("MarketData.app returned an empty chain; stop rather than guess.")
         return as_of, spot, chain, oi        # value everything at the quotes' own time
