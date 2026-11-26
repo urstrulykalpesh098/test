@@ -60,3 +60,4 @@ CANADA LENS (built 26 Nov, context only)
 - "2y minus policy rate" (+/-25bp) is a rough lean toward hikes/cuts, not a priced probability (CORRA futures/OIS are not free). TSX has no reachable free daily source (TMX, Yahoo, Stooq blocked); that is listed as a gap.
 - Valet's FXUSDCAD is a daily average, not a 4pm close, so its correlation with S&P closes is understated.
 - Context only, like flows/credit/policy: never moves a probability until the Sunday review has tested it on 20+ days. www.bankofcanada.ca was added to the Default cloud environment allowlist on 26 Nov. bundle.py now also writes a single-file canada.py for a ledger method/canada_script doc if it gets wired into the close run.
+DESK FIELD GUIDE (26 Nov): https://claude.ai/artifact/T4gimQad24JCNFSKsCTbwM, plain-language guide to every page, run and rule with real ledger examples; linked from HQ nav. Source and build in analyses/output/guide/. Update its 'What's changing' section when upgrades merge.
