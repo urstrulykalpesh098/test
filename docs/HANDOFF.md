@@ -38,11 +38,18 @@ STATE AS OF 26 NOV 2026 (desk v2.1)
 - Five lessons in the ledger's lessons memory (gap fade, pull tails to 50%, wider ranges, don't default up in a falling tape, wider VIX bands).
 
 IDEAS NOT BUILT YET (pick from these)
-2. Real option chains: Cboe's free 15-minute-delayed chains (IV, open interest, bid/ask) read through the Claude app's browser on my Mac — needs my Mac attached; would replace model prices in the paper book and give real skew/gamma.
-6. Event engine: automatic preview + post-mortem for watchlist earnings and big data releases, implied vs actual move, scored in the ledger.
+2. [BUILT 26 Nov — see docs/OPTION_CHAINS.md: MarketData.app free chains drive the paper book] Real option chains: Cboe's free 15-minute-delayed chains (IV, open interest, bid/ask) read through the Claude app's browser on my Mac — needs my Mac attached; would replace model prices in the paper book and give real skew/gamma.
+6. [BUILT 26 Nov — see EVENT ENGINE below] Event engine.
 7. Trackers: credit and funding (deals pulled/wide, spreads, CDS) and policy/permitting (January state legislatures, Texas).
-8. Weekly learning card mapping that week's market to the CFA Level I curriculum.
+8. [BUILT 26 Nov — see analyses/cfa_card/] Weekly learning card mapping that week's market to the CFA Level I curriculum.
+
+EVENT ENGINE (built 26 Nov): scheduled task "Desk: event engine" 18:23 ET weekdays (fresh session each run). Rules in the ledger's method/events_engine doc (copy in analyses/desk/events_engine_method.json): previews and up to 5 scored calls for the next session's watchlist earnings and big data releases, post-mortems with implied vs actual move, engine vs a no-judgment baseline. Ledger page has an "Event engine" section. Data caveat found 26 Nov: Bigdata.com and Financial Datasets out of credits; FMP plan covers indexes and mega caps only (no earnings calendar, no MRVL); Alpha Vantage options are premium.
 
 HOUSE RULES: plain words, cite sources, flag unverified numbers, never invent data, "not investment advice" on every page, and don't republish the Desk Daily page from scheduled runs (they write data only).
 
 FIRST TASK: read the two pages and their data, tell me in 5 lines how the desk has done since 26 Nov (calls, forecasters, paper book), then ask which idea to build.
+
+SCORECARD, BASELINE, PRE-MORTEM, REVERSAL STUDY (built 26 Nov, desk v2.5)
+- Desk Scorecard https://claude.ai/artifact/M2T7uHbVzqydb38BcrRi8F: weekly desk vs VIX formula vs simulator vs "trend follows yesterday" (60/40 toward the last session's direction), plus paper book vs SPY. Built by analyses/scorecard/scorecard.py (copy in the ledger as method/scorecard_script); the Sunday self-review refreshes it (step 2c). First read: on up/down calls the desk 0.229, follow-yesterday 0.224, always-down 0.205 over 12 days; not significant.
+- Pre-mortem tag (method/notes rule 6): every call stores wrong_if and wrong_tag; misses get miss_cause and premortem_hit; the Sunday review counts them. Record only.
+- Streak and reversal study: analyses/studies/reversal.py and reversal_2026-11-26.md. One year of S&P days: faint follow tilt on ordinary days, bounce after 1%+ drops and 3 down days; every interval crosses 50%. Re-run on the longer FRED history when analyses/data/history/ lands.
