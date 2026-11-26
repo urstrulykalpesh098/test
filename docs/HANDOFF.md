@@ -16,6 +16,12 @@ SCHEDULED TASKS (all ET, fresh session each run)
 
 OTHER PAGES: Monday Guess https://claude.ai/artifact/M1gkXYfDq72eBPQZfcvnpn · Tuesday preview https://claude.ai/artifact/XYVLPRk7AEGGUMP53smBeE · Week simulation https://claude.ai/artifact/5y4PdkCDRjz2Vw5crXc8Fr · Option lab https://claude.ai/artifact/Ub6HjWW5woyAAGDjHhFTj7 · Monday Replay https://claude.ai/artifact/TTB45KnGyJWmETbg6fWdS3
 
+FLOWS TRACKER (built 26 Nov, desk v2.2)
+- analyses/flows/flows.py pulls primary data only: CFTC Traders in Financial Futures (Socrata API), FINRA margin debt, SSGA SPY shares outstanding, iShares IVV snapshot, ProShares leveraged/inverse fund assets and NAVs. Leveraged-ETF close hedge = L(L−1) × index move × fund assets. Missing: Direxion funds (site blocks bots), QQQ (Invesco blocks bots).
+- The close scorecard runs it daily from a copy stored in the ledger (method/flows_script) and writes Desk Daily meta/flows and days/{date}.flows; the Desk Daily page shows a Flows and positioning section. method/notes rule 11: flows are context only and never move probabilities until the Sunday review has tested them on 20+ days.
+- When flows.py changes in the repo, update the ledger's method/flows_script code field too.
+- The Default cloud environment's allowlist holds the source hosts (cftc.gov, finra.org, ssga.com, ishares.com, proshares.com, plus direxion.com and invesco.com).
+
 STATE AS OF 26 NOV 2026 (desk v2.1)
 - Track record: 110+ graded calls; desk Brier 0.256 overall (coin flip = 0.25). On 63 S&P calls: desk 0.229 vs plain VIX formula 0.236. Overconfident: its 70–85% calls came true 55%.
 - Regime: desk scores 0.175 in Chop but ~0.31 on trend days.
@@ -26,7 +32,6 @@ STATE AS OF 26 NOV 2026 (desk v2.1)
 
 IDEAS NOT BUILT YET (pick from these)
 2. Real option chains: Cboe's free 15-minute-delayed chains (IV, open interest, bid/ask) read through the Claude app's browser on my Mac — needs my Mac attached; would replace model prices in the paper book and give real skew/gamma.
-5. Flows from primary data: CFTC positioning, ETF flows, leveraged-ETF forced rebalance (L(L−1)·r·AUM), margin debt.
 6. Event engine: automatic preview + post-mortem for watchlist earnings and big data releases, implied vs actual move, scored in the ledger.
 7. Trackers: credit and funding (deals pulled/wide, spreads, CDS) and policy/permitting (January state legislatures, Texas).
 8. Weekly learning card mapping that week's market to the CFA Level I curriculum.

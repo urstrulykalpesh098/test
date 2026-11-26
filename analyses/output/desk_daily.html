@@ -37,6 +37,7 @@ h2 .n{font-size:11.5px;letter-spacing:0;text-transform:none;color:var(--d2)}
 .tile .k{font-size:9.8px;text-transform:uppercase;letter-spacing:.08em;color:var(--d2)}
 .tile .v{font-size:21px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:2px;line-height:1.2}
 .tile .s{font-size:11.5px;color:var(--dim)}
+.flag{border:1px solid var(--amb);background:var(--ambbg);border-radius:8px;padding:7px 11px;font-size:13px;margin-bottom:8px}
 .up{color:var(--grn)}.dn{color:var(--red)}.am{color:var(--amb)}.mut{color:var(--dim)}
 svg{display:block;width:100%;height:auto}
 .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--dim);margin-top:6px}
@@ -94,6 +95,16 @@ footer a,.card a{color:var(--blu)}
 
 <h2>Regime <span class="n">what kind of market each day was, and how the desk does in each</span></h2>
 <div class="card"><div id="regnow"></div><div class="tw" style="margin-top:10px"><table id="regtab"></table></div></div>
+
+<h2>Flows and positioning <span class="n">who is leaning which way, and what must trade at the close</span></h2>
+<div class="tiles" id="flowtiles">
+  <div class="tile"><div class="k">Lev-ETF close hedge</div><div class="v">–</div><div class="s">Nasdaq-100, per 1% move</div></div>
+  <div class="tile"><div class="k">SPY flows, 5 days</div><div class="v">–</div><div class="s">creations minus redemptions</div></div>
+  <div class="tile"><div class="k">Hedge funds, S&amp;P futures</div><div class="v">–</div><div class="s">percentile of 3 years</div></div>
+  <div class="tile"><div class="k">Margin debt</div><div class="v">–</div><div class="s">FINRA, month-end</div></div>
+</div>
+<div class="card"><div id="flowflags"></div><div class="tw"><table id="cot"></table></div>
+<p class="note" id="flownote"></p></div>
 
 <h2>Paper book <span class="n">pretend money: would the desk's calls have paid?</span></h2>
 <div class="tiles" id="booktiles">
@@ -198,6 +209,7 @@ function renderDays(){
   if(d.lessons)h+='<h3>Lessons applied</h3>'+list(d.lessons);
   if(d.watch)h+='<h3>What to watch next</h3>'+list(d.watch);
   if(d.watchlist&&d.watchlist.length)h+='<h3>Watchlist</h3><div class="tw"><table><thead><tr><th>Ticker</th><th>Day</th><th>Note</th></tr></thead><tbody>'+d.watchlist.map(function(w){return '<tr><td>'+esc(w.t)+'</td><td class="'+(w.chg>=0?'up':'dn')+'">'+pc(w.chg)+'</td><td class="mut">'+esc(w.note||'')+'</td></tr>'}).join('')+'</tbody></table></div>';
+  var F=d.flows;if(F){var lc=F.lev_close_usd||{},lr=F.lev_index_ret_pct||{};h+='<h3>Flows</h3><div class="kv">'+['Nasdaq-100','S&P 500'].filter(function(i){return lc[i]!=null}).map(function(i){return '<div>Lev-ETF close hedge, '+esc(i)+'<b class="'+(lc[i]>=0?'up':'dn')+'">'+bn(lc[i])+'</b><span style="font-size:11px">index '+pc(lr[i])+(F.lev_as_of&&F.lev_as_of!==d.date?' · '+esc(F.lev_as_of):'')+'</span></div>'}).join('')+(F.spy_flow_5d_usd!=null?'<div>SPY flow, 5 days<b>'+bn(F.spy_flow_5d_usd)+'</b><span style="font-size:11px">to '+esc(F.spy_as_of||'')+'</span></div>':'')+'</div>'+((F.flags||[]).length?list(F.flags):'')}
   if(d.data_quality)h+='<p class="note">Data: '+esc(d.data_quality)+'</p>';
   $('day').innerHTML=h;
 }
@@ -229,7 +241,21 @@ function renderBook(){
   var P=(S.book||[]).slice().sort(function(a,b){return (b.opened||'').localeCompare(a.opened||'')});
   $('booktab').innerHTML=P.length?'<thead><tr><th>Opened</th><th>Trade</th><th>Why</th><th>Risk</th><th>Status</th><th>P&amp;L</th></tr></thead><tbody>'+P.map(function(x){return '<tr><td>'+esc(x.opened)+'</td><td>'+esc(x.structure)+'<div class="mut" style="font-size:11.5px">exp '+esc(x.expiry||'')+' · '+(x.contracts||0)+'×</div></td><td class="mut" style="font-size:12px">'+esc(x.rationale||'')+'</td><td>$'+f0(x.max_loss_cash)+'</td><td>'+esc(x.status)+(x.exit_reason?'<div class="mut" style="font-size:11.5px">'+esc(x.exit_reason)+'</div>':'')+'</td><td class="'+((x.pnl||0)>=0?'up':'dn')+'">'+(x.pnl==null?'–':(x.pnl>=0?'+$':'−$')+f0(Math.abs(x.pnl)))+'</td></tr>'}).join('')+'</tbody>':'<tbody><tr><td class="empty">No paper trades yet. The book only trades when the desk and the formula disagree by 7 points or more.</td></tr></tbody>';
 }
-function renderAll(){renderNow();renderTiles();chart1();chart2();chart3();renderFc();renderReg();renderBook();renderDays()}
+function bn(x){if(x==null)return '–';var a=Math.abs(x);return (x>=0?'+':'−')+'$'+(a>=1e9?(a/1e9).toFixed(2)+'B':(a/1e6).toFixed(0)+'M')}
+function renderFlows(){
+  var F=S.meta.flows,t=$('flowtiles').children;if(!F){$('flownote').textContent='Flows arrive with the next close run.';return}
+  var lv=F.lev||{},p1=lv.per_1pct_usd||{},ls=lv.last_session||{},nd=ls['Nasdaq-100'];
+  if(p1['Nasdaq-100']!=null){t[0].querySelector('.v').textContent=bn(p1['Nasdaq-100']).replace('+','');t[0].querySelector('.s').textContent='Nasdaq-100 per 1% move · S&P '+bn(p1['S&P 500']).replace('+','')+(nd?' · last: '+bn(nd.flow)+' on '+nd.as_of:'')}
+  var sp=F.spy||{};if(sp.flow_5d_usd!=null){t[1].querySelector('.v').innerHTML='<span class="'+(sp.flow_5d_usd>=0?'up':'dn')+'">'+bn(sp.flow_5d_usd)+'</span>';t[1].querySelector('.s').textContent=(sp.flow_5d_z_1y!=null?'z '+sp.flow_5d_z_1y.toFixed(1)+' vs a year · ':'')+'to '+sp.as_of+' · 20d '+bn(sp.flow_20d_usd)}
+  var P=F.positioning||{},es=P['S&P 500'];if(es){t[2].querySelector('.v').textContent=es.lev_funds_pctile_3y+'th';t[2].querySelector('.s').textContent='net '+f0(es.lev_funds_net)+' contracts · w/w '+(es.lev_funds_wow>=0?'+':'')+f0(es.lev_funds_wow)}
+  var m=F.margin||{};if(m.debit_musd){t[3].querySelector('.v').textContent='$'+(m.debit_musd/1e6).toFixed(2)+'T';t[3].querySelector('.s').textContent=m.month+' · m/m '+pc(m.mom_pct,1)+' · y/y '+pc(m.yoy_pct,0)}
+  $('flowflags').innerHTML=(F.flags||[]).map(function(x){return '<div class="flag">'+esc(x)+'</div>'}).join('');
+  var rows=['S&P 500','Nasdaq-100','Russell 2000','VIX','10Y Treasury','2Y Treasury'].filter(function(n){return P[n]});
+  var cell=function(net,pct,pt,wow){var c=pt>=90||pt<=10?'am':'';return '<td>'+f0(net)+'<div class="mut" style="font-size:11px">'+(pct==null?'':pct.toFixed(1)+'% of OI · ')+'<span class="'+c+'">'+(pt==null?'–':pt+'th pct')+'</span> · w/w '+(wow>=0?'+':'')+f0(wow)+'</div></td>'};
+  $('cot').innerHTML=rows.length?'<thead><tr><th>CFTC futures, net contracts</th><th>Asset managers</th><th>Hedge funds</th></tr></thead><tbody>'+rows.map(function(n){var r=P[n];return '<tr><td>'+esc(n)+'</td>'+cell(r.asset_mgr_net,r.asset_mgr_net_pct_oi,r.asset_mgr_pctile_3y,r.asset_mgr_wow)+cell(r.lev_funds_net,r.lev_funds_net_pct_oi,r.lev_funds_pctile_3y,r.lev_funds_wow)+'</tr>'}).join('')+'</tbody>':'';
+  $('flownote').innerHTML='Positions as of '+esc(F.cot_report_date||'–')+' (CFTC, published Fridays). The close hedge is what daily-reset leveraged and inverse ETFs must trade near 4 pm: L(L−1) × the index move × fund assets, always in the direction of the day\'s move. Percentiles in amber are at a 3-year extreme. These are context only: they do not change the desk\'s probabilities until the Sunday review has tested them on 20+ days. Sources: CFTC Traders in Financial Futures, FINRA margin statistics, SSGA (SPY), iShares (IVV), ProShares fund pages. Missing: '+esc((F.gaps||[]).join(' '))+' Updated '+esc(F.updated||'')+'.';
+}
+function renderAll(){renderNow();renderTiles();chart1();chart2();chart3();renderFc();renderReg();renderFlows();renderBook();renderDays()}
 $('days').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;sel=b.dataset.d;renderDays()});
 renderAll();
 var timer=setTimeout(function(){$('status').textContent='The desk store did not answer. Reload to try again.'},10000),got={};
