@@ -1,0 +1,276 @@
+<title>God's Eye View</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* VOICE work: a research desk's map room, read by one analyst after the close
+   IDEA a transit map of money: stations are markets, lines are the routes stress travels, each line carries its evidence
+   PICTURE the full network, stations tinted by pressure, routes thick where history says they are strong, live routes flowing
+   COLOUR desk family theme: masthead #0b3b41, lens #7fd6cf; claret = stress, green = easing, amber = gaps, grey = quiet
+   TYPE Libre Franklin throughout (matches HQ, Daily, Ledger)
+   LAYOUT sky band with finding + figures; full-width map with time scrubber; detail card and story side by side; evidence ledger; phone turns the map vertical */
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#0d1416);--ink:light-dark(#14181b,#e8eff0);--mute:light-dark(#4d5a5e,#9fb3b5);--sky:light-dark(#0b3b41,#08262a);--skyink:#ffffff;--lens:#7fd6cf;--rule:light-dark(#dbe3e4,#22343a);--panel:light-dark(#f3f7f7,#13201f);--org:light-dark(#9a5b00,#f0b429);--good:light-dark(#16794a,#4cc38a);--bad:light-dark(#b3123f,#ff6f8e);--blue:light-dark(#0d7680,#4fc3c9);--quiet:light-dark(#b9c4c7,#3a4c51);--node:light-dark(#ffffff,#121b1e)}
+:root[data-theme=light]{color-scheme:light}
+:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 "Libre Franklin",system-ui,sans-serif;overflow-x:clip;margin:0}
+h1,h2,h3{letter-spacing:-.02em;line-height:1.08;margin:0}
+h1{font-size:clamp(34px,5vw,52px);font-weight:700}
+h2{font-size:clamp(24px,3vw,32px);font-weight:600;margin-bottom:6px}
+h3{font-size:18px;font-weight:600}
+p{margin:6px 0 0;max-width:70ch}
+.band{padding-block:clamp(28px,4vw,52px);padding-left:max(5vw,16px,env(safe-area-inset-left,0px));padding-right:max(5vw,16px,env(safe-area-inset-right,0px));border-top:1px solid var(--rule)}
+.in{max-width:1240px;margin:0 auto}
+.hero{background:var(--sky);color:var(--skyink);border:0;margin-top:calc(-1*env(safe-area-inset-top,0px));padding-top:calc(env(safe-area-inset-top,0px) + 2.5rem)}
+.nav{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:15px;margin-bottom:18px}
+.nav a,.nav b{color:var(--skyink);text-decoration:none;padding:6px 0;border-bottom:2px solid transparent}
+.nav b{border-color:var(--lens)}
+.nav a:hover{border-color:color-mix(in srgb,var(--lens) 60%,transparent)}
+.lede{font-size:clamp(18px,2vw,21px);max-width:66ch;margin-top:12px}
+.hero .sub{color:#b7d0d2}
+.figs{display:grid;grid-template-columns:repeat(auto-fit,minmax(9em,1fr));gap:12px 24px;margin-top:22px}
+.figs b{display:block;font:700 clamp(28px,3.4vw,40px)/1 "Libre Franklin",sans-serif;white-space:nowrap}
+.figs span{font-size:14px;color:#d6e6e7}
+.sub{color:var(--mute);font-size:14px}
+.mapwrap{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:12px 12px 4px}
+.fig{position:relative;height:600px}
+.fig>svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+svg text{font-family:"Libre Franklin",sans-serif}
+.edge{fill:none;cursor:pointer}
+.hit{fill:none;stroke:transparent;stroke-width:14;cursor:pointer}
+.flow{stroke-dasharray:6 8;animation:run 1.1s linear infinite}
+@keyframes run{to{stroke-dashoffset:-14}}
+@media (prefers-reduced-motion: reduce){.flow{animation:none}}
+.nd{cursor:pointer}
+.nd:focus{outline:none}
+.nd:focus-visible rect.box{stroke:var(--blue);stroke-width:3}
+.time{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;align-items:center;margin-top:10px}
+.time .d{font:700 18px "Libre Franklin",sans-serif;white-space:nowrap}
+.spark{position:relative;height:46px}
+.spark svg{position:absolute;inset:0;width:100%;height:100%}
+input[type=range]{width:100%;height:44px;margin:0;accent-color:var(--blue)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 4px}
+button{font:500 14px "Libre Franklin",sans-serif;border-radius:99px;border:1px solid var(--rule);background:var(--bg);color:var(--ink);padding:8px 14px;min-height:40px;cursor:pointer}
+button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.legend{display:flex;gap:6px 18px;flex-wrap:wrap;font-size:13px;color:var(--mute);margin-top:8px}
+.legend i{display:inline-block;width:22px;height:0;border-top:3px solid;vertical-align:middle;margin-right:6px}
+.legend .sw{width:14px;height:14px;border:0;border-radius:3px;margin-right:4px}
+.two{display:grid;gap:24px;margin-top:22px}
+@media(min-width:860px){.two{grid-template-columns:minmax(0,6fr) minmax(0,5fr)}}
+.card{border:1px solid var(--rule);border-radius:12px;padding:16px 18px;background:var(--bg)}
+.tag{display:inline-block;font:600 13px "Libre Franklin",sans-serif;padding:2px 10px;border-radius:99px;margin:0 6px 6px 0}
+.t-tested{background:color-mix(in srgb,var(--blue) 16%,transparent);color:var(--blue)}
+.t-inferred{background:color-mix(in srgb,var(--org) 18%,transparent);color:var(--org)}
+.t-mechanical{background:color-mix(in srgb,var(--mute) 18%,transparent);color:var(--mute)}
+.t-pass-s{background:color-mix(in srgb,var(--bad) 14%,transparent);color:var(--bad)}
+.t-pass-e{background:color-mix(in srgb,var(--good) 14%,transparent);color:var(--good)}
+.t-gap{background:color-mix(in srgb,var(--org) 18%,transparent);color:var(--org)}
+.kv{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:4px 14px;font-size:15px;margin-top:10px}
+.kv dt{color:var(--mute)}
+.kv dd{margin:0}
+.eras{display:grid;gap:6px;margin-top:8px}
+.era{display:grid;grid-template-columns:5.5em minmax(0,1fr) 3.4em;gap:8px;align-items:center;font-size:14px}
+.era .tr{position:relative;height:12px;background:var(--panel);border-radius:6px}
+.era .tr::after{content:"";position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--mute)}
+.era .tr i{position:absolute;top:0;bottom:0;border-radius:6px}
+.era .v{text-align:right;font-variant-numeric:tabular-nums}
+.story{margin:0;padding:0;list-style:none;display:grid;gap:10px}
+.story li{padding-left:14px;border-left:3px solid var(--rule);font-size:16px}
+.story li.s{border-color:var(--bad)}
+.story li.e{border-color:var(--good)}
+.story li.g{border-color:var(--org)}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th{text-align:left;font-weight:600;color:var(--mute);border-bottom:1px solid var(--ink);padding:8px}
+td{border-bottom:1px solid var(--rule);padding:8px;vertical-align:top}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.pick{cursor:pointer}
+tr.pick:hover{background:var(--panel)}
+.rbar{display:inline-block;height:9px;border-radius:5px;vertical-align:middle;margin-right:6px}
+.off{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));margin-top:14px}
+.off div{border-top:2px solid var(--rule);padding-top:8px;font-size:15px}
+footer{font-size:14px;color:var(--mute)}
+.err{color:var(--bad)}
+@media(max-width:640px){.fig{height:1040px}.time{grid-template-columns:minmax(0,1fr)}table{font-size:13px}th,td{padding:6px 4px}.hide-s{display:none}}
+</style>
+
+<section class="band hero">
+ <div class="in">
+  <nav class="nav"><a href="https://claude.ai/artifact/R7i5cJx8SC6fpW9oQm7ZcM">HQ</a><b>God's Eye</b><a href="https://claude.ai/artifact/NL7yQRq1UYSwBeSemnB6Dm">Desk Room</a><a href="https://claude.ai/artifact/TcxbaSnEiAddmETVgBKL8q">Daily</a><a href="https://claude.ai/artifact/7jU3VUdjX9x22fNqXoYbCL">Ledger</a><a href="https://claude.ai/artifact/M2T7uHbVzqydb38BcrRi8F">Scorecard</a><a href="https://claude.ai/artifact/T4gimQad24JCNFSKsCTbwM">Guide</a></nav>
+  <h1>God's Eye View</h1>
+  <p class="lede" id="finding">Loading the map…</p>
+  <p class="sub" id="asof"></p>
+  <div class="figs" id="figs"></div>
+ </div>
+</section>
+
+<section class="band" style="border:0">
+ <div class="in">
+  <h2>Where money and stress are moving</h2>
+  <p class="sub">Each station is a market the desk already tracks. Tap a station or a route to see its numbers and the evidence behind the connection. Thick routes held up strongly on history; dashed ones are theory with no free data to test them.</p>
+  <div class="mapwrap" style="margin-top:14px">
+   <div class="fig" id="map" role="img" aria-label="Network map of money flow between markets"></div>
+   <div class="time">
+    <div><div class="d" id="tdate"></div><div class="sub">System pressure, 3 years</div></div>
+    <div><div class="spark" id="spark"></div><input type="range" id="slider" min="0" max="0" value="0" aria-label="Week to show"></div>
+   </div>
+   <div class="chips" id="chips"></div>
+   <div class="legend">
+    <span><i class="sw" style="background:var(--bad)"></i>stress building</span>
+    <span><i class="sw" style="background:var(--good)"></i>easing</span>
+    <span><i style="border-color:var(--bad)"></i>stress passing along</span>
+    <span><i style="border-color:var(--good)"></i>easing passing along</span>
+    <span><i style="border-color:var(--org)"></i>gap: upstream moved, downstream hasn't</span>
+    <span><i style="border-color:var(--quiet);border-top-style:dashed"></i>theory only</span>
+   </div>
+  </div>
+
+  <div class="two">
+   <div class="card" id="detail"></div>
+   <div class="card">
+    <h3>What connects this week</h3>
+    <p class="sub">Written by rules from the numbers on the map, not by judgment. A chain means every step moved the way its link says.</p>
+    <ul class="story" id="story" style="margin-top:12px"></ul>
+   </div>
+  </div>
+ </div>
+</section>
+
+<section class="band">
+ <div class="in">
+  <h2 id="evh">The evidence behind every route</h2>
+  <p class="sub">Correlation of non-overlapping 4-week changes since 2010 (credit since 2023: FRED keeps 3 years). Signed so a positive bar means the link behaved as the theory says. Lead asks whether the upstream move came first. Tap a row to show it on the map.</p>
+  <div class="scroll" style="margin-top:12px"><table id="ev"></table></div>
+ </div>
+</section>
+
+<section class="band">
+ <div class="in">
+  <h2>What this map cannot see</h2>
+  <p>It can't make insight from nothing. It lines up numbers the desk already pulls and shows which connections the data supports. Co-movement is not cause, a strong past link can break (see the eras), and every tested link here is about the same 4-week window, so nothing on this page is a forecast.</p>
+  <div class="off" id="off"></div>
+ </div>
+</section>
+
+<section class="band">
+ <div class="in"><footer id="foot"></footer></div>
+</section>
+
+<script>
+{
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const SHORT={fed_bs:'Fed balance sheet',fed_rate:'Fed rate',rrp:'Reverse repo',auctions:'Auctions',oil:'Oil',repo:'Repo',infl:'Inflation exp.',yields:'10y yield',real:'Real yields',dollar:'Dollar',fincond:'Fin. conditions',credit:'Credit',vol:'VIX curve',positioning:'Positioning',margin:'Margin debt',spx:'S&P 500',ndx:'Nasdaq',etf:'ETF flows',cad:'USD/CAD'};
+const POS={fed_bs:[.07,.09],rrp:[.2,.27],fed_rate:[.07,.45],auctions:[.07,.63],oil:[.07,.84],repo:[.34,.1],infl:[.24,.7],yields:[.36,.5],real:[.53,.63],dollar:[.46,.86],fincond:[.52,.1],credit:[.7,.11],vol:[.69,.37],positioning:[.84,.55],margin:[.93,.08],spx:[.93,.32],ndx:[.7,.8],etf:[.88,.72],cad:[.93,.9]};
+const POSN={fed_bs:[.17,.03],auctions:[.5,.03],oil:[.83,.03],rrp:[.17,.15],fed_rate:[.5,.15],infl:[.83,.15],repo:[.17,.28],yields:[.5,.28],dollar:[.83,.28],fincond:[.17,.41],real:[.5,.41],credit:[.17,.53],vol:[.5,.53],margin:[.83,.53],positioning:[.5,.66],spx:[.17,.79],ndx:[.83,.72],etf:[.83,.88],cad:[.5,.95]};
+const BEND={'oil>cad':.11,'spx>cad':.05,'etf>ndx':.05,'ndx>etf':.05,'fed_bs>repo':-.04,'yields>spx':-.06,'credit>spx':-.03,'margin>spx':0,'auctions>repo':-.05};
+const EPIS=[['Today',null],['Aug 2024 yen unwind','2024-08-07'],['Apr 2025 tariff shock','2025-04-09'],['One month ago',-4]];
+let D=null,idx=0,sel=null;
+const pc=p=>p==null?'var(--node)':p>=0?`color-mix(in srgb,var(--bad) ${Math.min(85,Math.round(Math.abs(p)/3*85))}%,var(--node))`:`color-mix(in srgb,var(--good) ${Math.min(85,Math.round(Math.abs(p)/3*85))}%,var(--node))`;
+const word=p=>p==null?'no reading':p>=2?'stress':p>=.75?'tightening':p<=-2?'strong easing':p<=-.75?'easing':'calm';
+const N=id=>D.nodes.find(n=>n.id===id);
+const snap=()=>D.snapshots[idx];
+const edgeState=e=>snap().e[e.id]||'quiet';
+const eColor=e=>{const s=edgeState(e);if(s==='gap')return 'var(--org)';if(s==='pass')return (snap().p[e.b]??0)>0?'var(--bad)':'var(--good)';return 'var(--quiet)'};
+function geom(W,H){
+  const narrow=W<560,g={};
+  const bwN=Math.min(112,(W-24)/3.3);
+  for(const n of D.nodes){if(narrow){const [x,y]=POSN[n.id];g[n.id]={x:bwN/2+4+(x-.17)/.66*(W-bwN-8),y:24+y*(H-48)}}else{const [x,y]=POS[n.id];g[n.id]={x:20+x*(W-40),y:24+y*(H-48)}}}
+  return {g,narrow,bw:narrow?Math.min(112,(W-24)/3.3):Math.min(148,Math.max(104,W*.12)),bh:narrow?40:46};
+}
+function draw(){
+  if(!D)return;const s=$('map').firstElementChild||$('map').appendChild(document.createElementNS('http://www.w3.org/2000/svg','svg'));
+  const W=$('map').clientWidth,H=$('map').clientHeight,{g,narrow,bw,bh}=geom(W,H),S=snap();
+  const cols=narrow?[]:[['Where money starts',.07],['Price of money',.36],['Risk appetite',.69],['Markets',.93]];
+  let h='<defs>'+['bad','good','org','quiet'].map(c=>`<marker id="ar-${c}" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="var(--${c})"/></marker>`).join('')+'</defs>';
+  h+=cols.map(([t,x])=>`<text x="${20+x*(W-40)}" y="10" text-anchor="middle" font-size="13" fill="var(--mute)">${t}</text>`).join('');
+  const clipPt=(a,b)=>{const dx=b.x-a.x,dy=b.y-a.y,sx=Math.abs(dx)/(bw/2+4),sy=Math.abs(dy)/(bh/2+4),k=Math.max(sx,sy)||1;return{x:a.x+dx/k,y:a.y+dy/k}};
+  for(const e of D.edges){
+    const A=g[e.a],B=g[e.b];if(!A||!B)continue;
+    const bend=narrow?0:(BEND[e.id]||0)*H,mx=(A.x+B.x)/2,my=(A.y+B.y)/2,dx=B.x-A.x,dy=B.y-A.y,L=Math.hypot(dx,dy)||1;
+    const cx=mx-dy/L*bend,cy=my+dx/L*bend;
+    const p0=clipPt(A,{x:cx,y:cy}),p1=clipPt(B,{x:cx,y:cy});
+    const st=edgeState(e),col=eColor(e),w=e.kind==='tested'?1.2+e.w*6:1.4;
+    const dash=e.kind==='inferred'?'stroke-dasharray="5 5"':e.kind==='mechanical'?'stroke-dasharray="1.5 4"':'';
+    const mk=col.match(/--(\w+)/)[1],on=sel&&sel.t==='e'&&sel.id===e.id,d=`M${p0.x},${p0.y} Q${cx},${cy} ${p1.x},${p1.y}`;
+    const fade=(S.p[e.a]==null||S.p[e.b]==null)?' opacity=".35"':'';
+    h+=`<g data-e="${esc(e.id)}"${fade}><path class="edge" d="${d}" stroke="${col}" stroke-width="${on?w+2:w}" ${dash} marker-end="url(#ar-${mk})"/>`;
+    if(st==='pass'&&e.kind!=='inferred')h+=`<path class="edge flow" d="${d}" stroke="var(--bg)" stroke-opacity=".55" stroke-width="${Math.max(1,w-1)}"/>`;
+    h+=`<path class="hit" d="${d}"/></g>`;
+  }
+  for(const n of D.nodes){
+    const P=g[n.id],p=S.p[n.id],on=sel&&sel.t==='n'&&sel.id===n.id,lab=narrow||bw<130?SHORT[n.id]:n.label;
+    const dashed=n.tracker&&p==null?' stroke-dasharray="4 4"':'';
+    h+=`<g class="nd" data-n="${n.id}" tabindex="0" role="button" aria-label="${esc(n.label)}: ${word(p)}"><rect class="box" x="${P.x-bw/2}" y="${P.y-bh/2}" width="${bw}" height="${bh}" rx="9" fill="${pc(p)}" stroke="${on?'var(--ink)':'var(--rule)'}" stroke-width="${on?2.5:1}"${dashed}/>`+
+       `<text x="${P.x}" y="${P.y-3}" text-anchor="middle" font-size="${narrow?12:13.5}" font-weight="700" fill="var(--ink)">${esc(lab)}</text>`+
+       `<text x="${P.x}" y="${P.y+13}" text-anchor="middle" font-size="12" fill="var(--ink)" opacity=".8">${p==null?(n.tracker?'today only':'no data yet'):(p>0?'+':'')+p.toFixed(1)+(narrow?'':' '+word(p))}</text></g>`;
+  }
+  s.innerHTML=h;
+}
+function pick(t,id){sel={t,id};draw();detail();}
+function detail(){
+  const S=snap(),c=$('detail');if(!sel){c.innerHTML='';return}
+  if(sel.t==='n'){
+    const n=N(sel.id),p=S.p[n.id],links=D.edges.filter(e=>e.a===n.id||e.b===n.id);
+    c.innerHTML=`<h3>${esc(n.label)}</h3><p class="sub">${esc(n.what)}</p><dl class="kv"><dt>Reading</dt><dd>${esc(S.v[n.id]||(n.tracker?'Tracker reading is only available for the latest week.':'No data for this week.'))}</dd><dt>Pressure</dt><dd>${p==null?'n/a':(p>0?'+':'')+p.toFixed(2)+' ('+word(p)+')'}</dd><dt>Measured by</dt><dd>${esc(n.src)}</dd><dt>Type</dt><dd>${n.tracker?'Measured today by a desk tracker; no history kept':'Measured, with history back to the source start'}</dd></dl>`+
+      `<h3 style="margin-top:14px;font-size:16px">Routes</h3><div class="eras">${links.map(e=>`<div class="era" style="grid-template-columns:minmax(0,1fr) auto;cursor:pointer" data-go="${esc(e.id)}"><span>${esc(N(e.a).label)} → ${esc(N(e.b).label)}</span><span class="tag t-${e.kind}" style="margin:0">${esc(e.kind==='tested'?e.strength:e.kind==='inferred'?'theory only':'mechanical')}</span></div>`).join('')}</div>`;
+  }else{
+    const e=D.edges.find(x=>x.id===sel.id),st=edgeState(e),t=e.test,gt=e.gap_test;
+    const stTag=st==='pass'?((S.p[e.b]??0)>0?'<span class="tag t-pass-s">stress passing this week</span>':'<span class="tag t-pass-e">easing passing this week</span>'):st==='gap'?'<span class="tag t-gap">gap this week</span>':'<span class="tag t-mechanical">quiet this week</span>';
+    const kt={tested:'Tested on history',inferred:'Theory only, not tested',mechanical:'Mechanical formula'}[e.kind];
+    let body=`<h3>${esc(N(e.a).label)} → ${esc(N(e.b).label)}</h3><div style="margin-top:8px"><span class="tag t-${e.kind}">${kt}</span>${stTag}</div><p>${esc(e.why)}</p>`;
+    body+=`<dl class="kv"><dt>${esc(N(e.a).label)}</dt><dd>${esc(S.v[e.a]||'n/a')}</dd><dt>${esc(N(e.b).label)}</dt><dd>${esc(S.v[e.b]||'n/a')}</dd>`;
+    if(t){body+=`<dt>History</dt><dd>r = ${t.r} (95% range ${t.ci?t.ci.join(' to '):'n/a'}), ${t.n} four-week periods since ${esc(t.since)}. Strength: <b>${esc(e.strength)}</b>, ${esc(e.stable)}.</dd><dt>Lead</dt><dd>r = ${e.lead.r} (${esc(e.lead.what)}): ${Math.abs(e.lead.r)<.15?'no real lead; they move together, not one after the other':'some lead, '+(e.lead.r*e.sign>0?'in the expected direction':'against the expected direction')}.</dd>`;
+      if(gt&&gt.gaps>=8)body+=`<dt>Gaps</dt><dd>${gt.gaps} weeks when the upstream side moved and the downstream side had not; it moved toward it within 4 weeks ${Math.round(gt.rate*100)}% of the time vs ${Math.round(gt.base*100)}% normally. Weeks overlap, so this is softer than it looks.</dd>`;}
+    body+='</dl>';
+    if(e.eras&&e.eras.length){body+=`<h3 style="margin-top:14px;font-size:16px">Does it hold up by era?</h3><div class="eras">`+e.eras.map(x=>{const v=x.r*e.sign,wd=Math.min(50,Math.abs(v)*50);return `<div class="era"><span>${esc(x.era)}</span><span class="tr"><i style="${v>=0?'left:50%':'right:50%'};width:${wd}%;background:${v>=0?'var(--blue)':'var(--bad)'}"></i></span><span class="v">${x.r.toFixed(2)}</span></div>`}).join('')+`</div><p class="sub">Bar right of centre = behaved as the theory says in that era.</p>`}
+    c.innerHTML=body;
+  }
+  c.querySelectorAll('[data-go]').forEach(el=>el.onclick=()=>pick('e',el.dataset.go));
+}
+function storyHtml(){
+  const S=snap();
+  $('story').innerHTML=S.story.map(t=>`<li class="${/^Stress/.test(t)?'s':/^Easing/.test(t)?'e':/^Gap/.test(t)?'g':''}">${esc(t)}</li>`).join('');
+}
+function spark(){
+  const el=$('spark');const W=el.clientWidth,H=el.clientHeight,v=D.snapshots.map(s=>{const a=Object.entries(s.p).filter(([k])=>!N(k).tracker).map(([,x])=>Math.max(0,x));return a.length?a.reduce((x,y)=>x+y,0)/a.length:0});
+  const mx=Math.max(...v,0.5),x=i=>8+i*(W-16)/(v.length-1),y=t=>H-4-t/mx*(H-10);
+  const d='M'+x(0)+','+(H-4)+v.map((t,i)=>' L'+x(i)+','+y(t)).join('')+' L'+x(v.length-1)+','+(H-4)+'Z';
+  el.innerHTML=`<svg><path d="${d}" fill="color-mix(in srgb,var(--bad) 30%,transparent)" stroke="var(--bad)" stroke-width="1.2"/><line x1="${x(idx)}" x2="${x(idx)}" y1="0" y2="${H}" stroke="var(--ink)" stroke-width="2"/></svg>`;
+}
+function hero(){
+  const S=D.snapshots[D.snapshots.length-1],p=S.p;
+  $('finding').textContent=S.story.slice(0,2).map(t=>t.replace(/ Weakest tested link:.*$/,'').replace(/ Dashed steps.*$/,'')).join(' ');
+  $('asof').textContent=`Week of ${D.as_of}. Built ${D.built_utc} UTC from the desk's nightly data. Context only, not advice.`;
+  const hot=Object.values(p).filter(x=>x>=.75).length,cool=Object.values(p).filter(x=>x<=-.75).length,pass=Object.values(S.e).filter(x=>x==='pass').length,tested=D.edges.filter(e=>e.kind==='tested'),strong=tested.filter(e=>e.strength==='strong').length;
+  $('figs').innerHTML=[[hot,'stations under pressure'],[cool,'stations easing'],[pass,'routes passing pressure'],[`${strong} of ${tested.length}`,'tested routes strong on history']].map(([a,b])=>`<div><b>${esc(a)}</b><span>${esc(b)}</span></div>`).join('');
+}
+function table(){
+  const rank={strong:0,moderate:1,weak:2,none:3,contradicts:4,mechanical:5,inferred:6};
+  const rows=[...D.edges].sort((a,b)=>(rank[a.strength]-rank[b.strength])||((b.w||0)-(a.w||0)));
+  $('ev').innerHTML='<thead><tr><th>Route</th><th>Type</th><th class="n">Fit</th><th class="hide-s">Eras</th><th class="n hide-s">Lead</th><th>This week</th></tr></thead><tbody>'+rows.map(e=>{
+    const r=e.test?e.test.r*e.sign:null,st=edgeState(e);
+    const fit=r==null?'–':`<span class="rbar" style="width:${Math.round(Math.abs(r)*60)}px;background:${r>=0?'var(--blue)':'var(--bad)'}"></span>${r.toFixed(2)}`;
+    return `<tr class="pick" data-go="${esc(e.id)}"><td>${esc(N(e.a).label)} → ${esc(N(e.b).label)}</td><td>${esc(e.kind==='tested'?e.strength:e.kind==='inferred'?'theory only':'mechanical')}</td><td class="n">${fit}</td><td class="hide-s">${esc(e.stable||'')}</td><td class="n hide-s">${e.lead&&e.lead.r!=null?e.lead.r.toFixed(2):'–'}</td><td>${st==='pass'?((snap().p[e.b]??0)>0?'stress passing':'easing passing'):st}</td></tr>`}).join('')+'</tbody>';
+  $('ev').querySelectorAll('[data-go]').forEach(el=>el.onclick=()=>{pick('e',el.dataset.go);$('map').scrollIntoView({behavior:'smooth',block:'center'})});
+}
+function setIdx(i){idx=Math.max(0,Math.min(D.snapshots.length-1,i));$('slider').value=idx;$('tdate').textContent=(idx===D.snapshots.length-1?'This week · ':'Week of ')+snap().date;
+  document.querySelectorAll('#chips button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.i===idx)));draw();detail();storyHtml();spark();table();}
+function boot(d){
+  D=d;const last=D.snapshots.length-1;$('slider').max=last;
+  $('chips').innerHTML=EPIS.map(([t,v])=>{let i=v==null?last:typeof v==='number'?last+v:D.snapshots.findIndex(s=>s.date===v);return i<0?'':`<button data-i="${i}" aria-pressed="false">${esc(t)}</button>`}).join('');
+  $('chips').querySelectorAll('button').forEach(b=>b.onclick=()=>setIdx(+b.dataset.i));
+  $('slider').oninput=e=>setIdx(+e.target.value);
+  $('map').addEventListener('click',ev=>{const n=ev.target.closest('[data-n]'),e=ev.target.closest('[data-e]');if(n)pick('n',n.dataset.n);else if(e)pick('e',e.dataset.e)});
+  $('map').addEventListener('keydown',ev=>{const n=ev.target.closest('[data-n]');if(n&&(ev.key==='Enter'||ev.key===' ')){ev.preventDefault();pick('n',n.dataset.n)}});
+  const S=D.snapshots[last],first=D.edges.filter(e=>S.e[e.id]==='pass'&&e.kind==='tested').sort((a,b)=>b.w-a.w)[0];
+  sel=first?{t:'e',id:first.id}:{t:'n',id:'credit'};
+  $('off').innerHTML=D.off_map.map(o=>`<div><b>${esc(o.name)}</b><br>${esc(o.why)}</div>`).join('');
+  $('foot').innerHTML=`<p><b>Method.</b> ${esc(D.method)}</p><p>${esc(D.version)} · analyses/godseye/godseye.py on the desk branch · ${esc(D.disclaimer)}</p>`;
+  hero();setIdx(last);
+  const ro=new ResizeObserver(()=>{draw();spark()});ro.observe($('map'));
+}
+fetch('godseye.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(boot).catch(err=>{$('finding').innerHTML='<span class="err">Could not load the map data ('+esc(err.message)+').</span>'});
+}
+</script>
