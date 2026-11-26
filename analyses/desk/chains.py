@@ -125,6 +125,7 @@ def years(expiry: dt.date, now: dt.datetime):
 
 # ---------------------------------------------------------------- data
 LAST_HEADERS = {}
+USAGE = {"requests": 0, "lock_retries": 0, "contracts_returned": 0}
 LOCK_WAIT_S = 330   # MarketData.app one-device lock lasts ~5 minutes
 
 
@@ -138,6 +139,7 @@ def _get(base, path, params, _retry=True):
         req.add_header("APCA-API-KEY-ID", kid)
         req.add_header("APCA-API-SECRET-KEY", sec)
     try:
+        USAGE["requests"] += 1
         with urllib.request.urlopen(req, timeout=60) as r:
             LAST_HEADERS.clear()
             LAST_HEADERS.update({k.lower(): v for k, v in r.headers.items()})
@@ -148,6 +150,7 @@ def _get(base, path, params, _retry=True):
             # Cloud egress IP changed since the last call. Wait out the lock, retry once.
             print(f"note: MarketData.app IP lock; waiting {LOCK_WAIT_S}s and retrying once", file=sys.stderr)
             import time
+            USAGE["lock_retries"] += 1
             time.sleep(LOCK_WAIT_S)
             return _get(base, path, params, _retry=False)
         raise SystemExit(f"HTTP {e.code} on {base}{path}: {body}  "
@@ -466,6 +469,8 @@ def fetch_marketdata(underlying, exp_lo, exp_hi, band, date=None, expiration=Non
     if js.get("s") not in ("ok", None):
         raise SystemExit(f"MarketData.app: {js.get('s')} {js.get('errmsg', '')}")
     syms = js.get("optionSymbol") or []
+    USAGE["contracts_returned"] += len(syms)
+    USAGE["request"] = {k: v for k, v in p.items()}
     col = lambda k, i, d=None: (js.get(k) or [d] * len(syms))[i]
     spot = next((float(x) for x in (js.get("underlyingPrice") or []) if x), None)
     close_t = dt.datetime.combine(dt.date.fromisoformat(date), dt.time(21, 0), tzinfo=dt.timezone.utc)
@@ -502,7 +507,7 @@ def live(args):
     if args.source == "marketdata":
         if args.budget is not None or args.auto:
             p = plan_request(args.budget, getattr(args, "expiry", None) or _next_weekly(now.date()))
-            args.band, args.strike_limit = p["band"], p["strike_limit"]
+            args.band, args.strike_limit = max(p["band"], args.band_min), p["strike_limit"]
             lo_e, hi_e = now.date(), now.date() + dt.timedelta(days=max(p["days"], args.days))
             if p["expiry"]:
                 args.expiry = p["expiry"]
@@ -535,18 +540,20 @@ def _next_weekly(d):
 
 
 def cmd_summary(args):
-    args.book_items = []
+    args.book_items, args.band_min = [], 0.0
     if args.book:
         raw = open(args.book).read() if os.path.exists(args.book) else args.book
         args.book_items = json.loads(raw)
         far = max((dt.date.fromisoformat(i["expiry"]) for i in args.book_items), default=None)
         if far:
             args.days = max(args.days, (far - dt.date.today()).days + 1)
+        args.band_min = 0.15   # keep every strike a book trade could use (historical pulls are cheap)
     now, spot, chain, oi = live(args)
     out = summarize(chain, oi, spot, now)
     if args.source == "marketdata":
         out["source"] = "MarketData.app (prior session's closing quotes)"
     out["credits"] = credits()
+    out["usage"] = dict(USAGE, date_pulled=out["at"][:10])   # log this every run: it is the trial-month usage data
     out["plan"] = getattr(args, "plan", "manual")
     if out["plan"] == "narrow":
         out["gamma"] = None   # one expiry, near strikes only: too partial to call a gamma level
@@ -568,6 +575,7 @@ def cmd_summary(args):
 
 
 def cmd_price(args):
+    args.band_min = 0.0
     now, spot, chain, _ = live(args)
     expiry = dt.date.fromisoformat(args.expiry)
     s = summarize(chain, {}, spot, now)
