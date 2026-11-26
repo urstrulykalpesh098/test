@@ -3,7 +3,7 @@
 Weekly scorecard comparing the desk, the plain VIX formula, the simulator and a naive
 "trend follows yesterday" baseline, plus the paper book vs SPY.
 
-- Page: https://claude.ai/artifact/M2T7uHbVzqydb38BcrRi8F (Data artifact; page source copy in `page_index.html`, stored in the artifact as `files/index.html`).
+- Page: https://claude.ai/artifact/M2T7uHbVzqydb38BcrRi8F (Data artifact; the live page source is the artifact's `files/index.html`, styled by the design thread, copy at analyses/design/scorecard_index.html. Keep its data-source/data-field/data-draw bindings when editing).
 - `scorecard.py` (stdlib only, self-contained; a copy lives in the Desk Ledger as method/scorecard_script): builds per-week rows and an "All weeks" row from graded ledger calls, and grades one-day S&P up/down calls vs follow-yesterday (60/40, fixed in advance), the formula (50%) and always-down (warning only).
 
 Refresh (the Sunday self-review does this every week, or by hand):
