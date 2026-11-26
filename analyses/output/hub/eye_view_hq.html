@@ -1,0 +1,372 @@
+<title>Eye View HQ</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* VOICE work: a research desk's control room, read by one analyst
+   IDEA the departures board of a data railway: sources in, verdicts out
+   PICTURE the pipeline route from free sources to the verdicts, with live counts at each station
+   COLOUR sky #4fb3e8 band, white ground, ink #10223a, orange #ff7a1a for what matters; night #0b1726
+   TYPE Outfit 600/700 display + Inter text
+   LAYOUT sky band: finding + figures, then full-width route; below, bands with chart beside its text; phone stacks */
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#0b1726);--ink:light-dark(#10223a,#e8f0f8);--mute:light-dark(#4a5d75,#9fb2c8);--sky:light-dark(#4fb3e8,#123a5c);--skyink:light-dark(#0b2340,#e8f4ff);--rule:light-dark(#d9e3ee,#22364f);--panel:light-dark(#f2f7fb,#11223a);--org:#ff7a1a;--orgink:light-dark(#b34a00,#ffa060);--good:light-dark(#137a4a,#4fd08f);--bad:light-dark(#b3261e,#ff8a80);--blue:light-dark(#1d6fb8,#6cc3f2)}
+:root[data-theme=light]{color-scheme:light}
+:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,sans-serif;overflow-x:clip;margin:0}
+h1,h2,h3{font-family:Outfit,Inter,sans-serif;letter-spacing:-.02em;line-height:1.08;margin:0}
+h1{font-size:clamp(34px,5vw,52px);font-weight:700}
+h2{font-size:clamp(24px,3vw,32px);font-weight:600;margin-bottom:6px}
+h3{font-size:18px;font-weight:600}
+p{margin:6px 0 0;max-width:68ch}
+.band{padding-block:clamp(28px,4vw,56px);padding-left:max(5vw,16px,env(safe-area-inset-left,0px));padding-right:max(5vw,16px,env(safe-area-inset-right,0px));border-top:1px solid var(--rule)}
+.in{max-width:1240px;margin:0 auto}
+.hero{background:var(--sky);color:var(--skyink);border:0;margin-top:calc(-1*env(safe-area-inset-top,0px));padding-top:calc(env(safe-area-inset-top,0px) + 2.5rem)}
+.hero .lede{font-size:18px;max-width:62ch;margin-top:10px}
+.figs{display:grid;grid-template-columns:repeat(auto-fit,minmax(9em,1fr));gap:12px 24px;margin-top:22px}
+.fig1 b{display:block;font:700 clamp(28px,3.4vw,40px)/1 Outfit,sans-serif;white-space:nowrap}
+.fig1 span{font-size:14px}
+.route{position:relative;height:250px;margin-top:26px}
+.route svg{position:absolute;inset:0;width:100%;height:100%}
+.route text{font-family:Inter,sans-serif}
+.sub{color:var(--mute);font-size:14px}
+.two{display:grid;gap:28px}
+@media(min-width:860px){.two{grid-template-columns:minmax(0,5fr) minmax(0,7fr)}}
+.chart{position:relative;height:320px}
+.chart svg{position:absolute;inset:0;width:100%;height:100%}
+svg text{paint-order:stroke;stroke:var(--bg);stroke-width:4px;fill:var(--ink);font-size:13px}
+.verdicts{display:grid;gap:12px;margin-top:18px;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr))}
+.v{border:1px solid var(--rule);border-radius:10px;padding:14px 16px;background:var(--panel)}
+.v .tag{display:inline-block;font:600 13px Inter,sans-serif;padding:2px 10px;border-radius:99px;margin-bottom:8px}
+.tag.adopt{background:color-mix(in srgb,var(--good) 18%,transparent);color:var(--good)}
+.tag.reject{background:color-mix(in srgb,var(--bad) 16%,transparent);color:var(--bad)}
+.tag.keep{background:color-mix(in srgb,var(--org) 20%,transparent);color:var(--orgink)}
+.v p{font-size:15px}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th{text-align:left;font-weight:600;color:var(--mute);border-bottom:1px solid var(--ink);padding:8px 8px}
+td{border-bottom:1px solid var(--rule);padding:8px 8px;vertical-align:top}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.bar{height:10px;border-radius:5px;background:var(--blue)}
+.meter{display:flex;align-items:center;gap:8px}
+.meter .track{flex:1;height:10px;background:var(--panel);border-radius:5px;position:relative;min-width:60px}
+.meter .track i{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--org)}
+.panel{border:1px solid var(--rule);border-radius:12px;padding:16px;background:var(--panel)}
+.quiz{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));margin-top:14px}
+.q{border:1px solid var(--rule);border-radius:10px;padding:12px 14px;background:var(--bg)}
+.q label{display:block;font-weight:600}
+.q input[type=range]{width:100%;accent-color:var(--org);height:44px}
+.q .row{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:14px}
+button{font:600 15px Inter,sans-serif;border-radius:8px;border:1px solid var(--ink);background:var(--ink);color:var(--bg);padding:10px 16px;min-height:44px;cursor:pointer}
+button.ghost{background:transparent;color:var(--ink)}
+button:disabled{opacity:.5;cursor:default}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--org);outline-offset:2px}
+.chat{display:flex;flex-direction:column;gap:10px}
+.msg{padding:10px 14px;border-radius:10px;max-width:80ch;white-space:pre-wrap;font-size:15px}
+.msg.me{align-self:flex-end;background:var(--ink);color:var(--bg)}
+.msg.ai{background:var(--bg);border:1px solid var(--rule)}
+.ask{display:flex;gap:8px;flex-wrap:wrap}
+.ask textarea{flex:1 1 280px;font:16px Inter,sans-serif;padding:10px 12px;border-radius:8px;border:1px solid var(--mute);background:var(--bg);color:var(--ink);min-height:48px;resize:vertical}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.chips button{font-weight:500;font-size:14px;background:transparent;color:var(--ink);border-color:var(--rule)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:14px;color:var(--mute);margin-top:6px}
+.legend i{display:inline-block;width:14px;height:3px;vertical-align:middle;margin-right:6px}
+.note{font-size:14px;color:var(--mute);margin-top:10px}
+footer{font-size:14px;color:var(--mute)}
+.err{color:var(--bad)}
+@media(max-width:600px){table{font-size:13px}th,td{padding:6px 4px}.route{height:420px}}
+</style>
+
+<section class="band hero">
+ <div class="in">
+  <h1>Eye View HQ</h1>
+  <p class="lede" id="finding">Ten years of free data say the desk's ranges were sized for a storm, and no simple signal beats the plain up-rate on direction.</p>
+  <div class="figs" id="figs"></div>
+  <div class="route" id="route" aria-label="How data moves through the desk"></div>
+ </div>
+</section>
+
+<section class="band" id="research">
+ <div class="in">
+  <h2>What the self-research loop decided</h2>
+  <p class="sub" id="rsub">Each belief is checked on data before 2022 and again on 2022 onwards, which it was never fitted to. These are proposals only. Rules change only when Rk says yes.</p>
+  <div class="verdicts" id="verdicts"></div>
+ </div>
+</section>
+
+<section class="band" id="bands">
+ <div class="in two">
+  <div>
+   <h2>1.6x ranges catch 98% of days, not 80%</h2>
+   <p>The curve shows how often a one-day S&amp;P range would have held at each width, as a multiple of the VIX-implied move, over every day since late 2016. The orange line is the 80% target. Since the long-run VIX overprices the next day, a range of about <b id="k80">0.75x</b> already holds 80%.</p>
+   <p>November 2026 was the exception: in the last 15 days 1.6x held <b id="last16">87%</b>. The adaptive band, built from half VIX and half recent realized moves, held <b id="adOut">77%</b> out of sample, but only <b id="adLast">53%</b> in this shock. The proposal is to use the wider of the two while VIX is above 25.</p>
+   <div class="legend"><span><i style="background:var(--blue)"></i>S&amp;P one-day range, 2016 to now</span><span><i style="background:var(--org)"></i>80% target</span></div>
+  </div>
+  <div class="chart" id="bandChart"></div>
+ </div>
+</section>
+
+<section class="band" id="board">
+ <div class="in">
+  <h2>Multi-asset board: ten markets, graded automatically</h2>
+  <p class="sub" id="boardSub"></p>
+  <div class="scroll"><table id="boardT"></table></div>
+  <p class="note">Each range is sized from that market's recent moves, with a width fitted on the first half of its history. "Held" shows how often that width caught the next value on the second half. The up chance is the market's long-run up-rate: an honest baseline to beat, not a view.</p>
+ </div>
+</section>
+
+<section class="band" id="analysts">
+ <div class="in two">
+  <div>
+   <h2>Seven specialists, no edge on direction</h2>
+   <p>Each analyst watches one kind of evidence, gets refit every quarter on past data only, and is scored on about 1,950 days it never saw. A lower Brier score is better, and 0.25 is a coin flip. The plain up-rate is the line to beat.</p>
+   <p>The best of them beat the up-rate by 0.0003, which is noise. The useful finding is that the desk shouldn't expect daily direction calls to carry much skill. Its edge, if it has one, is in sizing ranges and in reading events.</p>
+   <h3 style="margin-top:18px">Today's reads, chance the S&amp;P is higher in 5 days</h3>
+   <div id="todayA" style="margin-top:8px"></div>
+  </div>
+  <div><div class="scroll"><table id="anT"></table></div></div>
+ </div>
+</section>
+
+<section class="band" id="playbook">
+ <div class="in two">
+  <div>
+   <h2>Days like the latest close</h2>
+   <p id="pbText"></p>
+   <p class="note">Tested honestly, analogs don't beat the plain up-rate (see the verdicts above). Read this as the spread of what can happen, not a forecast.</p>
+   <h3 style="margin-top:18px">After Fed rate changes</h3>
+   <div class="scroll"><table id="rateT"></table></div>
+   <p class="note" id="rateNote"></p>
+  </div>
+  <div>
+   <div class="chart" id="fan"></div>
+   <div class="legend"><span><i style="background:color-mix(in srgb,var(--blue) 25%,transparent);height:10px"></i>10th to 90th percentile</span><span><i style="background:color-mix(in srgb,var(--blue) 55%,transparent);height:10px"></i>25th to 75th</span><span><i style="background:var(--org)"></i>median</span></div>
+  </div>
+ </div>
+</section>
+
+<section class="band" id="you">
+ <div class="in">
+  <h2>You vs the desk</h2>
+  <p>Before you look at the board, set your own chance that each market is higher at its next print. Lock it in, and the desk's numbers appear. Once the backbone grades a call, you both get scored the same way.</p>
+  <p class="note">The targets are the next FRED print after the date shown. FRED runs a day or two behind, so a target may already have traded. Don't peek.</p>
+  <div class="quiz" id="quiz"></div>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;align-items:center"><button id="lock">Lock in my calls</button><span id="quizMsg" class="sub"></span></div>
+  <div class="panel" style="margin-top:18px" id="score"><h3>Scoreboard</h3><p class="sub" id="scoreTxt">No graded calls yet. The first grades arrive after the next nightly run.</p></div>
+ </div>
+</section>
+
+<section class="band" id="askband">
+ <div class="in">
+  <h2>Ask the desk</h2>
+  <p>Ask in plain words. Claude answers from this page's numbers and ten years of daily history for 14 series, and says which figures it used.</p>
+  <div class="panel" style="margin-top:12px">
+   <div class="chat" id="chat"></div>
+   <form class="ask" id="askF" style="margin-top:12px"><textarea id="askQ" placeholder="How often did the S&amp;P fall 3% in a day when VIX was above 25?"></textarea><button id="askB">Ask</button></form>
+   <div class="chips" id="chips"></div>
+   <p class="note" id="askNote"></p>
+  </div>
+ </div>
+</section>
+
+<section class="band" id="backbone">
+ <div class="in">
+  <h2>The data backbone</h2>
+  <p class="sub">Free, official FRED series. Every desk run reads these instead of guessing closes from web snippets. Refreshed by the nightly job.</p>
+  <div class="scroll" style="margin-top:12px"><table id="bbT"></table></div>
+ </div>
+</section>
+
+<footer class="band"><div class="in" id="foot">Analysis only. Not investment advice.</div></footer>
+
+<script>
+{
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pct=(x,d=0)=>x==null?'n/a':(x*100).toFixed(d)+'%';
+const fmt=(x,d=2)=>x==null?'n/a':Number(x).toLocaleString('en-US',{maximumFractionDigits:d,minimumFractionDigits:d});
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+let D=null,H=null;
+const ro=new ResizeObserver(()=>{if(D){drawRoute();drawBands();drawFan();}});
+
+fetch('data.json').then(r=>r.json()).then(d=>{D=d;render();}).catch(e=>{$('finding').textContent='Could not load the desk data file.';});
+
+function render(){
+ const L=D.lab,R=D.research,M=D.multiasset,bb=D.backbone;
+ const nSeries=Object.keys(bb).length, rows=Object.values(bb).reduce((a,b)=>a+(b.rows||0),0);
+ const graded=M.record.graded, open=M.record.open;
+ $('figs').innerHTML=[
+  [nSeries,'official series, refreshed nightly'],
+  [rows.toLocaleString('en-US'),'daily data points on file'],
+  [L.spx_days.toLocaleString('en-US'),'S&P days tested, not 15'],
+  [R.hypotheses.length,'desk beliefs re-tested'],
+  [Object.keys(M.assets).length,'markets called every night']
+ ].map(([b,s])=>`<div class="fig1"><b>${esc(b)}</b><span>${esc(s)}</span></div>`).join('');
+ const ad=L.adaptive_bands.spx, b1=L.spx_bands.h1;
+ $('k80').textContent=fmt(b1.k_for_80,2)+'x';
+ $('last16').textContent=pct(ad['fixed_1.6x_hit_last_days']);
+ $('adOut').textContent=pct(ad.hit_second_half);
+ $('adLast').textContent=pct(ad.hit_last_days);
+ $('rsub').textContent+=` Data as of ${R.asof}.`;
+ $('verdicts').innerHTML=R.hypotheses.map(h=>{const c=h.verdict==='adopt'?'adopt':h.verdict==='reject'?'reject':'keep';
+  const lab=h.verdict==='adopt'?'Passes: propose adopting':h.verdict==='reject'?'Fails out of sample':'Keep watching';
+  return `<div class="v"><span class="tag ${c}">${esc(lab)}</span><h3>${esc(h.belief)}</h3><p>${esc(h.plain)}</p></div>`}).join('');
+ // board
+ const asof=Object.values(M.assets).map(a=>a.last).sort().pop();
+ $('boardSub').textContent=`Calls made ${M.made_at.slice(0,10)} from closes up to ${asof}. ${graded} graded so far, ${open} open.`;
+ const opens=Object.fromEntries(M.today.map(c=>[c.asset,c]));
+ $('boardT').innerHTML='<thead><tr><th>Market</th><th class="n">Last</th><th class="n">80% range next print</th><th class="n">Up chance</th><th class="n">Held</th><th class="n">History</th></tr></thead><tbody>'+
+  Object.entries(M.assets).map(([sid,a])=>{const c=opens[sid]||{};const d=a.kind==='diff'?3:2;
+   return `<tr><td>${esc(a.label)}<div class="sub">${esc(a.last)}</div></td><td class="n">${fmt(a.last_value,d)}</td><td class="n">${fmt(c.lo,d)} to ${fmt(c.hi,d)}</td><td class="n">${pct(a.up_rate)}</td><td class="n">${pct(a.band_hit_test)}</td><td class="n">${esc(a.first.slice(0,4))}+</td></tr>`}).join('')+'</tbody>';
+ // analysts
+ const A=D.analysts, all=A.horizons.h1.all, base=all.base.brier, names=A.analysts;
+ const rowsA=Object.entries(all).filter(([k,v])=>v.n>300);
+ const mx=Math.max(...rowsA.map(([k,v])=>Math.abs(v.brier-base)))||1e-4;
+ const nice={base:'Plain up-rate',desk:'Desk blend (1/Brier weights)',red_team:'Red team (argues the opposite)'};
+ $('anT').innerHTML='<thead><tr><th>Analyst, next-day calls</th><th class="n">Days</th><th class="n">Brier</th><th>vs up-rate</th></tr></thead><tbody>'+
+  rowsA.map(([k,v])=>{const dlt=v.brier-base;const w=Math.min(50,Math.abs(dlt)/mx*50);
+   const bar=dlt<0?`<span style="position:absolute;right:50%;width:${w}%;top:0;bottom:0;background:var(--good);border-radius:4px"></span>`:`<span style="position:absolute;left:50%;width:${w}%;top:0;bottom:0;background:var(--bad);border-radius:4px"></span>`;
+   const label=nice[k]||(names[k]||k).split(':')[0];
+   return `<tr><td>${esc(label)}<div class="sub">${esc((names[k]||'').split(':').slice(1).join(':'))}</div></td><td class="n">${v.n.toLocaleString('en-US')}</td><td class="n">${v.brier.toFixed(4)}</td><td style="width:30%"><div style="position:relative;height:12px;background:var(--panel);border-radius:4px">${bar}<i style="position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--ink)"></i></div><div class="sub">${dlt<=0?'better by':'worse by'} ${Math.abs(dlt).toFixed(4)}</div></td></tr>`}).join('')+'</tbody>';
+ const t5=A.today.calls.h5;
+ $('todayA').innerHTML=Object.entries(t5).map(([k,v])=>`<div class="meter" style="margin:6px 0"><span style="width:7.5em">${esc(nice[k]||(names[k]||k).split(':')[0])}</span><span class="track"><span class="bar" style="width:${(v.p_up*100).toFixed(1)}%"></span><i style="left:50%"></i></span><b class="n" style="width:3.2em;text-align:right">${pct(v.p_up)}</b></div>`).join('')+`<p class="note">As of the ${esc(A.today.date)} close. The orange tick is 50%.</p>`;
+ // playbook
+ const P=D.playbook.setup, t=P.today, h5=P.horizons.h5;
+ $('pbText').textContent=`On ${t.date} VIX was ${fmt(t.vix,1)}, the S&P was ${pct(t.r5,1)} over 5 days and ${pct(t.r20,1)} over 20, and the 3-month VIX sat at ${fmt(t.curve,2)}x spot (${t.curve<1?'inverted, a stress sign':'normal'}). Among the ${P.n} most similar past days, the S&P was higher 5 days later ${pct(h5.p_up)} of the time (all days: ${pct(h5.p_up_all_days)}). The worst 5-day outcome was ${pct(h5.worst,1)} and the best ${pct(h5.best,1)}.`;
+ const RD=D.playbook.rate_decisions;
+ const rr=(g,n)=>`<tr><td>${n} (${g.day_ret.n})</td><td class="n">${pct(g.day_ret.p_up)}</td><td class="n">${pct(g.ret_5d.median,1)}</td><td class="n">${pct(g.ret_20d.median,1)}</td></tr>`;
+ $('rateT').innerHTML='<thead><tr><th>Decision</th><th class="n">Up on the day</th><th class="n">Median 5d</th><th class="n">Median 20d</th></tr></thead><tbody>'+rr(RD.cuts,'Cuts')+rr(RD.hikes,'Hikes')+'</tbody>';
+ $('rateNote').textContent=RD.note;
+ // backbone
+ $('bbT').innerHTML='<thead><tr><th>Series</th><th>Group</th><th class="n">From</th><th class="n">Latest</th><th class="n">Points</th><th>Status</th></tr></thead><tbody>'+
+  Object.entries(bb).sort((a,b)=>a[1].group.localeCompare(b[1].group)).map(([k,v])=>`<tr><td>${esc(v.name)}<div class="sub">${esc(k)}</div></td><td>${esc(v.group)}</td><td class="n">${esc(v.first)}</td><td class="n">${esc(v.last)}</td><td class="n">${(v.rows||0).toLocaleString('en-US')}</td><td style="color:var(${v.status==='ok'?'--good':'--bad'})">${esc(v.status)}</td></tr>`).join('')+'</tbody>';
+ $('foot').textContent=`Built ${D.built_at.replace('T',' ').slice(0,16)} UTC from analyses/output/hub/hub_data.json. ${D.disclaimer}`;
+ ['route','bandChart','fan'].forEach(i=>ro.observe($(i)));
+ drawRoute();drawBands();drawFan();
+ quiz();
+}
+
+function drawRoute(){
+ const s=$('route'),W=s.clientWidth,Hh=s.clientHeight;const M=D.multiasset,R=D.research;
+ const st=[
+  ['Free sources','FRED · CFTC · FINRA · EDGAR',Object.keys(D.backbone).length+' series'],
+  ['Backbone','nightly pull, one file per series',D.lab.asof],
+  ['Lab','rules replayed on 10+ years',D.lab.spx_days+' S&P days'],
+  ['Analysts + board','7 specialists, 10 markets',(M.today.length)+' calls open'],
+  ['Research loop','re-test, then propose',R.hypotheses.filter(h=>h.verdict==='adopt').length+' to adopt'],
+  ['You','quiz, ask, approve','your call']];
+ const vert=W<600;const sky=css('--skyink');
+ let out=`<svg viewBox="0 0 ${W} ${Hh}" role="img">`;
+ const pts=st.map((_,i)=>vert?[26,20+i*(Hh-40)/(st.length-1)]:[30+i*(W-60)/(st.length-1),70]);
+ out+=`<path d="M${pts.map(p=>p.join(',')).join(' L')}" fill="none" stroke="${sky}" stroke-width="6" stroke-linecap="round" opacity=".9"/>`;
+ pts.forEach((p,i)=>{const last=i===st.length-1;
+  out+=`<circle cx="${p[0]}" cy="${p[1]}" r="${last?13:11}" fill="${last?'#ff7a1a':css('--sky')}" stroke="${sky}" stroke-width="4"/>`;
+  const [a,b,c]=st[i];
+  if(vert){out+=`<text x="${p[0]+24}" y="${p[1]-4}" style="font:600 16px Outfit,sans-serif;fill:${sky};stroke:none">${esc(a)}</text><text x="${p[0]+24}" y="${p[1]+14}" style="font-size:13px;fill:${sky};stroke:none">${esc(b)} · <tspan font-weight="700">${esc(c)}</tspan></text>`;}
+  else{const anchor=i===0?'start':last?'end':'middle';const x=i===0?p[0]-10:last?p[0]+10:p[0];
+   out+=`<text x="${x}" y="${p[1]+40}" text-anchor="${anchor}" style="font:600 17px Outfit,sans-serif;fill:${sky};stroke:none">${esc(a)}</text><text x="${x}" y="${p[1]+60}" text-anchor="${anchor}" style="font-size:13px;fill:${sky};stroke:none">${esc(b)}</text><text x="${x}" y="${p[1]-24}" text-anchor="${anchor}" style="font:700 15px Inter,sans-serif;fill:${sky};stroke:none">${esc(c)}</text>`;}
+ });
+ if(!vert){const y=200;out+=`<text x="${W/2}" y="${y}" text-anchor="middle" style="font-size:14px;fill:${sky};stroke:none">Weeknights 18:15 ET the backbone refreshes, grades yesterday's calls and makes new ones. Sundays the research loop re-tests every belief.</text>`;}
+ s.innerHTML=out+'</svg>';
+}
+
+function drawBands(){
+ const s=$('bandChart'),W=s.clientWidth,Hh=s.clientHeight,m={l:48,r:20,t:16,b:40};
+ const by=D.lab.spx_bands.h1.by_k;const ks=Object.keys(by).map(Number);
+ // add points from k_for_80 to give the curve a fuller shape
+ const pts=ks.map(k=>[k,by[String(k)]?.hit??by[k.toFixed(1)].hit]);
+ pts.unshift([D.lab.spx_bands.h1.k_for_80,0.8]);pts.sort((a,b)=>a[0]-b[0]);
+ const x0=0.6,x1=2.05,y0=0.7,y1=1.0;
+ const X=k=>m.l+(k-x0)/(x1-x0)*(W-m.l-m.r),Y=v=>m.t+(1-(v-y0)/(y1-y0))*(Hh-m.t-m.b);
+ let o=`<svg viewBox="0 0 ${W} ${Hh}">`;
+ [0.7,0.8,0.9,1.0].forEach(v=>{o+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="${css('--rule')}"/><text x="${m.l-8}" y="${Y(v)+4}" text-anchor="end">${v*100}%</text>`});
+ [0.8,1.0,1.2,1.4,1.6,1.8,2.0].forEach((k,i)=>{if(W<520&&i%2)return;o+=`<text x="${X(k)}" y="${Hh-m.b+20}" text-anchor="middle">${k.toFixed(1)}x</text>`});
+ o+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(.8)}" y2="${Y(.8)}" stroke="#ff7a1a" stroke-width="2"/>`;
+ o+=`<path d="M${pts.map(p=>X(p[0])+','+Y(p[1])).join(' L')}" fill="none" stroke="${css('--blue')}" stroke-width="3"/>`;
+ pts.forEach(p=>o+=`<circle cx="${X(p[0])}" cy="${Y(p[1])}" r="4" fill="${css('--blue')}"/>`);
+ const h16=by['1.6'].hit;o+=`<circle cx="${X(1.6)}" cy="${Y(h16)}" r="7" fill="none" stroke="#ff7a1a" stroke-width="2"/><text x="${X(1.6)}" y="${Y(h16)+24}" text-anchor="middle" font-weight="600">rule 5: 1.6x holds ${pct(h16)}</text>`;
+ const k8=D.lab.spx_bands.h1.k_for_80;o+=`<text x="${X(k8)+8}" y="${Y(.8)-10}">${k8.toFixed(2)}x is enough for 80%</text>`;
+ o+=`<text x="${(m.l+W-m.r)/2}" y="${Hh-4}" text-anchor="middle" fill="${css('--mute')}">range width, multiple of the VIX-implied move</text>`;
+ s.innerHTML=o+'</svg>';
+}
+
+function drawFan(){
+ const s=$('fan'),W=s.clientWidth,Hh=s.clientHeight,m={l:52,r:16,t:20,b:36};
+ const hz=D.playbook.setup.horizons;const keys=['h1','h5','h20'],lab={h1:'Next day',h5:'5 days',h20:'20 days'};
+ const vals=keys.flatMap(k=>[hz[k].spx_ret_q['0.05'],hz[k].spx_ret_q['0.95']]);
+ const lo=Math.min(...vals,-0.01),hi=Math.max(...vals,0.01);
+ const Y=v=>m.t+(hi-v)/(hi-lo)*(Hh-m.t-m.b);const bw=(W-m.l-m.r)/keys.length;
+ let o=`<svg viewBox="0 0 ${W} ${Hh}">`;
+ const step=(hi-lo)>0.08?0.02:0.01;
+ for(let v=Math.ceil(lo/step)*step;v<=hi+1e-9;v+=step){o+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="${Math.abs(v)<1e-9?css('--ink'):css('--rule')}"/><text x="${m.l-8}" y="${Y(v)+4}" text-anchor="end">${(v*100).toFixed(0)}%</text>`}
+ keys.forEach((k,i)=>{const q=hz[k].spx_ret_q,cx=m.l+bw*i+bw/2,w=Math.min(90,bw*.55);
+  o+=`<rect x="${cx-w/2}" y="${Y(q['0.9'])}" width="${w}" height="${Y(q['0.1'])-Y(q['0.9'])}" fill="${css('--blue')}" opacity=".25" rx="4"/>`;
+  o+=`<rect x="${cx-w/2}" y="${Y(q['0.75'])}" width="${w}" height="${Y(q['0.25'])-Y(q['0.75'])}" fill="${css('--blue')}" opacity=".55" rx="4"/>`;
+  o+=`<line x1="${cx-w/2}" x2="${cx+w/2}" y1="${Y(q['0.5'])}" y2="${Y(q['0.5'])}" stroke="#ff7a1a" stroke-width="3"/>`;
+  o+=`<text x="${cx}" y="${Hh-m.b+20}" text-anchor="middle" font-weight="600">${lab[k]}</text><text x="${cx}" y="${Y(q['0.9'])-8}" text-anchor="middle">up ${pct(hz[k].p_up)}</text>`;});
+ s.innerHTML=o+'</svg>';
+}
+
+// ---------- You vs the desk ----------
+let db=null,mine={};
+async function quiz(){
+ const calls=D.multiasset.today;
+ const draw=()=>{
+  const locked=calls.length&&calls.every(c=>mine[c.id]);
+  $('quiz').innerHTML=calls.map(c=>{const g=mine[c.id];const v=g?Math.round(g.p*100):50;
+   return `<div class="q"><label for="q_${esc(c.asset)}">${esc(c.label)}</label><div class="sub">higher than ${fmt(c.value0,c.asset.match(/^D(GS|EX)|BAML/)?3:2)} at the next print after ${esc(c.asof)}?</div>
+   <input type="range" id="q_${esc(c.asset)}" min="1" max="99" value="${v}" ${g?'disabled':''} data-id="${esc(c.id)}">
+   <div class="row"><span>You: <b id="v_${esc(c.asset)}">${v}%</b></span><span>${g?'Desk: <b>'+pct(c.p_up)+'</b>':'Desk: hidden'}</span></div></div>`}).join('');
+  document.querySelectorAll('#quiz input').forEach(el=>el.addEventListener('input',()=>{$('v_'+el.id.slice(2)).textContent=el.value+'%'}));
+  $('lock').disabled=locked||!db;
+  if(locked)$('quizMsg').textContent='Locked. The desk\'s numbers are shown.';
+  scoreboard();
+ };
+ draw();
+ const tm=setTimeout(()=>{if(!db)$('quizMsg').textContent='Saving needs you signed in to claude.ai. You can still try the sliders.';},10000);
+ try{db=await window.claude?.use?.('db');}catch(e){db=null}
+ clearTimeout(tm);
+ if(!db){$('quizMsg').textContent='Saving is unavailable in this view. You can still try the sliders.';return draw();}
+ db.collection('guesses').onSnapshot(snap=>{mine={};snap.docs.forEach(d=>{mine[d.id]=d.data()});draw();},e=>{$('quizMsg').textContent='Could not read saved calls.'});
+ $('lock').onclick=async()=>{
+  $('lock').disabled=true;$('quizMsg').textContent='Saving...';
+  try{for(const el of document.querySelectorAll('#quiz input:not([disabled])')){const c=calls.find(x=>x.id===el.dataset.id);
+    await db.doc('guesses/'+c.id).set({p:Number(el.value)/100,asset:c.asset,asof:c.asof,at:new Date().toISOString()});}
+   $('quizMsg').textContent='Locked in.';}
+  catch(e){$('quizMsg').textContent='Could not save: '+(e&&e.code||'error')+'.';$('lock').disabled=false;}
+ };
+}
+function scoreboard(){
+ const g=(D.multiasset.recent_graded||[]).filter(c=>mine[c.id]);
+ if(!g.length)return;
+ const you=g.reduce((a,c)=>a+(mine[c.id].p-c.up)**2,0)/g.length, desk=g.reduce((a,c)=>a+(c.p_up-c.up)**2,0)/g.length;
+ $('scoreTxt').textContent=`On ${g.length} graded calls you both made: your Brier ${you.toFixed(3)}, desk ${desk.toFixed(3)}. Lower is better; 0.25 is a coin flip. ${you<desk?'You are ahead.':'The desk is ahead.'}`;
+}
+
+// ---------- Ask the desk ----------
+let sample=null,busy=false,hist=[];
+const chips=['How often did the S&P fall 3% in a day when VIX was above 25?','What did high-yield spreads do in the month before the 2020 crash?','Is VIX usually higher or lower than the volatility that follows?','How did USD/CAD move after the last three Fed cuts?'];
+$('chips').innerHTML=chips.map((c,i)=>`<button type="button" data-i="${i}">${esc(c)}</button>`).join('');
+$('chips').addEventListener('click',e=>{const b=e.target.closest('button');if(b){$('askQ').value=chips[b.dataset.i];ask();}});
+$('askF').addEventListener('submit',e=>{e.preventDefault();ask();});
+(async()=>{try{sample=await window.claude?.use?.('sample');}catch(e){sample=null}
+ if(!sample){$('askB').disabled=true;$('askNote').textContent='Asking Claude isn\'t available in this view.';}})();
+function bubble(cls,text){const d=document.createElement('div');d.className='msg '+cls;d.textContent=text;$('chat').appendChild(d);return d;}
+async function loadHist(){if(!H){H=await (await fetch('history.json')).json();}return H;}
+const tools=[
+ {name:'page_data',description:'Return one section of the desk page data: lab, research, analysts, multiasset, playbook or backbone.',inputSchema:{type:'object',properties:{section:{type:'string',enum:['lab','research','analysts','multiasset','playbook','backbone']}},required:['section']},execute:({section})=>JSON.stringify(D[section]).slice(0,60000)},
+ {name:'series',description:'Daily history from FRED since Nov 2016 for one series id (SP500, VIXCLS, VXVCLS, DGS10, DGS2, BAMLH0A0HYM2, DCOILWTICO, DEXCAUS, DTWEXBGS, NASDAQCOM, DJIA, SOFR, NFCI, DFEDTARU). Returns [date,value] rows between from and to (YYYY-MM-DD), at most 1500 rows.',inputSchema:{type:'object',properties:{id:{type:'string'},from:{type:'string'},to:{type:'string'}},required:['id']},execute:async({id,from,to})=>{const h=await loadHist();const s=h[id];if(!s)throw new Error('unknown series');const r=s.filter(([d])=>(!from||d>=from)&&(!to||d<=to));return JSON.stringify(r.length>1500?r.filter((_,i)=>i%Math.ceil(r.length/1500)===0):r);}},
+ {name:'count_days',description:'Count S&P days matching conditions on the same day: min/max daily % change of SP500 and min/max VIX close the day before. Returns count, total days and the dates (max 40).',inputSchema:{type:'object',properties:{spx_min_pct:{type:'number'},spx_max_pct:{type:'number'},vix_prev_min:{type:'number'},vix_prev_max:{type:'number'},from:{type:'string'},to:{type:'string'}}},execute:async(q)=>{const h=await loadHist();const v=Object.fromEntries(h.VIXCLS);const s=h.SP500;let n=0,tot=0,dates=[];for(let i=1;i<s.length;i++){const [d,c]=s[i],[pd,pc]=s[i-1];if(q.from&&d<q.from||q.to&&d>q.to)continue;const vx=v[pd];if(vx==null)continue;tot++;const ch=(c/pc-1)*100;if(q.spx_min_pct!=null&&ch<q.spx_min_pct)continue;if(q.spx_max_pct!=null&&ch>q.spx_max_pct)continue;if(q.vix_prev_min!=null&&vx<q.vix_prev_min)continue;if(q.vix_prev_max!=null&&vx>q.vix_prev_max)continue;n++;if(dates.length<40)dates.push(d);}return JSON.stringify({count:n,total_days:tot,dates});}}
+];
+async function ask(){
+ const q=$('askQ').value.trim();if(!q||busy||!sample)return;busy=true;$('askB').disabled=true;
+ bubble('me',q);$('askQ').value='';const out=bubble('ai','Thinking...');
+ hist.push({role:'user',content:q});
+ const sys=`You answer questions for Rk, who runs the Eye View Market research desk (analysis only, never trading advice). Use the tools to get real numbers: page_data for the desk's lab, research verdicts, analysts, board and playbooks; series and count_days for FRED daily history since Nov 2016. Never invent figures. Answer in plain, short English (under 180 words), name the series and dates you used, separate facts from guesses, and end with "Not investment advice." if you discuss markets. Data as of ${D.lab.asof}.\n\nQuestion: `;
+ const msgs=hist.slice(-6).map((m,i,a)=>i===a.length-1?{role:'user',content:sys+m.content}:m);
+ try{const r=await sample(msgs,{tools,cache:false,onText:({text})=>{out.textContent=text||'Thinking...'}});out.textContent=r.text;hist.push({role:'assistant',content:r.text});}
+ catch(e){out.textContent=e&&e.code==='not_granted'?'Asking Claude was not allowed for this page.':e&&e.code==='rate_limited'?'Too many questions just now. Try again in a minute.':'Something went wrong answering that.';out.classList.add('err');hist.pop();}
+ busy=false;$('askB').disabled=false;
+}
+}
+</script>
