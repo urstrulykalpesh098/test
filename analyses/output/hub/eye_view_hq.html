@@ -22,6 +22,10 @@ p{margin:6px 0 0;max-width:68ch}
 .band{padding-block:clamp(28px,4vw,56px);padding-left:max(5vw,16px,env(safe-area-inset-left,0px));padding-right:max(5vw,16px,env(safe-area-inset-right,0px));border-top:1px solid var(--rule)}
 .in{max-width:1240px;margin:0 auto}
 .hero{background:var(--sky);color:var(--skyink);border:0;margin-top:calc(-1*env(safe-area-inset-top,0px));padding-top:calc(env(safe-area-inset-top,0px) + 2.5rem)}
+.nav{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:15px;margin-bottom:18px}
+.nav a,.nav b{color:var(--skyink);text-decoration:none;padding:6px 0;border-bottom:2px solid transparent}
+.nav b{border-color:var(--lens)}
+.nav a:hover{border-color:color-mix(in srgb,var(--lens) 60%,transparent)}
 .hero .lede{font-size:18px;max-width:62ch;margin-top:10px}
 .figs{display:grid;grid-template-columns:repeat(auto-fit,minmax(9em,1fr));gap:12px 24px;margin-top:22px}
 .fig1 b{display:block;font:700 clamp(28px,3.4vw,40px)/1 "Libre Franklin",sans-serif;white-space:nowrap}
@@ -79,6 +83,7 @@ footer{font-size:14px;color:var(--mute)}
 
 <section class="band hero">
  <div class="in">
+  <nav class="nav"><b>HQ</b><a href="https://claude.ai/artifact/TcxbaSnEiAddmETVgBKL8q">Daily</a><a href="https://claude.ai/artifact/7jU3VUdjX9x22fNqXoYbCL">Ledger</a><a href="https://claude.ai/artifact/M2T7uHbVzqydb38BcrRi8F">Scorecard</a><a href="https://claude.ai/artifact/7L9ApUMePWy4aWrt4ZY5kW">CFA card</a></nav>
   <h1>Eye View HQ</h1>
   <p class="lede" id="finding">Ten years of free data say the desk's ranges were sized for a storm, and no simple signal beats the plain up-rate on direction.</p>
   <div class="figs" id="figs"></div>
