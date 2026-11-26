@@ -3,7 +3,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-/* VOICE everyday, study
+/* Spaced repetition: a missed question goes to box 1 and returns after 1 week; each right answer moves it up (2, 4, 8 weeks); right in box 4 = mastered; wrong anywhere = back to box 1.
+   VOICE everyday, study
    IDEA an exam answer sheet: each question is a card, choices are bubbles you fill
    PICTURE the live question card with its bubble row; a strip of bubbles tracks the week
    COLOUR white paper, ink, answer-sheet green, coral for a wrong mark
@@ -59,6 +60,15 @@ h2{font:600 24px/1.2 "Space Grotesk",sans-serif;margin:36px 0 12px}
 .bar i{display:block;height:100%;background:var(--green)}
 .row b{white-space:nowrap;font-variant-numeric:tabular-nums}
 .empty{padding:28px;border:2px dashed var(--line);border-radius:14px;color:var(--mute)}
+.rev{margin-top:20px;border:2px solid var(--green);border-radius:12px;padding:14px 16px;display:grid;gap:12px}
+.rev .top{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between}
+.rev .top b{font:600 19px "Space Grotesk",sans-serif}
+.boxes{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.bx{border-radius:8px;background:var(--mist);padding:8px 6px;text-align:center;font-size:13px;color:var(--mute)}
+.bx b{display:block;font:600 22px "Space Grotesk",sans-serif;color:var(--ink);font-variant-numeric:tabular-nums}
+.bx.m{background:var(--green);color:var(--bg)}
+.bx.m b{color:var(--bg)}
+.tag{display:inline-block;font-size:13px;padding:2px 8px;border-radius:20px;background:var(--mist);color:var(--green);font-weight:600}
 footer{margin-top:36px;font-size:14px;color:var(--mute)}
 </style>
 
@@ -79,9 +89,17 @@ footer{margin-top:36px;font-size:14px;color:var(--mute)}
 const $=s=>document.querySelector(s);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
 const L='ABCDEFGH';
+const GAP=[0,7,14,28,56];
 let db=null,weeks=[],cur=null,qi=0,att={},attUnsub=null,picked=null;
+let mode='week',reviews={},rq=[],ri=0,rAns={};
 
+const pad=n=>String(n).padStart(2,'0');
+const ymd=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const today=()=>ymd(new Date());
+function addDays(n){const d=new Date();d.setDate(d.getDate()+n);return ymd(d)}
+function nice(d){const t=new Date(d+'T12:00:00');return isNaN(t)?d:t.toLocaleDateString('en-CA',{weekday:'short',day:'numeric',month:'short'})}
 function week(){return weeks.find(w=>w.id===cur)}
+function findQ(wid,qid){const w=weeks.find(x=>x.id===wid);return w&&(w.questions||[]).find(q=>q.id===qid)}
 function setWeeks(list){
   weeks=list.sort((a,b)=>b.id.localeCompare(a.id));
   const sel=$('#wk');
@@ -92,7 +110,7 @@ function setWeeks(list){
 function fmt(d){const t=new Date(d+'T12:00:00Z');return isNaN(t)?d:'Week of '+t.toLocaleDateString('en-CA',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'})}
 function msg(t){$('#main').innerHTML=`<div class="empty">${esc(t)}</div>`}
 function choose(id){
-  cur=id;qi=0;picked=null;att={};$('#wk').value=id;
+  cur=id;qi=0;picked=null;att={};mode='week';$('#wk').value=id;
   try{const s=JSON.parse(localStorage.getItem('cfa-pos')||'{}');if(s[id]!=null)qi=s[id]}catch(e){}
   if(attUnsub)attUnsub();
   attUnsub=db.doc('attempts/'+id).onSnapshot(s=>{att=(s.exists&&s.data().answers)||{};render()},()=>render());
@@ -100,8 +118,35 @@ function choose(id){
 }
 function savePos(){try{const s=JSON.parse(localStorage.getItem('cfa-pos')||'{}');s[cur]=qi;localStorage.setItem('cfa-pos',JSON.stringify(s))}catch(e){}}
 function correct(q,v){return q.kind==='num'?Math.abs(Number(v)-Number(q.answer))<=Number(q.tol||0):Number(v)===Number(q.answer)}
+function dueList(){const t=today();return Object.entries(reviews).filter(([k,r])=>r.box>=1&&r.box<=4&&r.due&&r.due<=t&&findQ(r.week,r.qid)).sort((a,b)=>a[1].due.localeCompare(b[1].due)).map(([k])=>k)}
+
+function cardHTML(q,a,extra){
+  const done=!!a;let ans='';
+  if(q.kind==='num'){
+    ans=`<div class="num"><input id="nv" inputmode="decimal" type="text" placeholder="Your answer" value="${done?esc(a.value):''}" ${done?'disabled':''}><span>${esc(q.unit||'')}</span>${done?'':'<button class="btn" id="chk">Check</button>'}</div>`;
+  }else{
+    ans=`<div class="choices">${(q.choices||[]).map((c,i)=>{let cl='';if(done){if(i===Number(q.answer))cl='right';else if(i===Number(a.value))cl='wrong'}else if(picked===i)cl='pick';return `<button class="ch ${cl}" data-c="${i}" ${done?'disabled':''}><span class="b">${L[i]}</span><span>${esc(c)}</span></button>`}).join('')}</div>${done?'':`<div class="nav"><span></span><button class="btn" id="chk" ${picked==null?'disabled':''}>Check</button></div>`}`;
+  }
+  let v='';
+  if(done){
+    const right=q.kind==='num'?`${esc(q.answer)}${esc(q.unit||'')}`:`${L[Number(q.answer)]}. ${esc((q.choices||[])[Number(q.answer)])}`;
+    v=`<div class="verdict ${a.correct?'':'bad'}"><h3>${a.correct?'Right.':'Not quite.'} Answer: ${right}</h3><p>${esc(q.working)}</p>${extra.after?`<p class="src">${extra.after}</p>`:''}<p class="src">Source: ${esc(q.source)}</p></div>`;
+  }
+  return `<div class="card"><div class="topic"><span>${esc(q.topic)}</span><span>${esc(q.concept)}</span>${extra.tag?`<span class="tag">${extra.tag}</span>`:''}</div>${q.fact?`<p class="fact">${esc(q.fact)}</p>`:''}<p class="q">${esc(q.q)}</p>${ans}${v}${extra.nav}</div>`;
+}
+
+function revPanel(){
+  const rs=Object.values(reviews);if(!rs.length)return '';
+  const cnt=[0,0,0,0,0,0];rs.forEach(r=>{const b=Math.min(5,Math.max(1,Number(r.box)||1));cnt[b]++});
+  const due=dueList().length;
+  const upcoming=rs.filter(r=>r.box<=4&&r.due&&r.due>today()).map(r=>r.due).sort();
+  const head=due?`<b>${due} question${due>1?'s':''} due for review</b><button class="btn" id="rstart">Start review</button>`:`<b>Nothing due today</b><span class="note">${upcoming.length?`Next review ${esc(nice(upcoming[0]))} (${upcoming.filter(d=>d===upcoming[0]).length})`:'All caught up'}</span>`;
+  const names=['','1 week','2 weeks','4 weeks','8 weeks','Mastered'];
+  return `<div class="rev"><div class="top">${head}</div><div class="boxes">${[1,2,3,4,5].map(b=>`<div class="bx ${b===5?'m':''}"><b>${cnt[b]}</b>${names[b]}</div>`).join('')}</div><span class="note">Missed questions come back after 1 week. Each right answer pushes the next review out (2, 4, 8 weeks); a miss sends it back to 1 week.</span></div>`;
+}
 
 function render(){
+  if(mode==='review')return renderReview();
   const w=week();if(!w)return;
   const qs=Array.isArray(w.questions)?w.questions:[];
   if(qi>=qs.length)qi=0;
@@ -109,46 +154,67 @@ function render(){
   const strip=qs.map((x,i)=>{const a=att[x.id];const c=a?(a.correct?'ok':'no'):'';return `<button class="dot ${c} ${i===qi?'on':''}" data-i="${i}" aria-label="Question ${i+1}">${i+1}</button>`}).join('');
   let body='';
   if(q){
-    const a=att[q.id];
-    const done=!!a;
-    let ans='';
-    if(q.kind==='num'){
-      ans=`<div class="num"><input id="nv" inputmode="decimal" type="text" placeholder="Your answer" value="${done?esc(a.value):''}" ${done?'disabled':''}><span>${esc(q.unit||'')}</span>${done?'':'<button class="btn" id="chk">Check</button>'}</div>`;
-    }else{
-      ans=`<div class="choices">${(q.choices||[]).map((c,i)=>{let cl='';if(done){if(i===Number(q.answer))cl='right';else if(i===Number(a.value))cl='wrong'}else if(picked===i)cl='pick';return `<button class="ch ${cl}" data-c="${i}" ${done?'disabled':''}><span class="b">${L[i]}</span><span>${esc(c)}</span></button>`}).join('')}</div>${done?'':`<div class="nav"><span></span><button class="btn" id="chk" ${picked==null?'disabled':''}>Check</button></div>`}`;
-    }
-    let v='';
-    if(done){
-      const right=q.kind==='num'?`${esc(q.answer)}${esc(q.unit||'')}`:`${L[Number(q.answer)]}. ${esc((q.choices||[])[Number(q.answer)])}`;
-      v=`<div class="verdict ${a.correct?'':'bad'}"><h3>${a.correct?'Right.':'Not quite.'} Answer: ${right}</h3><p>${esc(q.working)}</p><p class="src">Source: ${esc(q.source)}</p></div>`;
-    }
-    body=`<div class="card"><div class="topic"><span>${esc(q.topic)}</span><span>${esc(q.concept)}</span></div>${q.fact?`<p class="fact">${esc(q.fact)}</p>`:''}<p class="q">${esc(q.q)}</p>${ans}${v}
-      <div class="nav"><button class="btn ghost" id="prev" ${qi===0?'disabled':''}>Previous</button><button class="btn ghost" id="next" ${qi>=qs.length-1?'disabled':''}>Next question</button></div></div>`;
+    const a=att[q.id],r=reviews[cur+'__'+q.id];
+    const after=a&&!a.correct&&r?`Added to your review deck. It comes back ${esc(nice(r.due))}.`:'';
+    body=cardHTML(q,a,{after,tag:q.review_of?'Concept back for review':'',nav:`<div class="nav"><button class="btn ghost" id="prev" ${qi===0?'disabled':''}>Previous</button><button class="btn ghost" id="next" ${qi>=qs.length-1?'disabled':''}>Next question</button></div>`});
   }
   const n=qs.filter(x=>att[x.id]).length,k=qs.filter(x=>att[x.id]&&att[x.id].correct).length;
   const topics={};qs.forEach(x=>{const t=topics[x.topic]||(topics[x.topic]={n:0,a:0,k:0});t.n++;if(att[x.id]){t.a++;if(att[x.id].correct)t.k++}});
   const rows=Object.entries(topics).map(([t,o])=>`<div class="row"><span>${esc(t)}</span><div class="bar"><i style="width:${o.a?Math.round(100*o.k/o.a):0}%"></i></div><b>${o.a?`${o.k} of ${o.a}`:''}${o.a<o.n?` <span class="note">${o.a?'+':''}${o.n-o.a} to do</span>`:''}</b></div>`).join('');
-  $('#main').innerHTML=`<div class="week"><b>${esc(w.title||'')}</b><p>${esc(w.summary||'')}</p>${w.status!=='final'&&w.status_note?`<p class="note">${esc(w.status_note)}</p>`:''}</div>
+  $('#main').innerHTML=`${revPanel()}<div class="week"><b>${esc(w.title||'')}</b><p>${esc(w.summary||'')}</p>${w.status!=='final'&&w.status_note?`<p class="note">${esc(w.status_note)}</p>`:''}</div>
     <div class="strip">${strip}</div>${body}
     <h2>${n?`${k} of ${n} right so far`:'Your score'}</h2>${rows}
-    ${n?`<div class="nav"><span class="note">First answers count; the Sunday run brings back what you missed.</span><button class="btn ghost" id="reset">Clear my answers for this week</button></div>`:''}`;
+    ${n?`<div class="nav"><span class="note">First answers count. Clearing keeps your review deck.</span><button class="btn ghost" id="reset">Clear my answers for this week</button></div>`:''}`;
 }
 
+function renderReview(){
+  if(ri>=rq.length){
+    const got=Object.values(rAns).filter(x=>x.correct).length;
+    $('#main').innerHTML=`${revPanel()}<div class="card" style="margin-top:20px"><p class="q">Review done: ${got} of ${rq.length} right.</p><p>Right answers moved up a box and come back later; misses come back in a week.</p><div class="nav"><span></span><button class="btn" id="rexit">Back to this week's card</button></div></div>`;return;
+  }
+  const key=rq[ri],r=reviews[key]||{},q=findQ(r.week,r.qid);
+  if(!q){ri++;return renderReview()}
+  const a=rAns[key];
+  const after=a?(a.correct?(a.box>4?'Mastered. It leaves the deck.':`Moved to box ${a.box}. Next review ${esc(nice(a.due))}.`):`Back to box 1. Next review ${esc(nice(a.due))}.`):'';
+  const strip=rq.map((k,i)=>{const x=rAns[k];return `<span class="dot ${x?(x.correct?'ok':'no'):''} ${i===ri?'on':''}" style="display:inline-grid;place-items:center">${i+1}</span>`}).join('');
+  $('#main').innerHTML=`<div class="week"><b>Review</b><p>${rq.length} question${rq.length>1?'s':''} from earlier weeks, oldest due first.</p></div><div class="strip">${strip}</div>`+
+    cardHTML(q,a,{tag:`From the ${esc(fmt(r.week).toLowerCase())} card`,after,nav:`<div class="nav"><button class="btn ghost" id="rexit">Stop review</button><button class="btn" id="rnext" ${a?'':'disabled'}>${ri>=rq.length-1?'Finish':'Next'}</button></div>`});
+}
+
+function readAnswer(q){
+  if(q.kind==='num'){const v=String($('#nv').value).replace(/[,%\s]/g,'');if(v===''||isNaN(Number(v)))return null;return Number(v)}
+  return picked;
+}
 async function submit(){
-  const w=week(),q=w.questions[qi];let v;
-  if(q.kind==='num'){v=String($('#nv').value).replace(/[,%\s]/g,'');if(v===''||isNaN(Number(v)))return;v=Number(v)}else{if(picked==null)return;v=picked}
-  const ok=correct(q,v);
-  att={...att,[q.id]:{value:v,correct:ok,at:new Date().toISOString(),topic:q.topic}};picked=null;render();
+  if(mode==='review')return submitReview();
+  const w=week(),q=w.questions[qi];const v=readAnswer(q);if(v==null)return;
+  const ok=correct(q,v),now=new Date().toISOString();
+  att={...att,[q.id]:{value:v,correct:ok,at:now,topic:q.topic}};picked=null;
+  const key=cur+'__'+q.id;
+  if(!ok&&!reviews[key]){reviews={...reviews,[key]:{week:cur,qid:q.id,topic:q.topic,concept:q.concept,box:1,due:addDays(GAP[1]),reps:0,lapses:1,last:now,history:[{at:now,correct:false,from:'card'}]}};db.doc('review/'+key).set(reviews[key]).catch(()=>{})}
+  render();
   try{await db.doc('attempts/'+cur).set({week_of:cur,answers:att,updated:new Date().toISOString()})}catch(e){}
+}
+function submitReview(){
+  const key=rq[ri],r=reviews[key],q=findQ(r.week,r.qid);const v=readAnswer(q);if(v==null)return;
+  const ok=correct(q,v),now=new Date().toISOString();
+  const box=ok?(Number(r.box)||1)+1:1;
+  const due=box>4?null:addDays(GAP[box]);
+  const nr={...r,box,due,reps:(r.reps||0)+1,lapses:(r.lapses||0)+(ok?0:1),last:now,history:[...(r.history||[]),{at:now,correct:ok,from:'review'}].slice(-20)};
+  rAns={...rAns,[key]:{value:v,correct:ok,box,due}};reviews={...reviews,[key]:nr};picked=null;render();
+  db.doc('review/'+key).set(nr).catch(()=>{});
 }
 
 document.addEventListener('click',e=>{
-  const t=e.target.closest('button');if(!t||!week())return;
+  const t=e.target.closest('button');if(!t||!weeks.length)return;
   if(t.dataset.i!=null){qi=Number(t.dataset.i);picked=null;savePos();render()}
   else if(t.dataset.c!=null){picked=Number(t.dataset.c);render()}
   else if(t.id==='chk')submit();
   else if(t.id==='next'){qi++;picked=null;savePos();render()}
   else if(t.id==='prev'){qi--;picked=null;savePos();render()}
+  else if(t.id==='rstart'){rq=dueList();ri=0;rAns={};picked=null;mode='review';render();window.scrollTo(0,0)}
+  else if(t.id==='rnext'){ri++;picked=null;render()}
+  else if(t.id==='rexit'){mode='week';picked=null;render()}
   else if(t.id==='reset'){if(t.dataset.sure){att={};render();db.doc('attempts/'+cur).delete().catch(()=>{})}else{t.dataset.sure='1';t.textContent='Tap again to clear'}}
 });
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='nv')submit()});
@@ -159,6 +225,7 @@ const timer=setTimeout(()=>msg('Could not reach the card data. Open this page in
   if(!d){clearTimeout(timer);msg('Open this page in Claude while signed in to load the cards.');return}
   db=d;
   db.collection('weeks').onSnapshot(s=>{clearTimeout(timer);setWeeks(s.docs.map(x=>({id:x.id,...x.data()})))},()=>{clearTimeout(timer);msg('Could not load the cards.')});
+  db.collection('review').onSnapshot(s=>{const o={};s.docs.forEach(x=>{o[x.id]=x.data()});reviews=o;if(mode!=='review'&&weeks.length)render()},()=>{});
 });
 }
 </script>
