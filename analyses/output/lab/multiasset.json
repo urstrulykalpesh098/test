@@ -1,0 +1,315 @@
+{
+ "made_at": "2026-11-26T11:18:00Z",
+ "assets": {
+  "SP500": {
+   "sid": "SP500",
+   "n": 2511,
+   "first": "2016-11-28",
+   "last": "2026-11-24",
+   "k": 0.9837,
+   "band_hit_test": 0.7952,
+   "band_ci95": [
+    0.7719,
+    0.8167
+   ],
+   "up_rate": 0.5464,
+   "last_value": 7201.09,
+   "sigma_now": 0.018512109036671102,
+   "kind": "log",
+   "label": "S&P 500"
+  },
+  "NASDAQCOM": {
+   "sid": "NASDAQCOM",
+   "n": 14070,
+   "first": "1971-02-05",
+   "last": "2026-11-25",
+   "k": 0.9631,
+   "band_hit_test": 0.7806,
+   "band_ci95": [
+    0.7708,
+    0.7902
+   ],
+   "up_rate": 0.5576,
+   "last_value": 23585.8,
+   "sigma_now": 0.02463334809924654,
+   "kind": "log",
+   "label": "Nasdaq Composite"
+  },
+  "DJIA": {
+   "sid": "DJIA",
+   "n": 2512,
+   "first": "2016-11-28",
+   "last": "2026-11-25",
+   "k": 0.9428,
+   "band_hit_test": 0.7745,
+   "band_ci95": [
+    0.7504,
+    0.7968
+   ],
+   "up_rate": 0.545,
+   "last_value": 50182.95,
+   "sigma_now": 0.01411867836386085,
+   "kind": "log",
+   "label": "Dow Jones"
+  },
+  "VIXCLS": {
+   "sid": "VIXCLS",
+   "n": 9323,
+   "first": "1990-01-02",
+   "last": "2026-11-24",
+   "k": 0.9741,
+   "band_hit_test": 0.8233,
+   "band_ci95": [
+    0.812,
+    0.834
+   ],
+   "up_rate": 0.4652,
+   "last_value": 26.36,
+   "sigma_now": 0.15573311892111394,
+   "kind": "log",
+   "label": "VIX"
+  },
+  "DGS10": {
+   "sid": "DGS10",
+   "n": 16208,
+   "first": "1962-01-02",
+   "last": "2026-11-24",
+   "k": 0.9666,
+   "band_hit_test": 0.7964,
+   "band_ci95": [
+    0.7875,
+    0.805
+   ],
+   "up_rate": 0.4411,
+   "last_value": 4.91,
+   "sigma_now": 0.05803095731681503,
+   "kind": "diff",
+   "label": "10-year yield"
+  },
+  "DGS2": {
+   "sid": "DGS2",
+   "n": 12616,
+   "first": "1976-06-01",
+   "last": "2026-11-24",
+   "k": 0.933,
+   "band_hit_test": 0.7847,
+   "band_ci95": [
+    0.7744,
+    0.7947
+   ],
+   "up_rate": 0.4325,
+   "last_value": 4.63,
+   "sigma_now": 0.06744448581631211,
+   "kind": "diff",
+   "label": "2-year yield"
+  },
+  "BAMLH0A0HYM2": {
+   "sid": "BAMLH0A0HYM2",
+   "n": 784,
+   "first": "2023-11-27",
+   "last": "2026-11-24",
+   "k": 0.8938,
+   "band_hit_test": 0.7592,
+   "band_ci95": [
+    0.7138,
+    0.7993
+   ],
+   "up_rate": 0.4235,
+   "last_value": 3.72,
+   "sigma_now": 0.09792808966682318,
+   "kind": "diff",
+   "label": "High-yield spread"
+  },
+  "DCOILWTICO": {
+   "sid": "DCOILWTICO",
+   "n": 9549,
+   "first": "1986-01-02",
+   "last": "2026-11-24",
+   "k": 0.9426,
+   "band_hit_test": 0.7834,
+   "band_ci95": [
+    0.7715,
+    0.7948
+   ],
+   "up_rate": 0.5139,
+   "last_value": 82.24,
+   "sigma_now": 0.03568727327800705,
+   "kind": "log",
+   "label": "WTI oil"
+  },
+  "DEXCAUS": {
+   "sid": "DEXCAUS",
+   "n": 14019,
+   "first": "1971-01-04",
+   "last": "2026-11-20",
+   "k": 0.9559,
+   "band_hit_test": 0.7844,
+   "band_ci95": [
+    0.7746,
+    0.7939
+   ],
+   "up_rate": 0.4935,
+   "last_value": 1.4323,
+   "sigma_now": 0.0030403828251039404,
+   "kind": "log",
+   "label": "CAD per USD"
+  },
+  "DTWEXBGS": {
+   "sid": "DTWEXBGS",
+   "n": 5235,
+   "first": "2006-01-02",
+   "last": "2026-11-20",
+   "k": 0.9898,
+   "band_hit_test": 0.8078,
+   "band_ci95": [
+    0.7923,
+    0.8225
+   ],
+   "up_rate": 0.494,
+   "last_value": 123.5978,
+   "sigma_now": 0.002524986241243371,
+   "kind": "log",
+   "label": "Broad dollar"
+  }
+ },
+ "today": [
+  {
+   "asof": "2026-11-24",
+   "asset": "SP500",
+   "h": 1,
+   "hi": 7371.1219,
+   "id": "2026-11-24_SP500",
+   "label": "S&P 500",
+   "lo": 7034.9803,
+   "made_at": "2026-11-26T11:15:56Z",
+   "p_up": 0.5464,
+   "status": "open",
+   "value0": 7201.09
+  },
+  {
+   "asof": "2026-11-25",
+   "asset": "NASDAQCOM",
+   "h": 1,
+   "hi": 24313.9157,
+   "id": "2026-11-25_NASDAQCOM",
+   "label": "Nasdaq Composite",
+   "lo": 22879.4888,
+   "made_at": "2026-11-26T11:15:56Z",
+   "p_up": 0.5576,
+   "status": "open",
+   "value0": 23585.8
+  },
+  {
+   "asof": "2026-11-25",
+   "asset": "DJIA",
+   "h": 1,
+   "hi": 51046.3567,
+   "id": "2026-11-25_DJIA",
+   "label": "Dow Jones",
+   "lo": 49334.1471,
+   "made_at": "2026-11-26T11:15:56Z",
+   "p_up": 0.545,
+   "status": "open",
+   "value0": 50182.95
+  },
+  {
+   "asof": "2026-11-24",
+   "asset": "VIXCLS",
+   "h": 1,
+   "hi": 32.0167,
+   "id": "2026-11-24_VIXCLS",
+   "label": "VIX",
+   "lo": 21.7027,
+   "made_at": "2026-11-26T11:15:56Z",
+   "p_up": 0.4652,
+   "status": "open",
+   "value0": 26.36
+  },
+  {
+   "asof": "2026-11-24",
+   "asset": "DGS10",
+   "h": 1,
+   "hi": 4.9819,
+   "id": "2026-11-24_DGS10",
+   "label": "10-year yield",
+   "lo": 4.8381,
+   "made_at": "2026-11-26T11:15:56Z",
+   "p_up": 0.4411,
+   "status": "open",
+   "value0": 4.91
+  },
+  {
+   "asof": "2026-11-24",
+   "asset": "DGS2",
+   "h": 1,
+   "hi": 4.7106,
+   "id": "2026-11-24_DGS2",
+   "label": "2-year yield",
+   "lo": 4.5494,
+   "made_at": "2026-11-26T11:15:56Z",
+   "p_up": 0.4325,
+   "status": "open",
+   "value0": 4.63
+  },
+  {
+   "asof": "2026-11-24",
+   "asset": "BAMLH0A0HYM2",
+   "h": 1,
+   "hi": 3.8322,
+   "id": "2026-11-24_BAMLH0A0HYM2",
+   "label": "High-yield spread",
+   "lo": 3.6078,
+   "made_at": "2026-11-26T11:15:56Z",
+   "p_up": 0.4235,
+   "status": "open",
+   "value0": 3.72
+  },
+  {
+   "asof": "2026-11-24",
+   "asset": "DCOILWTICO",
+   "h": 1,
+   "hi": 85.8629,
+   "id": "2026-11-24_DCOILWTICO",
+   "label": "WTI oil",
+   "lo": 78.77,
+   "made_at": "2026-11-26T11:15:56Z",
+   "p_up": 0.5139,
+   "status": "open",
+   "value0": 82.24
+  },
+  {
+   "asof": "2026-11-20",
+   "asset": "DEXCAUS",
+   "h": 1,
+   "hi": 1.4376,
+   "id": "2026-11-20_DEXCAUS",
+   "label": "CAD per USD",
+   "lo": 1.427,
+   "made_at": "2026-11-26T11:15:56Z",
+   "p_up": 0.4935,
+   "status": "open",
+   "value0": 1.4323
+  },
+  {
+   "asof": "2026-11-20",
+   "asset": "DTWEXBGS",
+   "h": 1,
+   "hi": 123.9943,
+   "id": "2026-11-20_DTWEXBGS",
+   "label": "Broad dollar",
+   "lo": 123.2026,
+   "made_at": "2026-11-26T11:15:56Z",
+   "p_up": 0.494,
+   "status": "open",
+   "value0": 123.5978
+  }
+ ],
+ "record": {
+  "graded": 0,
+  "open": 10,
+  "band_hit": null,
+  "brier": null,
+  "per_asset": {}
+ },
+ "recent_graded": []
+}

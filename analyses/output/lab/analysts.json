@@ -1,0 +1,377 @@
+{
+ "asof": "2026-11-24",
+ "analysts": {
+  "trend": "Trend follower: 20-day S&P return. Rising markets tend to keep rising?",
+  "bounce": "Bounce hunter: yesterday's move in VIX units. Big drops get bought?",
+  "fear": "Fear gauge: VIX vs its 60-day average. Panic means opportunity?",
+  "curve": "Vol curve: 3-month VIX / VIX. An inverted curve means stress.",
+  "credit": "Credit watcher: 20-day change in high-yield spreads. Bonds lead stocks?",
+  "rates": "Rates watcher: 20-day change in the 10-year yield.",
+  "dollar": "Dollar watcher: 20-day change in the broad dollar."
+ },
+ "horizons": {
+  "h1": {
+   "all": {
+    "rates": {
+     "n": 1951,
+     "brier": 0.2481,
+     "avg_p": 0.552,
+     "hit": 0.5423
+    },
+    "base": {
+     "n": 1951,
+     "brier": 0.2484,
+     "avg_p": 0.552,
+     "hit": 0.5428
+    },
+    "desk": {
+     "n": 1951,
+     "brier": 0.2484,
+     "avg_p": 0.5529,
+     "hit": 0.5428
+    },
+    "bounce": {
+     "n": 1951,
+     "brier": 0.2485,
+     "avg_p": 0.5522,
+     "hit": 0.5413
+    },
+    "dollar": {
+     "n": 1951,
+     "brier": 0.2485,
+     "avg_p": 0.5528,
+     "hit": 0.5428
+    },
+    "red_team": {
+     "n": 1951,
+     "brier": 0.2485,
+     "avg_p": 0.5511,
+     "hit": 0.5428
+    },
+    "trend": {
+     "n": 1951,
+     "brier": 0.2486,
+     "avg_p": 0.5522,
+     "hit": 0.5428
+    },
+    "fear": {
+     "n": 1951,
+     "brier": 0.2486,
+     "avg_p": 0.5532,
+     "hit": 0.5428
+    },
+    "curve": {
+     "n": 1951,
+     "brier": 0.2486,
+     "avg_p": 0.5523,
+     "hit": 0.5428
+    },
+    "credit": {
+     "n": 439,
+     "brier": 0.2524,
+     "avg_p": 0.5752,
+     "hit": 0.5353
+    }
+   },
+   "last_year": {
+    "red_team": {
+     "n": 252,
+     "brier": 0.251,
+     "avg_p": 0.5472,
+     "hit": 0.5119
+    },
+    "bounce": {
+     "n": 252,
+     "brier": 0.2511,
+     "avg_p": 0.5495,
+     "hit": 0.5119
+    },
+    "dollar": {
+     "n": 252,
+     "brier": 0.2512,
+     "avg_p": 0.5491,
+     "hit": 0.5119
+    },
+    "trend": {
+     "n": 252,
+     "brier": 0.2513,
+     "avg_p": 0.5493,
+     "hit": 0.5119
+    },
+    "base": {
+     "n": 252,
+     "brier": 0.2513,
+     "avg_p": 0.5492,
+     "hit": 0.5119
+    },
+    "fear": {
+     "n": 252,
+     "brier": 0.2514,
+     "avg_p": 0.5494,
+     "hit": 0.5119
+    },
+    "curve": {
+     "n": 252,
+     "brier": 0.2515,
+     "avg_p": 0.5499,
+     "hit": 0.5119
+    },
+    "desk": {
+     "n": 252,
+     "brier": 0.2515,
+     "avg_p": 0.5513,
+     "hit": 0.5119
+    },
+    "rates": {
+     "n": 252,
+     "brier": 0.252,
+     "avg_p": 0.5437,
+     "hit": 0.5119
+    },
+    "credit": {
+     "n": 252,
+     "brier": 0.2531,
+     "avg_p": 0.57,
+     "hit": 0.5119
+    }
+   },
+   "latest_scored_day": "2026-11-23",
+   "weights": {
+    "trend": 0.1252,
+    "bounce": 0.1252,
+    "fear": 0.1251,
+    "curve": 0.1251,
+    "credit": 0.1243,
+    "rates": 0.1248,
+    "dollar": 0.1252,
+    "base": 0.1252
+   }
+  },
+  "h5": {
+   "all": {
+    "red_team": {
+     "n": 1947,
+     "brier": 0.241,
+     "avg_p": 0.6203,
+     "hit": 0.5984
+    },
+    "bounce": {
+     "n": 1947,
+     "brier": 0.2411,
+     "avg_p": 0.621,
+     "hit": 0.5984
+    },
+    "base": {
+     "n": 1947,
+     "brier": 0.2411,
+     "avg_p": 0.6209,
+     "hit": 0.5984
+    },
+    "dollar": {
+     "n": 1947,
+     "brier": 0.2412,
+     "avg_p": 0.6212,
+     "hit": 0.5984
+    },
+    "desk": {
+     "n": 1947,
+     "brier": 0.2413,
+     "avg_p": 0.6216,
+     "hit": 0.5984
+    },
+    "rates": {
+     "n": 1947,
+     "brier": 0.2414,
+     "avg_p": 0.621,
+     "hit": 0.5973
+    },
+    "curve": {
+     "n": 1947,
+     "brier": 0.2415,
+     "avg_p": 0.6219,
+     "hit": 0.5984
+    },
+    "trend": {
+     "n": 1947,
+     "brier": 0.2418,
+     "avg_p": 0.621,
+     "hit": 0.5984
+    },
+    "fear": {
+     "n": 1947,
+     "brier": 0.242,
+     "avg_p": 0.623,
+     "hit": 0.5984
+    },
+    "credit": {
+     "n": 435,
+     "brier": 0.2612,
+     "avg_p": 0.6302,
+     "hit": 0.5655
+    }
+   },
+   "last_year": {
+    "dollar": {
+     "n": 252,
+     "brier": 0.2559,
+     "avg_p": 0.6122,
+     "hit": 0.5238
+    },
+    "red_team": {
+     "n": 252,
+     "brier": 0.2565,
+     "avg_p": 0.6127,
+     "hit": 0.5238
+    },
+    "bounce": {
+     "n": 252,
+     "brier": 0.2566,
+     "avg_p": 0.613,
+     "hit": 0.5238
+    },
+    "base": {
+     "n": 252,
+     "brier": 0.257,
+     "avg_p": 0.6127,
+     "hit": 0.5238
+    },
+    "curve": {
+     "n": 252,
+     "brier": 0.2572,
+     "avg_p": 0.6127,
+     "hit": 0.5238
+    },
+    "fear": {
+     "n": 252,
+     "brier": 0.2573,
+     "avg_p": 0.6132,
+     "hit": 0.5238
+    },
+    "desk": {
+     "n": 252,
+     "brier": 0.2576,
+     "avg_p": 0.6128,
+     "hit": 0.5238
+    },
+    "trend": {
+     "n": 252,
+     "brier": 0.2577,
+     "avg_p": 0.6126,
+     "hit": 0.5238
+    },
+    "rates": {
+     "n": 252,
+     "brier": 0.2602,
+     "avg_p": 0.6041,
+     "hit": 0.5238
+    },
+    "credit": {
+     "n": 252,
+     "brier": 0.2607,
+     "avg_p": 0.6225,
+     "hit": 0.5238
+    }
+   },
+   "latest_scored_day": "2026-11-17",
+   "weights": {
+    "trend": 0.1251,
+    "bounce": 0.1256,
+    "fear": 0.1252,
+    "curve": 0.1253,
+    "credit": 0.1236,
+    "rates": 0.1239,
+    "dollar": 0.1259,
+    "base": 0.1254
+   }
+  }
+ },
+ "today": {
+  "date": "2026-11-24",
+  "calls": {
+   "h1": {
+    "trend": {
+     "p_up": 0.5486,
+     "reading": -0.0699,
+     "z": -1.7207
+    },
+    "bounce": {
+     "p_up": 0.5496,
+     "reading": -0.298,
+     "z": -0.4217
+    },
+    "fear": {
+     "p_up": 0.5398,
+     "reading": 0.4516,
+     "z": 1.5678
+    },
+    "curve": {
+     "p_up": 0.5484,
+     "reading": 0.9662,
+     "z": -1.7485
+    },
+    "credit": {
+     "p_up": 0.5515,
+     "reading": 0.54,
+     "z": 1.8256
+    },
+    "rates": {
+     "p_up": 0.555,
+     "reading": -0.08,
+     "z": -0.4321
+    },
+    "dollar": {
+     "p_up": 0.539,
+     "reading": 0.0158,
+     "z": 1.0644
+    },
+    "base": {
+     "p_up": 0.5451,
+     "reading": 0.0,
+     "z": 0.0
+    }
+   },
+   "h5": {
+    "trend": {
+     "p_up": 0.6033,
+     "reading": -0.0699,
+     "z": -1.7265
+    },
+    "bounce": {
+     "p_up": 0.6088,
+     "reading": -0.298,
+     "z": -0.4237
+    },
+    "fear": {
+     "p_up": 0.5898,
+     "reading": 0.4516,
+     "z": 1.5778
+    },
+    "curve": {
+     "p_up": 0.6172,
+     "reading": 0.9662,
+     "z": -1.7567
+    },
+    "credit": {
+     "p_up": 0.56,
+     "reading": 0.54,
+     "z": 1.83
+    },
+    "rates": {
+     "p_up": 0.6187,
+     "reading": -0.08,
+     "z": -0.4322
+    },
+    "dollar": {
+     "p_up": 0.5871,
+     "reading": 0.0158,
+     "z": 1.0665
+    },
+    "base": {
+     "p_up": 0.604,
+     "reading": 0.0,
+     "z": 0.0
+    }
+   }
+  }
+ }
+}

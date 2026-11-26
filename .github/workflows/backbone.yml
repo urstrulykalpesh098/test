@@ -1,0 +1,39 @@
+# Eye View nightly backbone: pull free official data, run the lab, grade multi-asset calls.
+# GitHub only runs scheduled workflows from the default branch (main), so this file must
+# also exist on main. It checks out the desk branch, runs, and commits results there.
+name: Eye View nightly backbone
+on:
+  schedule:
+    - cron: "15 23 * * 1-5"   # 18:15 ET (EST) on weekdays, after FRED's evening updates
+    - cron: "15 22 * * 0"     # Sunday 17:15 ET: research loop, ready before the Sunday desk
+  workflow_dispatch: {}
+permissions:
+  contents: write
+concurrency:
+  group: backbone
+  cancel-in-progress: false
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DESK_BRANCH: claude/miro-fish-7vjyrd
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.DESK_BRANCH }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run backbone, lab and grading
+        run: python analyses/backbone/nightly.py
+      - name: Tests
+        run: python -m unittest tests.test_backbone_lab
+      - name: Commit results
+        run: |
+          git config user.name "eyeview-backbone"
+          git config user.email "eyeview-backbone@users.noreply.github.com"
+          git add analyses/data/history analyses/data/calls analyses/output/lab analyses/output/research analyses/output/hub
+          git diff --cached --quiet && echo "no changes" && exit 0
+          git commit -m "Nightly backbone $(date -u +%F)"
+          git push origin HEAD:${{ env.DESK_BRANCH }}
