@@ -7,5 +7,7 @@ Files published with the page: `data.json` = `hub_data.json` from `analyses/back
 Capabilities: `db` (collection `guesses/{call id}` = Rk's you-vs-desk calls: p, asset, asof, at)
 and `sample` (Ask the desk, answers via page tools over data.json and history.json).
 
-The page shows the snapshot it was published with. To refresh it, run nightly.py, copy hub_data.json
-to data.json and republish the same artifact URL (a Claude session does this; scheduled runs must not).
+Nightly refresh: the page first reads db doc `hub/latest` ({json: hub_data.json as a string, built_at, updated_at}),
+falling back to the published data.json. The scheduled task "Desk: refresh Eye View HQ" (trig_01GZJwF5kUmxmgKQE6uegdV5,
+19:41 ET daily) copies the latest hub_data.json from the desk branch into that doc after the GitHub job runs.
+The page itself is never republished by scheduled runs; history.json (Ask the desk) is as of the last publish.
