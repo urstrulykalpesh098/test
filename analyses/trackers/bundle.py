@@ -1,6 +1,6 @@
-"""Make single-file copies of credit.py, policy.py and auctions.py (common.py inlined) for the Desk Ledger's method/*_script docs.
+"""Make single-file copies of credit.py, policy.py, auctions.py and canada.py (common.py inlined) for the Desk Ledger's method/*_script docs.
 
-  python bundle.py OUTDIR   -> OUTDIR/credit.py, OUTDIR/policy.py, OUTDIR/auctions.py
+  python bundle.py OUTDIR   -> OUTDIR/credit.py, OUTDIR/policy.py, OUTDIR/auctions.py, OUTDIR/canada.py
 """
 import re, sys
 from pathlib import Path
@@ -19,4 +19,4 @@ def bundle(name):
 
 if __name__ == "__main__":
     d = Path(sys.argv[1]); d.mkdir(parents=True, exist_ok=True)
-    for f in ("credit.py", "policy.py", "auctions.py"): (d / f).write_text(bundle(f))
+    for f in ("credit.py", "policy.py", "auctions.py", "canada.py"): (d / f).write_text(bundle(f))
