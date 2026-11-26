@@ -1,4 +1,12 @@
-"""Real SPY option chains for the desk, from Alpaca's free market data.
+"""Real SPY option chains for the desk, from free market data APIs.
+
+SOURCES
+  marketdata (default)  MarketData.app "Free Forever": 100 credits/day, data is the prior
+                        session (24h delayed), includes bid/ask, IV, greeks, open interest.
+                        Terms: personal use; storing on your own devices allowed; derived
+                        data unrestricted; no redistribution. Works from Canada.
+  alpaca                Alpaca Basic (US residents only), kept for reference.
+
 
 WHAT IT DOES
   summary  Reads today's SPY chain and prints DERIVED numbers only: ATM IV, 25-delta
@@ -24,7 +32,9 @@ DATA SOURCE AND LIMITS (read before trusting a number)
     only, and the desk stores only those.
 
 AUTH
-  Keys go in the cloud environment as Network secrets (headers APCA-API-KEY-ID and
+  MarketData.app: Network secret for host api.marketdata.app, header Authorization,
+  value "Bearer <token>". Fallback: env var MARKETDATA_TOKEN.
+  Alpaca: keys go in the cloud environment as Network secrets (headers APCA-API-KEY-ID and
   APCA-API-SECRET-KEY for data.alpaca.markets and paper-api.alpaca.markets), which
   the proxy adds to each request. As a local fallback the script also sends env vars
   APCA_API_KEY_ID / APCA_API_SECRET_KEY if they are set.
@@ -49,6 +59,7 @@ import urllib.request
 
 DATA = "https://data.alpaca.markets"
 TRADE = "https://paper-api.alpaca.markets"
+MD = "https://api.marketdata.app"
 RATE, DIV = 0.039, 0.012            # same as the paper book's model rules
 MODEL_PUT_SKEW, MODEL_CALL_SKEW = 0.9, -0.3  # book's old assumptions (vol pts per 1% OTM), fallback only
 WIDE = 0.5                          # a quote wider than 50% of its mid is "wide"
@@ -116,6 +127,8 @@ def years(expiry: dt.date, now: dt.datetime):
 def _get(base, path, params):
     url = f"{base}{path}?{urllib.parse.urlencode(params)}"
     req = urllib.request.Request(url, headers={"Accept": "application/json"})
+    if base == MD and os.environ.get("MARKETDATA_TOKEN"):
+        req.add_header("Authorization", "Bearer " + os.environ["MARKETDATA_TOKEN"])
     kid, sec = os.environ.get("APCA_API_KEY_ID"), os.environ.get("APCA_API_SECRET_KEY")
     if kid and sec:
         req.add_header("APCA-API-KEY-ID", kid)
@@ -125,7 +138,7 @@ def _get(base, path, params):
             return json.loads(r.read())
     except urllib.error.HTTPError as e:
         body = e.read()[:300].decode("utf-8", "replace")
-        raise SystemExit(f"Alpaca {e.code} on {path}: {body}  (401/403 = keys missing or not entitled)")
+        raise SystemExit(f"HTTP {e.code} on {base}{path}: {body}  (401/403 = token missing or not entitled)")
 
 
 def fetch_chain(underlying, exp_lo, exp_hi, k_lo, k_hi):
@@ -336,23 +349,67 @@ def _model_iv(spot, K, atm_iv, skew):
 
 
 # ---------------------------------------------------------------- live entry points
+def fetch_marketdata(underlying, exp_lo, exp_hi, band, date=None):
+    """MarketData.app chain (free plan = prior session, 24h delayed). Columnar JSON.
+    Returns (chain, oi, spot, as_of). Field names per their docs; unverified until a live run."""
+    p = {"from": exp_lo.isoformat(), "to": exp_hi.isoformat(), "range": "all"}
+    if date:
+        p["date"] = date
+    js = _get(MD, f"/v1/options/chain/{underlying}/", p)
+    if js.get("s") not in ("ok", None):
+        raise SystemExit(f"MarketData.app: {js.get('s')} {js.get('errmsg', '')}")
+    syms = js.get("optionSymbol") or []
+    col = lambda k, i, d=None: (js.get(k) or [d] * len(syms))[i]
+    spot = next((float(x) for x in (js.get("underlyingPrice") or []) if x), None)
+    if not spot:
+        raise SystemExit("MarketData.app returned no underlying price; stop rather than guess.")
+    chain, oi, stamps = {}, {}, []
+    for i, sym in enumerate(syms):
+        m = OCC.match(sym)
+        if not m:
+            continue
+        K = int(m.group(4)) / 1000.0
+        if abs(math.log(K / spot)) > band:
+            continue
+        chain[sym] = {"kind": m.group(3), "K": K,
+                      "expiry": dt.datetime.strptime(m.group(2), "%y%m%d").date(),
+                      "bid": float(col("bid", i, 0) or 0), "ask": float(col("ask", i, 0) or 0),
+                      "quote_time": col("updated", i), "iv_feed": col("iv", i)}
+        o = col("openInterest", i)
+        if o not in (None, ""):
+            oi[sym] = (float(o), None)
+        if col("updated", i):
+            stamps.append(int(col("updated", i)))
+    as_of = (dt.datetime.fromtimestamp(max(stamps), dt.timezone.utc) if stamps
+             else dt.datetime.now(dt.timezone.utc))
+    oi = {k: (v[0], as_of.date().isoformat()) for k, v in oi.items()}
+    return chain, oi, spot, as_of
+
+
 def live(args):
     now = dt.datetime.now(dt.timezone.utc)
+    lo_e, hi_e = now.date(), now.date() + dt.timedelta(days=args.days)
+    if args.source == "marketdata":
+        chain, oi, spot, as_of = fetch_marketdata("SPY", lo_e, hi_e, args.band, args.date)
+        if not chain:
+            raise SystemExit("MarketData.app returned an empty chain; stop rather than guess.")
+        return as_of, spot, chain, oi        # value everything at the quotes' own time
     spot = fetch_spot("SPY")
     if not spot:
         raise SystemExit("No SPY price from Alpaca; stop rather than guess.")
-    lo_e, hi_e = now.date(), now.date() + dt.timedelta(days=args.days)
     k_lo, k_hi = spot * (1 - args.band), spot * (1 + args.band)
     chain = fetch_chain("SPY", lo_e, hi_e, k_lo, k_hi)
     if not chain:
         raise SystemExit("Alpaca returned an empty chain; stop rather than guess.")
-    return now, spot, chain, (lo_e, hi_e, k_lo, k_hi)
+    return now, spot, chain, fetch_open_interest("SPY", lo_e, hi_e, k_lo, k_hi)
 
 
 def cmd_summary(args):
-    now, spot, chain, rng = live(args)
-    oi = fetch_open_interest("SPY", *rng)
-    print(json.dumps(summarize(chain, oi, spot, now), indent=1, default=str))
+    now, spot, chain, oi = live(args)
+    out = summarize(chain, oi, spot, now)
+    if args.source == "marketdata":
+        out["source"] = "MarketData.app free plan (prior session's data, 24h delayed)"
+    print(json.dumps(out, indent=1, default=str))
 
 
 def cmd_price(args):
@@ -363,6 +420,7 @@ def cmd_price(args):
     out = price_legs(chain, json.loads(args.legs), expiry, spot, now,
                      atm_iv=e.get("atm_iv"), skew=s.get("fallback_skew"))
     out["spot"] = round(spot, 2)
+    out["quotes_as_of"] = now.isoformat(timespec="minutes")
     print(json.dumps(out, indent=1))
 
 
@@ -407,6 +465,18 @@ def cmd_selftest(_):
     iv_c = _model_iv(spot, 721, 20.0, s["fallback_skew"]) * 100
     iv_p = _model_iv(spot, 679, 20.0, s["fallback_skew"]) * 100
     ok.append(("fallback skew: OTM call IV < ATM < OTM put IV", iv_c < 20 < iv_p, (round(iv_c, 2), round(iv_p, 2))))
+    # MarketData.app columnar parser on a tiny fake payload (offline)
+    global _get
+    real = _get
+    _get = lambda *a, **k: {"s": "ok", "optionSymbol": ["SPY261204P00690000", "SPY261204C00710000"],
+                            "underlyingPrice": [700.0, 700.0], "bid": [2.0, 1.5], "ask": [2.1, 1.6],
+                            "openInterest": [5000, 4000], "iv": [0.21, 0.18], "updated": [1795640400, 1795640400]}
+    try:
+        ch, o, sp, at = fetch_marketdata("SPY", now.date(), now.date() + dt.timedelta(days=30), 0.12)
+    finally:
+        _get = real
+    ok.append(("marketdata parser", len(ch) == 2 and sp == 700.0 and o["SPY261204P00690000"][0] == 5000,
+               (len(ch), sp)))
     for name, good, val in ok:
         print(("PASS " if good else "FAIL ") + name + f"  [{val}]")
     print("SYNTHETIC test data only, not market data.")
@@ -420,6 +490,8 @@ def main():
         sp = sub.add_parser(name)
         sp.add_argument("--days", type=int, default=45)
         sp.add_argument("--band", type=float, default=0.12)
+        sp.add_argument("--source", choices=["marketdata", "alpaca"], default="marketdata")
+        sp.add_argument("--date", help="MarketData.app: session date YYYY-MM-DD (default: latest allowed)")
         if name == "price":
             sp.add_argument("--expiry", required=True)
             sp.add_argument("--legs", required=True)

@@ -1,36 +1,43 @@
-# Real option chains (idea 2) — Alpaca free data
+# Real option chains (idea 2) — MarketData.app free plan
 
-Status (26 Nov 2026): code built and self-tested on synthetic data. Not yet run on live
-data: waiting for Rk's free Alpaca keys.
+Status (26 Nov 2026): code built and self-tested offline (synthetic data). The live endpoint
+is reachable and answers 401 until Rk's token is added. Not yet run on real data.
 
-## Why Alpaca
+## Why MarketData.app
 - Cboe's site terms bar storing their data or building on it without written consent.
 - Yahoo/yfinance terms bar it too. Alpha Vantage options need a paid plan.
-- Alpaca's free Basic plan includes US options on the "indicative" feed (15-min delayed,
-  quotes "modified", not real OPRA). Terms: personal, non-commercial use; no republishing.
-  So the desk stores only derived numbers (prices of its own paper trades, IV, skew, gamma),
-  never raw chains.
+- Alpaca's free feed is for US residents only; Rk is in Canada.
+- MarketData.app "Free Forever": 100 credits/day; chains include bid/ask, IV, greeks, open
+  interest; free data is the prior session (24h delayed). Terms (updated 6 Nov 2026): personal
+  non-professional use; may store on devices you control; automation allowed; no restriction on
+  derived data; no redistribution or copying their database. No country restriction found.
+- Unverified: how many credits one chain request costs on the free plan. Check on first run.
 
 ## Setup (Rk, once)
-1. Open a free Alpaca account (paper trading only, no money). Terms say the service is
-   intended for US residents.
-2. In the paper account, generate API keys.
-3. In Project settings → Cloud environment → gear → Network secrets, add for BOTH hosts
-   data.alpaca.markets and paper-api.alpaca.markets:
-   - header `APCA-API-KEY-ID` = key id
-   - header `APCA-API-SECRET-KEY` = secret
-   Never paste keys into chat. The two hosts are already on the network allowlist.
+1. Sign up at https://www.marketdata.app/pricing/ (Free Forever) and copy the API token.
+2. Project settings → Cloud environment → gear → Network secrets: host `api.marketdata.app`,
+   header `Authorization`, value `Bearer <token>`. Never paste the token into chat.
+   (api.marketdata.app is already on the network allowlist.)
 
 ## Use
     python analyses/desk/chains.py summary            # derived chain numbers, JSON
     python analyses/desk/chains.py price --expiry YYYY-MM-DD --legs '[[1,"P",700],[-1,"P",690]]'
     python analyses/desk/chains.py selftest           # offline maths check (synthetic)
+    (--source alpaca keeps the Alpaca path for US users.)
+
+## Timing: the 24h delay
+Free data for session D becomes available after 09:30 ET on D+1. So:
+- Close run (16:47, day D) decides a paper trade as today.
+- Midday run (12:47, day D+1) fetches D's closing chain and books the fill at D's real closing
+  quotes, and marks open positions at D's close. Book marks lag one session.
+- Chain stats (ATM IV, skew, gamma) in days/{D} are filled the next midday.
 
 ## Proposed paper-book pricing rule (replaces the Black-Scholes rule once live)
-"Prices come from Alpaca's free indicative SPY chain (15-min delayed, modified quotes):
-fills at mid plus half the bid/ask width on every leg, in and out; marks at mid. If any leg
-has no usable quote, price that leg with Black-Scholes using the chain's ATM IV and its
-fitted skew slopes, and flag the trade 'model-priced'. Never store raw quotes."
+"Prices come from MarketData.app's free SPY chain (prior session's closing quotes): fills at
+mid plus half the bid/ask width on every leg, in and out; marks at mid. A trade decided at
+day D's close is filled at D's closing quotes, booked the next session. If a leg has no usable
+quote, price it with Black-Scholes using the chain's ATM IV and fitted skew slopes, and flag
+the trade 'model-priced'."
 
 ## Desk uses
 - days/{date}.options: atm_iv, skew_25d, implied_move_pct (front weekly), gamma
