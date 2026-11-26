@@ -1,0 +1,625 @@
+{
+ "version": "credit v1.0 (2026-11-26)",
+ "generated_utc": "2026-11-26 10:48",
+ "disclaimer": "Analysis only. Not investment advice.",
+ "gaps": [
+  "CDS (CDX IG/HY, single names): no free primary source; CCC minus BB shown as a proxy",
+  "Deals priced wide vs talk: not published free; EDGAR counts show activity only",
+  "FRED keeps only about 3 years of ICE BofA spreads, so percentiles are 3-year, not long-run"
+ ],
+ "spreads": {
+  "BAMLH0A0HYM2": {
+   "label": "HY OAS",
+   "as_of": "2026-11-24",
+   "last": 3.72,
+   "chg_5": 29.0,
+   "chg_20": 54.0,
+   "pctile_3y": 97,
+   "z_3y": 2.19,
+   "min_3y": 2.59,
+   "max_3y": 4.61,
+   "chg_unit": "bp"
+  },
+  "BAMLH0A1HYBB": {
+   "label": "BB OAS",
+   "as_of": "2026-11-24",
+   "last": 2.25,
+   "chg_5": 21.0,
+   "chg_20": 38.0,
+   "pctile_3y": 97,
+   "z_3y": 1.91,
+   "min_3y": 1.5,
+   "max_3y": 3.06,
+   "chg_unit": "bp"
+  },
+  "BAMLH0A3HYC": {
+   "label": "CCC OAS",
+   "as_of": "2026-11-24",
+   "last": 14.05,
+   "chg_5": 76.0,
+   "chg_20": 84.0,
+   "pctile_3y": 100,
+   "z_3y": 3.84,
+   "min_3y": 6.9,
+   "max_3y": 14.05,
+   "chg_unit": "bp"
+  },
+  "BAMLC0A0CM": {
+   "label": "IG OAS",
+   "as_of": "2026-11-24",
+   "last": 0.98,
+   "chg_5": 6.0,
+   "chg_20": 10.0,
+   "pctile_3y": 90,
+   "z_3y": 1.28,
+   "min_3y": 0.73,
+   "max_3y": 1.21,
+   "chg_unit": "bp"
+  },
+  "BAMLC0A4CBBB": {
+   "label": "BBB OAS",
+   "as_of": "2026-11-24",
+   "last": 1.22,
+   "chg_5": 7.0,
+   "chg_20": 13.0,
+   "pctile_3y": 90,
+   "z_3y": 1.31,
+   "min_3y": 0.92,
+   "max_3y": 1.49,
+   "chg_unit": "bp"
+  },
+  "NFCI": {
+   "label": "Chicago Fed NFCI",
+   "as_of": "2026-11-20",
+   "last": -0.444,
+   "chg_5": 0.0,
+   "chg_20": 0.1,
+   "pctile_3y": 67,
+   "z_3y": 0.26,
+   "min_3y": -0.791,
+   "max_3y": 0.306,
+   "chg_unit": "index pts"
+  },
+  "STLFSI4": {
+   "label": "St. Louis Fed stress index",
+   "as_of": "2026-11-20",
+   "last": -0.0697,
+   "chg_5": 0.6,
+   "chg_20": 0.7,
+   "pctile_3y": 77,
+   "z_3y": 0.41,
+   "min_3y": -0.9597,
+   "max_3y": 5.6388,
+   "chg_unit": "index pts"
+  },
+  "DCPF3M": {
+   "label": "3m AA financial CP",
+   "as_of": "2026-11-23",
+   "last": 4.37,
+   "chg_5": 27.0,
+   "chg_20": 21.0,
+   "pctile_3y": 63,
+   "z_3y": 0.43,
+   "min_3y": 0.1,
+   "max_3y": 5.54,
+   "chg_unit": "bp"
+  },
+  "DTB3": {
+   "label": "3m T-bill",
+   "as_of": "2026-11-24",
+   "last": 4.18,
+   "chg_5": 3.0,
+   "chg_20": 13.0,
+   "pctile_3y": 44,
+   "z_3y": -0.23,
+   "min_3y": 3.52,
+   "max_3y": 5.28,
+   "chg_unit": "bp"
+  },
+  "IORB": {
+   "label": "IORB",
+   "as_of": "2026-11-27",
+   "last": 3.9,
+   "chg_5": 0.0,
+   "chg_20": 0.0,
+   "pctile_3y": 52,
+   "z_3y": -0.41,
+   "min_3y": 3.65,
+   "max_3y": 4.9,
+   "chg_unit": "bp"
+  },
+  "EFFR": {
+   "label": "EFFR",
+   "as_of": "2026-11-24",
+   "last": 3.88,
+   "chg_5": 0.0,
+   "chg_20": 0.0,
+   "pctile_3y": 34,
+   "z_3y": -0.81,
+   "min_3y": 3.62,
+   "max_3y": 5.33,
+   "chg_unit": "bp"
+  },
+  "CCC minus BB": {
+   "label": "CCC minus BB",
+   "derived_from": [
+    "BAMLH0A3HYC",
+    "BAMLH0A1HYBB"
+   ],
+   "as_of": "2026-11-24",
+   "last": 11.8,
+   "chg_5": 55.0,
+   "chg_20": 46.0,
+   "pctile_3y": 100,
+   "z_3y": 3.68,
+   "min_3y": 5.29,
+   "max_3y": 11.8,
+   "chg_unit": "bp"
+  },
+  "CP minus T-bill": {
+   "label": "CP minus T-bill",
+   "derived_from": [
+    "DCPF3M",
+    "DTB3"
+   ],
+   "as_of": "2026-11-23",
+   "last": 0.1900000000000004,
+   "chg_5": 23.0,
+   "chg_20": 3.0,
+   "pctile_3y": 81,
+   "z_3y": 0.52,
+   "min_3y": -0.3700000000000001,
+   "max_3y": 1.11,
+   "chg_unit": "bp"
+  }
+ },
+ "funding": {
+  "sofr": {
+   "as_of": "2026-11-24",
+   "rate": 3.94,
+   "p1": 3.87,
+   "p99": 4.02,
+   "volume_bn": 3158,
+   "p99_minus_p1_bp": 15,
+   "last_20": [
+    [
+     "2026-10-27",
+     3.95
+    ],
+    [
+     "2026-10-28",
+     3.94
+    ],
+    [
+     "2026-10-29",
+     3.94
+    ],
+    [
+     "2026-10-30",
+     3.95
+    ],
+    [
+     "2026-11-02",
+     3.95
+    ],
+    [
+     "2026-11-03",
+     3.97
+    ],
+    [
+     "2026-11-04",
+     3.94
+    ],
+    [
+     "2026-11-05",
+     3.92
+    ],
+    [
+     "2026-11-06",
+     3.89
+    ],
+    [
+     "2026-11-09",
+     3.88
+    ],
+    [
+     "2026-11-10",
+     3.89
+    ],
+    [
+     "2026-11-12",
+     3.9
+    ],
+    [
+     "2026-11-13",
+     3.9
+    ],
+    [
+     "2026-11-16",
+     3.93
+    ],
+    [
+     "2026-11-17",
+     3.92
+    ],
+    [
+     "2026-11-18",
+     3.9
+    ],
+    [
+     "2026-11-19",
+     3.91
+    ],
+    [
+     "2026-11-20",
+     3.92
+    ],
+    [
+     "2026-11-23",
+     3.92
+    ],
+    [
+     "2026-11-24",
+     3.94
+    ]
+   ],
+   "minus_iorb_bp": 4,
+   "days_above_iorb_20": 14
+  },
+  "rrp": {
+   "as_of": "2026-11-25",
+   "last_usd": 300000000,
+   "max_2w_usd": 405000000,
+   "days": [
+    [
+     "2026-11-12",
+     250000000
+    ],
+    [
+     "2026-11-13",
+     325000000
+    ],
+    [
+     "2026-11-16",
+     182000000
+    ],
+    [
+     "2026-11-17",
+     351000000
+    ],
+    [
+     "2026-11-18",
+     331000000
+    ],
+    [
+     "2026-11-19",
+     405000000
+    ],
+    [
+     "2026-11-20",
+     401000000
+    ],
+    [
+     "2026-11-23",
+     350000000
+    ],
+    [
+     "2026-11-24",
+     301000000
+    ],
+    [
+     "2026-11-25",
+     300000000
+    ]
+   ]
+  },
+  "srf": {
+   "as_of": "2026-11-25",
+   "last_usd": 0,
+   "max_2w_usd": 104000000,
+   "days": [
+    [
+     "2026-11-12",
+     1000000
+    ],
+    [
+     "2026-11-13",
+     0
+    ],
+    [
+     "2026-11-16",
+     2000000
+    ],
+    [
+     "2026-11-17",
+     104000000
+    ],
+    [
+     "2026-11-18",
+     0
+    ],
+    [
+     "2026-11-19",
+     3000000
+    ],
+    [
+     "2026-11-20",
+     1000000
+    ],
+    [
+     "2026-11-23",
+     0
+    ],
+    [
+     "2026-11-24",
+     2000000
+    ],
+    [
+     "2026-11-25",
+     0
+    ]
+   ]
+  }
+ },
+ "deals": {
+  "as_of": "2026-11-25",
+  "days_in_baseline": 20,
+  "counts": {
+   "424B2": {
+    "count": 869,
+    "median_20d": 833.5,
+    "ratio": 1.04
+   },
+   "424B5": {
+    "count": 6,
+    "median_20d": 20.0,
+    "ratio": 0.3
+   },
+   "FWP": {
+    "count": 93,
+    "median_20d": 105.5,
+    "ratio": 0.88
+   },
+   "S-3ASR": {
+    "count": 2,
+    "median_20d": 5.0,
+    "ratio": 0.4
+   },
+   "RW": {
+    "count": 1,
+    "median_20d": 1.0,
+    "ratio": 1.0
+   }
+  },
+  "b5_3d_ratio": 0.43,
+  "daily": [
+   [
+    "2026-11-25",
+    {
+     "424B2": 869,
+     "424B5": 6,
+     "FWP": 93,
+     "S-3ASR": 2,
+     "RW": 1
+    }
+   ],
+   [
+    "2026-11-24",
+    {
+     "424B2": 1151,
+     "424B5": 7,
+     "FWP": 98,
+     "S-3ASR": 6,
+     "RW": 2
+    }
+   ],
+   [
+    "2026-11-23",
+    {
+     "424B2": 806,
+     "424B5": 13,
+     "FWP": 67,
+     "S-3ASR": 2,
+     "RW": 2
+    }
+   ],
+   [
+    "2026-11-20",
+    {
+     "424B2": 606,
+     "424B5": 28,
+     "FWP": 85,
+     "S-3ASR": 4,
+     "RW": 4
+    }
+   ],
+   [
+    "2026-11-19",
+    {
+     "424B2": 770,
+     "424B5": 34,
+     "FWP": 71,
+     "S-3ASR": 2,
+     "RW": 1
+    }
+   ],
+   [
+    "2026-11-18",
+    {
+     "424B2": 601,
+     "424B5": 9,
+     "FWP": 86,
+     "S-3ASR": 2,
+     "RW": 1
+    }
+   ],
+   [
+    "2026-11-17",
+    {
+     "424B2": 1034,
+     "424B5": 26,
+     "FWP": 50,
+     "S-3ASR": 0,
+     "RW": 0
+    }
+   ],
+   [
+    "2026-11-16",
+    {
+     "424B2": 861,
+     "424B5": 23,
+     "FWP": 91,
+     "S-3ASR": 125,
+     "RW": 2
+    }
+   ],
+   [
+    "2026-11-13",
+    {
+     "424B2": 614,
+     "424B5": 10,
+     "FWP": 69,
+     "S-3ASR": 2,
+     "RW": 0
+    }
+   ],
+   [
+    "2026-11-12",
+    {
+     "424B2": 885,
+     "424B5": 37,
+     "FWP": 170,
+     "S-3ASR": 8,
+     "RW": 1
+    }
+   ],
+   [
+    "2026-11-10",
+    {
+     "424B2": 871,
+     "424B5": 25,
+     "FWP": 86,
+     "S-3ASR": 6,
+     "RW": 0
+    }
+   ],
+   [
+    "2026-11-09",
+    {
+     "424B2": 693,
+     "424B5": 37,
+     "FWP": 113,
+     "S-3ASR": 5,
+     "RW": 1
+    }
+   ],
+   [
+    "2026-11-06",
+    {
+     "424B2": 763,
+     "424B5": 21,
+     "FWP": 115,
+     "S-3ASR": 21,
+     "RW": 0
+    }
+   ],
+   [
+    "2026-11-05",
+    {
+     "424B2": 477,
+     "424B5": 25,
+     "FWP": 145,
+     "S-3ASR": 8,
+     "RW": 1
+    }
+   ],
+   [
+    "2026-11-04",
+    {
+     "424B2": 733,
+     "424B5": 22,
+     "FWP": 150,
+     "S-3ASR": 2,
+     "RW": 1
+    }
+   ],
+   [
+    "2026-11-03",
+    {
+     "424B2": 1925,
+     "424B5": 13,
+     "FWP": 233,
+     "S-3ASR": 4,
+     "RW": 1
+    }
+   ],
+   [
+    "2026-11-02",
+    {
+     "424B2": 1257,
+     "424B5": 19,
+     "FWP": 284,
+     "S-3ASR": 8,
+     "RW": 1
+    }
+   ],
+   [
+    "2026-10-30",
+    {
+     "424B2": 988,
+     "424B5": 13,
+     "FWP": 256,
+     "S-3ASR": 62,
+     "RW": 1
+    }
+   ],
+   [
+    "2026-10-29",
+    {
+     "424B2": 1475,
+     "424B5": 16,
+     "FWP": 145,
+     "S-3ASR": 5,
+     "RW": 0
+    }
+   ],
+   [
+    "2026-10-28",
+    {
+     "424B2": 640,
+     "424B5": 19,
+     "FWP": 127,
+     "S-3ASR": 7,
+     "RW": 0
+    }
+   ],
+   [
+    "2026-10-27",
+    {
+     "424B2": 946,
+     "424B5": 18,
+     "FWP": 65,
+     "S-3ASR": 1,
+     "RW": 2
+    }
+   ]
+  ],
+  "withdrawals": [
+   "SONIC LIGHTING, INC."
+  ],
+  "withdrawals_5d": 10,
+  "note": "424B2 is mostly bank structured notes; 424B5 and S-3ASR are closer to corporate deals. RW covers equity and debt registrations."
+ },
+ "flags": [
+  "HY spread +54bp in 20 days (to 3.72%)",
+  "HY spread at 97th pct of 3y range: wide",
+  "St. Louis Fed stress index moved +0.60 over 5 readings",
+  "SOFR 4bp above IORB: repo funding tight"
+ ],
+ "sources": [
+  "https://fred.stlouisfed.org/graph/fredgraph.csv?id=<series>",
+  "https://markets.newyorkfed.org/api/rates/secured/sofr",
+  "https://markets.newyorkfed.org/api/rp/...",
+  "https://www.sec.gov/Archives/edgar/daily-index/YYYY/QTRQ/form.YYYYMMDD.idx"
+ ]
+}

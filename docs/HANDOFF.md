@@ -22,6 +22,12 @@ FLOWS TRACKER (built 26 Nov, desk v2.2)
 - When flows.py changes in the repo, update the ledger's method/flows_script code field too.
 - The Default cloud environment's allowlist holds the source hosts (cftc.gov, finra.org, ssga.com, ishares.com, proshares.com, plus direxion.com and invesco.com).
 
+CREDIT AND POLICY TRACKERS (built 26 Nov, idea 7; repo only, not wired into scheduled runs yet)
+- analyses/trackers/credit.py: ICE BofA spreads (HY, BB, CCC, IG, BBB), NFCI, St. Louis stress index, CP and T-bill from FRED; SOFR vs IORB, RRP and standing repo use from the NY Fed; deal flow (424B2/424B5/FWP/S-3ASR) and registration withdrawals (RW) from SEC EDGAR daily indexes. Gaps: CDS and "deals priced wide" have no free primary source. Runtime about 2 minutes (EDGAR is the slow part).
+- analyses/trackers/policy.py: every Texas 90R bill filed since prefiling opened 9 Nov (TLO "bills by filing date" report), captions tagged by market theme; Federal Register rules from FERC, EPA, Interior, Energy, NRC, Army Corps, SEC, CFTC, Treasury; Texas session dates from the Texas Constitution. Other states' January dates are a gap until NCSL publishes 2027. Pass --prev with the last readout or meta/policy so each run reads only new filing days.
+- Both are context only, same rule as flows. Desk mode (--desk) writes meta/credit + day_credit and meta/policy + day_policy shapes for Desk Daily; nothing writes them yet.
+- Allowlist hosts added for these: fred.stlouisfed.org, markets.newyorkfed.org, www.sec.gov, www.federalregister.gov, capitol.texas.gov. FRED stalls on browser-like User-Agents; the trackers send a plain one. SEC_USER_AGENT env var overrides the SEC contact string.
+
 STATE AS OF 26 NOV 2026 (desk v2.1)
 - Track record: 110+ graded calls; desk Brier 0.256 overall (coin flip = 0.25). On 63 S&P calls: desk 0.229 vs plain VIX formula 0.236. Overconfident: its 70–85% calls came true 55%.
 - Regime: desk scores 0.175 in Chop but ~0.31 on trend days.
