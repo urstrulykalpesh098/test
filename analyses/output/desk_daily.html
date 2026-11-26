@@ -106,6 +106,27 @@ footer a,.card a{color:var(--blu)}
 <div class="card"><div id="flowflags"></div><div class="tw"><table id="cot"></table></div>
 <p class="note" id="flownote"></p></div>
 
+<h2>Credit and funding <span class="n">are lenders getting nervous, and is money tight?</span></h2>
+<div class="tiles" id="credtiles">
+  <div class="tile"><div class="k">High-yield spread</div><div class="v">–</div><div class="s">ICE BofA, over Treasuries</div></div>
+  <div class="tile"><div class="k">Weakest credits (CCC)</div><div class="v">–</div><div class="s">extra yield over BB</div></div>
+  <div class="tile"><div class="k">SOFR vs IORB</div><div class="v">–</div><div class="s">repo funding pressure</div></div>
+  <div class="tile"><div class="k">Deal flow</div><div class="v">–</div><div class="s">SEC prospectus filings</div></div>
+</div>
+<div class="card"><div id="credflags"></div><div class="tw"><table id="credtab"></table></div>
+<p class="note" id="crednote"></p></div>
+
+<h2>Policy and permitting <span class="n">bills and rules that could move sectors</span></h2>
+<div class="tiles" id="poltiles">
+  <div class="tile"><div class="k">Texas bills filed</div><div class="v">–</div><div class="s">90th session, since 9 Nov</div></div>
+  <div class="tile"><div class="k">Touch markets</div><div class="v">–</div><div class="s">tagged by theme</div></div>
+  <div class="tile"><div class="k">Session opens</div><div class="v">–</div><div class="s">Texas Legislature</div></div>
+  <div class="tile"><div class="k">Federal rules, 7 days</div><div class="v">–</div><div class="s">energy, permitting, markets agencies</div></div>
+</div>
+<div class="card"><div id="polflags"></div><div id="poltheme" class="mut" style="font-size:13px;margin-bottom:8px"></div>
+<div class="tw"><table id="poltx"></table></div><div class="tw" style="margin-top:12px"><table id="polfr"></table></div>
+<p class="note" id="polnote"></p></div>
+
 <h2>Paper book <span class="n">pretend money: would the desk's calls have paid?</span></h2>
 <div class="tiles" id="booktiles">
   <div class="tile"><div class="k">Book value</div><div class="v">–</div><div class="s">started at $10,000</div></div>
@@ -210,6 +231,8 @@ function renderDays(){
   if(d.watch)h+='<h3>What to watch next</h3>'+list(d.watch);
   if(d.watchlist&&d.watchlist.length)h+='<h3>Watchlist</h3><div class="tw"><table><thead><tr><th>Ticker</th><th>Day</th><th>Note</th></tr></thead><tbody>'+d.watchlist.map(function(w){return '<tr><td>'+esc(w.t)+'</td><td class="'+(w.chg>=0?'up':'dn')+'">'+pc(w.chg)+'</td><td class="mut">'+esc(w.note||'')+'</td></tr>'}).join('')+'</tbody></table></div>';
   var F=d.flows;if(F){var lc=F.lev_close_usd||{},lr=F.lev_index_ret_pct||{};h+='<h3>Flows</h3><div class="kv">'+['Nasdaq-100','S&P 500'].filter(function(i){return lc[i]!=null}).map(function(i){return '<div>Lev-ETF close hedge, '+esc(i)+'<b class="'+(lc[i]>=0?'up':'dn')+'">'+bn(lc[i])+'</b><span style="font-size:11px">index '+pc(lr[i])+(F.lev_as_of&&F.lev_as_of!==d.date?' · '+esc(F.lev_as_of):'')+'</span></div>'}).join('')+(F.spy_flow_5d_usd!=null?'<div>SPY flow, 5 days<b>'+bn(F.spy_flow_5d_usd)+'</b><span style="font-size:11px">to '+esc(F.spy_as_of||'')+'</span></div>':'')+'</div>'+((F.flags||[]).length?list(F.flags):'')}
+  var Cd=d.credit;if(Cd){h+='<h3>Credit</h3><div class="kv">'+(Cd.hy_oas!=null?'<div>HY spread<b>'+Cd.hy_oas.toFixed(2)+'%</b><span style="font-size:11px">'+esc(Cd.spread_as_of||'')+'</span></div>':'')+(Cd.ig_oas!=null?'<div>IG spread<b>'+Cd.ig_oas.toFixed(2)+'%</b></div>':'')+(Cd.sofr_minus_iorb_bp!=null?'<div>SOFR vs IORB<b>'+(Cd.sofr_minus_iorb_bp>=0?'+':'')+Cd.sofr_minus_iorb_bp+'bp</b></div>':'')+(Cd.rw_count!=null?'<div>Registrations withdrawn<b>'+Cd.rw_count+'</b></div>':'')+'</div>'+((Cd.flags||[]).length?list(Cd.flags):'')}
+  var Pd=d.policy;if(Pd&&((Pd.tx_new_tagged||[]).length||(Pd.flags||[]).length)){h+='<h3>Policy</h3>'+list((Pd.flags||[]).concat((Pd.tx_new_tagged||[]).slice(0,8).map(function(b){return b.bill+' ['+(b.themes||[]).join(', ')+'] '+b.caption})))}
   if(d.data_quality)h+='<p class="note">Data: '+esc(d.data_quality)+'</p>';
   $('day').innerHTML=h;
 }
@@ -255,7 +278,38 @@ function renderFlows(){
   $('cot').innerHTML=rows.length?'<thead><tr><th>CFTC futures, net contracts</th><th>Asset managers</th><th>Hedge funds</th></tr></thead><tbody>'+rows.map(function(n){var r=P[n];return '<tr><td>'+esc(n)+'</td>'+cell(r.asset_mgr_net,r.asset_mgr_net_pct_oi,r.asset_mgr_pctile_3y,r.asset_mgr_wow)+cell(r.lev_funds_net,r.lev_funds_net_pct_oi,r.lev_funds_pctile_3y,r.lev_funds_wow)+'</tr>'}).join('')+'</tbody>':'';
   $('flownote').innerHTML='Positions as of '+esc(F.cot_report_date||'–')+' (CFTC, published Fridays). The close hedge is what daily-reset leveraged and inverse ETFs must trade near 4 pm: L(L−1) × the index move × fund assets, always in the direction of the day\'s move. Percentiles in amber are at a 3-year extreme. These are context only: they do not change the desk\'s probabilities until the Sunday review has tested them on 20+ days. Sources: CFTC Traders in Financial Futures, FINRA margin statistics, SSGA (SPY), iShares (IVV), ProShares fund pages. Missing: '+esc((F.gaps||[]).join(' '))+' Updated '+esc(F.updated||'')+'.';
 }
-function renderAll(){renderNow();renderTiles();chart1();chart2();chart3();renderFc();renderReg();renderFlows();renderBook();renderDays()}
+var TH={power_grid:'grid and power',data_centers:'data centers',oil_gas:'oil and gas',water:'water',property_tax:'property tax',crypto_digital:'crypto',ai_tech:'AI and tech',insurance:'insurance',banking_finance:'banking and finance',esg_boycott:'ESG and boycotts',permitting:'permitting'};
+function bp(x){return x==null?'–':(x>=0?'+':'−')+Math.abs(x).toFixed(0)+'bp'}
+function renderCredit(){
+  var C=S.meta.credit,t=$('credtiles').children;if(!C){$('crednote').textContent='Credit data arrives with the next close run.';return}
+  var sp=C.spreads||{},hy=sp.BAMLH0A0HYM2,cb=sp['CCC minus BB'],fu=C.funding||{},so=fu.sofr||{},de=C.deals||{},cn=de.counts||{};
+  if(hy&&hy.last!=null){t[0].querySelector('.v').textContent=hy.last.toFixed(2)+'%';t[0].querySelector('.s').innerHTML='<span class="'+(hy.chg_20>0?'dn':'up')+'">'+bp(hy.chg_20)+'</span> in 20 days · <span class="'+(hy.pctile_3y>=90||hy.pctile_3y<=10?'am':'')+'">'+hy.pctile_3y+'th pct of 3y</span>'}
+  if(cb&&cb.last!=null){t[1].querySelector('.v').textContent=(cb.last*100).toFixed(0)+'bp';t[1].querySelector('.s').textContent=bp(cb.chg_5)+' in 5 days · '+cb.pctile_3y+'th pct of 3y'}
+  if(so.minus_iorb_bp!=null){t[2].querySelector('.v').innerHTML='<span class="'+(so.minus_iorb_bp>0?'am':'')+'">'+bp(so.minus_iorb_bp)+'</span>';t[2].querySelector('.s').textContent='SOFR '+so.rate+'% on '+so.as_of+(fu.srf_max_2w_usd?' · standing repo '+bn(fu.srf_max_2w_usd).replace('+',''):'')}
+  if(cn['424B5']){t[3].querySelector('.v').textContent=cn['424B5'].count+' / '+cn['424B5'].median_20d;t[3].querySelector('.s').textContent='424B5 today / 20-day median · '+((cn.RW||{}).count||0)+' withdrawn · '+de.as_of}
+  $('credflags').innerHTML=(C.flags||[]).map(function(x){return '<div class="flag">'+esc(x)+'</div>'}).join('');
+  var keys=['BAMLH0A0HYM2','BAMLH0A1HYBB','BAMLH0A3HYC','BAMLC0A0CM','BAMLC0A4CBBB','CCC minus BB','CP minus T-bill','NFCI','STLFSI4'].filter(function(k){return sp[k]&&sp[k].last!=null});
+  var val=function(k,v){return (k==='NFCI'||k==='STLFSI4')?v.toFixed(2):(k.indexOf('minus')>0?(v*100).toFixed(0)+'bp':v.toFixed(2)+'%')};
+  var ch=function(k,v){return v==null?'–':((k==='NFCI'||k==='STLFSI4')?(v>=0?'+':'')+v.toFixed(2):bp(v))};
+  $('credtab').innerHTML=keys.length?'<thead><tr><th>Measure</th><th>Latest</th><th>5 days</th><th>20 days</th><th>3y percentile</th></tr></thead><tbody>'+keys.map(function(k){var r=sp[k];return '<tr><td>'+esc(r.label)+'<div class="mut" style="font-size:11px">'+esc(r.as_of)+'</div></td><td>'+val(k,r.last)+'</td><td>'+ch(k,r.chg_5)+'</td><td>'+ch(k,r.chg_20)+'</td><td class="'+(r.pctile_3y>=90||r.pctile_3y<=10?'am':'')+'">'+(r.pctile_3y==null?'–':r.pctile_3y+'th')+'</td></tr>'}).join('')+'</tbody>':'';
+  $('crednote').innerHTML='Spreads are the extra yield bonds pay over Treasuries: wider means lenders want more for the risk. SOFR above IORB means overnight repo money costs more than banks earn parking cash at the Fed, a sign of tight funding. Deal flow counts SEC prospectus filings (424B5 is closest to corporate deals) and withdrawn registrations, a rough trace of deals launched and pulled. Context only: these do not change the desk\'s probabilities until the Sunday review has tested them on 20+ days. Sources: FRED (ICE BofA, Chicago Fed, St. Louis Fed), New York Fed, SEC EDGAR. Missing: '+esc((C.gaps||[]).join('. '))+'. Updated '+esc(C.updated||'')+'.';
+}
+function renderPolicy(){
+  var P=S.meta.policy,t=$('poltiles').children;if(!P){$('polnote').textContent='Policy data arrives with the next close run.';return}
+  var tx=P.texas||{},fr=P.federal_register||{},up=(P.upcoming||[])[0]||(P.calendar||[])[0];
+  if(tx.filed_total!=null){t[0].querySelector('.v').textContent=f0(tx.filed_total);t[0].querySelector('.s').textContent=(tx.filed_by_day?Object.keys(tx.filed_by_day).length:0)+' filing days since 9 Nov'}
+  if(tx.tagged_total!=null){t[1].querySelector('.v').textContent=f0(tx.tagged_total);var bt=tx.by_theme||{},top=Object.keys(bt).slice(0,2);t[1].querySelector('.s').textContent=top.map(function(k){return (TH[k]||k)+' '+bt[k]}).join(' · ')}
+  if(up){var dd=Math.round((new Date(up.date+'T12:00:00')-new Date())/864e5);t[2].querySelector('.v').textContent=up.date.slice(5);t[2].querySelector('.s').textContent=(dd>=0?dd+' days away · ':'')+'Texas convenes'}
+  if(fr.count!=null){t[3].querySelector('.v').textContent=fr.count;var bt2=fr.by_type||{};t[3].querySelector('.s').textContent=Object.keys(bt2).map(function(k){return bt2[k]+' '+k.toLowerCase()}).join(' · ')}
+  $('polflags').innerHTML=(P.flags||[]).map(function(x){return '<div class="flag">'+esc(x)+'</div>'}).join('');
+  var bt=tx.by_theme||{};$('poltheme').textContent=Object.keys(bt).length?'Texas bills by theme: '+Object.keys(bt).map(function(k){return (TH[k]||k)+' '+bt[k]}).join(', '):'';
+  var hot=(tx.tagged||[]).filter(function(b){return (b.themes||[]).some(function(x){return ['power_grid','data_centers','oil_gas','permitting','crypto_digital'].indexOf(x)>=0})}).slice(-12).reverse();
+  $('poltx').innerHTML=hot.length?'<thead><tr><th>Texas bill</th><th>Theme</th><th>What it does</th></tr></thead><tbody>'+hot.map(function(b){return '<tr><td><a href="'+esc(b.url)+'" target="_blank" rel="noopener">'+esc(b.bill)+'</a><div class="mut" style="font-size:11px">'+esc(b.author||'')+' · '+esc(b.filed||'')+'</div></td><td class="mut" style="font-size:12px">'+esc((b.themes||[]).map(function(x){return TH[x]||x}).join(', '))+'</td><td style="font-size:12.5px">'+esc(b.caption)+'</td></tr>'}).join('')+'</tbody>':'';
+  var R=(fr.relevant||[]).slice(0,8);
+  $('polfr').innerHTML=R.length?'<thead><tr><th>Federal Register</th><th>Type</th><th>Rule</th></tr></thead><tbody>'+R.map(function(r){return '<tr><td>'+esc(r.date)+'<div class="mut" style="font-size:11px">'+esc((r.agencies||[]).slice(0,1).join(''))+'</div></td><td class="mut" style="font-size:12px">'+esc(r.type)+(r.significant?' <span class="am">significant</span>':'')+'</td><td style="font-size:12.5px"><a href="'+esc(r.url)+'" target="_blank" rel="noopener">'+esc(r.title)+'</a></td></tr>'}).join('')+'</tbody>':'';
+  $('polnote').innerHTML='A filed bill is not a law: most never pass. Bills are tagged by keywords in their official captions, so a tag means "worth a look", not "matters". The Texas session runs 140 days from its January start. Context only, never part of the desk\'s probabilities. Sources: Texas Legislature Online (bills by filing date), Federal Register API, Texas Constitution art. III. Missing: '+esc((P.gaps||[]).join('. '))+'. Updated '+esc(P.updated||'')+'.';
+}
+function renderAll(){renderNow();renderTiles();chart1();chart2();chart3();renderFc();renderReg();renderFlows();renderCredit();renderPolicy();renderBook();renderDays()}
 $('days').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;sel=b.dataset.d;renderDays()});
 renderAll();
 var timer=setTimeout(function(){$('status').textContent='The desk store did not answer. Reload to try again.'},10000),got={};

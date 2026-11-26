@@ -22,10 +22,10 @@ FLOWS TRACKER (built 26 Nov, desk v2.2)
 - When flows.py changes in the repo, update the ledger's method/flows_script code field too.
 - The Default cloud environment's allowlist holds the source hosts (cftc.gov, finra.org, ssga.com, ishares.com, proshares.com, plus direxion.com and invesco.com).
 
-CREDIT AND POLICY TRACKERS (built 26 Nov, idea 7; repo only, not wired into scheduled runs yet)
+CREDIT AND POLICY TRACKERS (built 26 Nov, idea 7; wired in as desk v2.4)
 - analyses/trackers/credit.py: ICE BofA spreads (HY, BB, CCC, IG, BBB), NFCI, St. Louis stress index, CP and T-bill from FRED; SOFR vs IORB, RRP and standing repo use from the NY Fed; deal flow (424B2/424B5/FWP/S-3ASR) and registration withdrawals (RW) from SEC EDGAR daily indexes. Gaps: CDS and "deals priced wide" have no free primary source. Runtime about 2 minutes (EDGAR is the slow part).
 - analyses/trackers/policy.py: every Texas 90R bill filed since prefiling opened 9 Nov (TLO "bills by filing date" report), captions tagged by market theme; Federal Register rules from FERC, EPA, Interior, Energy, NRC, Army Corps, SEC, CFTC, Treasury; Texas session dates from the Texas Constitution. Other states' January dates are a gap until NCSL publishes 2027. Pass --prev with the last readout or meta/policy so each run reads only new filing days.
-- Both are context only, same rule as flows. Desk mode (--desk) writes meta/credit + day_credit and meta/policy + day_policy shapes for Desk Daily; nothing writes them yet.
+- Both are context only (method/notes rule 12). The close scorecard (step 3b) runs the single-file copies stored in Desk Ledger method/credit_script and method/policy_script and writes Desk Daily meta/credit, meta/policy, days/{date}.credit and days/{date}.policy; the Desk Daily page has Credit and funding and Policy and permitting sections. When credit.py, policy.py or common.py change, run `python analyses/trackers/bundle.py OUTDIR` and update both ledger docs' code fields.
 - Allowlist hosts added for these: fred.stlouisfed.org, markets.newyorkfed.org, www.sec.gov, www.federalregister.gov, capitol.texas.gov. FRED stalls on browser-like User-Agents; the trackers send a plain one. SEC_USER_AGENT env var overrides the SEC contact string.
 
 STATE AS OF 26 NOV 2026 (desk v2.1)
