@@ -8,9 +8,13 @@ WHERE EVERYTHING LIVES
 - Read both pages with the Artifact tool and their data with the ArtifactData tool before changing anything. Method rules live in the ledger's method/notes doc; every scheduled run reads it first.
 - Repo: urstrulykalpesh098/test, branch claude/miro-fish-7vjyrd. marketsim/ = agent-based market simulator; analyses/ = studies, page sources (analyses/output/desk_daily.html, desk_ledger.html), options lab, baseline backtest (analyses/desk/backtest_baseline.py).
 
-SCHEDULED TASKS (claude.ai routines; all ET, fresh session each run)
-- Morning Adversarial Market Briefing 07:56 weekdays — the only run WITH data connectors (FMP, Bigdata.com, Alpha Vantage, Financial Datasets); also writes official FMP prices into Desk Daily and logs its calls in the ledger.
-- Desk: pre-open check 08:47 · Desk: midday alert 12:47 (quiet unless a threshold breaks) · Desk: close scorecard 16:47 (grades calls, regime label, three forecasters, paper book) · Desk: Sunday sentiment desk 19:17 (self-review rewrites method/notes, then a Monday Guess page). These four have NO connectors yet (web search only) — I still need to add FMP and Bigdata.com to them in the routines UI.
+SCHEDULED TASKS (all ET, fresh session each run)
+- Morning Adversarial Market Briefing 07:56 weekdays (trig_01SZ8Lj1guAsWDTVyQGi1KWH). Visible in my app, and the only run WITH data connectors (FMP, Bigdata.com, Alpha Vantage, Financial Datasets). Also writes official FMP prices into Desk Daily and logs its calls in the ledger.
+- Desk: pre-open check 08:47 (trig_019diwuCi4Hr6hpJkWzVtyxc) · Desk: midday alert 12:47 (trig_017EG4fFbkz3Q51PoZMcDFMw), quiet unless a threshold breaks · Desk: close scorecard 16:47 (trig_01CBZufQtzWsmG9Fzn8gvkqx), grades calls and runs the regime label, three forecasters and paper book · Desk: Sunday sentiment desk 19:17 (trig_01SuZWrCbGzhZcKzjyf8u1Ry), whose self-review rewrites method/notes and then publishes a Monday Guess page.
+- Known issue: Claude created these four Desk tasks from a session. They are stored as type "routine", they DO NOT show in my app, and they have NO connectors, so they use web search for data. Claude cannot attach connectors: create_trigger says "the connectors parameter is not available for this organization". They still run and succeed. Fix (if I choose): I recreate them in my app with FMP + Bigdata.com, then Claude disables the four old ones with update_trigger enabled=false. Use list_triggers to read their full prompts.
+- 26 Nov 2026 was Thanksgiving (US market closed).
+
+OTHER PAGES: Monday Guess https://claude.ai/artifact/M1gkXYfDq72eBPQZfcvnpn · Tuesday preview https://claude.ai/artifact/XYVLPRk7AEGGUMP53smBeE · Week simulation https://claude.ai/artifact/5y4PdkCDRjz2Vw5crXc8Fr · Option lab https://claude.ai/artifact/Ub6HjWW5woyAAGDjHhFTj7 · Monday Replay https://claude.ai/artifact/TTB45KnGyJWmETbg6fWdS3
 
 STATE AS OF 26 NOV 2026 (desk v2.1)
 - Track record: 110+ graded calls; desk Brier 0.256 overall (coin flip = 0.25). On 63 S&P calls: desk 0.229 vs plain VIX formula 0.236. Overconfident: its 70–85% calls came true 55%.
