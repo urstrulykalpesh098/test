@@ -77,11 +77,11 @@ def build(hub=None):
                  "vix_vs_realized": L.get("vol_premium"), "vix_curve_regimes": L.get("term")},
         "rates": {"fed_rate_changes_recent": (P.get("rate_decisions", {}).get("events") or [])[-6:],
                    "note": P.get("rate_decisions", {}).get("note")},
-        "credit": {"credit_analyst_today": A.get("today", {}).get("calls", {}).get("h1", {}).get("credit")},
+        "credit": {"note": "The credit-spread analyst was archived on 27 Nov 2026 (no edge over the up-rate); read the spreads directly."},
         "cross": {"board_record": M.get("record"), "board_band_hit_rates": {k: {"band_hit_test": v.get("band_hit_test"), "up_rate": v.get("up_rate")} for k, v in M.get("assets", {}).items()}},
         "history": {"setup_today": P.get("setup", {}).get("today"), "analogs": {h: {k: v.get(k) for k in ("p_up", "p_up_all_days", "spx_ret_q", "worst", "best")} for h, v in P.get("setup", {}).get("horizons", {}).items()},
                      "closest_days": P.get("setup", {}).get("closest", [])[:6]},
-        "skeptic": {"analysts_today": A.get("today"), "analyst_scores_h1": A.get("horizons", {}).get("h1"),
+        "skeptic": {"archived_analyst_scores_h1": A.get("horizons", {}).get("h1"), "analysts_archived": A.get("archived"),
                      "research_verdicts": [{k: h.get(k) for k in ("id", "belief", "verdict", "plain")} for h in R.get("hypotheses", [])],
                      "board_record": M.get("record"), "recent_graded": M.get("recent_graded", [])[-10:]},
     }

@@ -123,10 +123,10 @@ footer{font-size:14px;color:var(--mute)}
 <section class="band" id="analysts">
  <div class="in two">
   <div>
-   <h2>Seven specialists, no edge on direction</h2>
+   <h2>Seven specialists, no edge on direction <span class="sub" style="font-size:.55em;font-weight:600">archived</span></h2>
    <p>Each analyst watches one kind of evidence, gets refit every quarter on past data only, and is scored on about 1,950 days it never saw. A lower Brier score is better, and 0.25 is a coin flip. The plain up-rate is the line to beat.</p>
    <p>The best of them beat the up-rate by 0.0003, which is noise. The useful finding is that the desk shouldn't expect daily direction calls to carry much skill. Its edge, if it has one, is in sizing ranges and in reading events.</p>
-   <h3 style="margin-top:18px">Today's reads, chance the S&amp;P is higher in 5 days</h3>
+   <p><b>Archived on 27 Nov 2026.</b> They no longer run each night or feed any call. Their code and these scores are kept in the repo, so any of them can be switched back on.</p>
    <div id="todayA" style="margin-top:8px"></div>
   </div>
   <div><div class="scroll"><table id="anT"></table></div></div>
@@ -239,8 +239,8 @@ function render(){
    const bar=dlt<0?`<span style="position:absolute;right:50%;width:${w}%;top:0;bottom:0;background:var(--good);border-radius:4px"></span>`:`<span style="position:absolute;left:50%;width:${w}%;top:0;bottom:0;background:var(--bad);border-radius:4px"></span>`;
    const label=nice[k]||(names[k]||k).split(':')[0];
    return `<tr><td>${esc(label)}<div class="sub">${esc((names[k]||'').split(':').slice(1).join(':'))}</div></td><td class="n">${v.n.toLocaleString('en-US')}</td><td class="n">${v.brier.toFixed(4)}</td><td style="width:30%"><div style="position:relative;height:12px;background:var(--panel);border-radius:4px">${bar}<i style="position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--ink)"></i></div><div class="sub">${dlt<=0?'better by':'worse by'} ${Math.abs(dlt).toFixed(4)}</div></td></tr>`}).join('')+'</tbody>';
- const t5=A.today.calls.h5;
- $('todayA').innerHTML=Object.entries(t5).map(([k,v])=>`<div class="meter" style="margin:6px 0"><span style="width:7.5em">${esc(nice[k]||(names[k]||k).split(':')[0])}</span><span class="track"><span class="bar" style="width:${(v.p_up*100).toFixed(1)}%"></span><i style="left:50%"></i></span><b class="n" style="width:3.2em;text-align:right">${pct(v.p_up)}</b></div>`).join('')+`<p class="note">As of the ${esc(A.today.date)} close. The orange tick is 50%.</p>`;
+ const t5=A.archived?{}:A.today.calls.h5;
+ if(!A.archived)$('todayA').innerHTML=Object.entries(t5).map(([k,v])=>`<div class="meter" style="margin:6px 0"><span style="width:7.5em">${esc(nice[k]||(names[k]||k).split(':')[0])}</span><span class="track"><span class="bar" style="width:${(v.p_up*100).toFixed(1)}%"></span><i style="left:50%"></i></span><b class="n" style="width:3.2em;text-align:right">${pct(v.p_up)}</b></div>`).join('')+`<p class="note">As of the ${esc(A.today.date)} close. The orange tick is 50%.</p>`;
  // playbook
  const P=D.playbook.setup, t=P.today, h5=P.horizons.h5;
  $('pbText').textContent=`On ${t.date} VIX was ${fmt(t.vix,1)}, the S&P was ${pct(t.r5,1)} over 5 days and ${pct(t.r20,1)} over 20, and the 3-month VIX sat at ${fmt(t.curve,2)}x spot (${t.curve<1?'inverted, a stress sign':'normal'}). Among the ${P.n} most similar past days, the S&P was higher 5 days later ${pct(h5.p_up)} of the time (all days: ${pct(h5.p_up_all_days)}). The worst 5-day outcome was ${pct(h5.worst,1)} and the best ${pct(h5.best,1)}.`;
@@ -263,7 +263,7 @@ function drawRoute(){
   ['Free sources','FRED · CFTC · FINRA · EDGAR',Object.keys(D.backbone).length+' series'],
   ['Backbone','nightly pull, one file per series',D.lab.asof],
   ['Lab','rules replayed on 10+ years',D.lab.spx_days+' S&P days'],
-  ['Analysts + board','7 specialists, 10 markets',(M.today.length)+' calls open'],
+  ['Market board','10 markets (analysts archived)',(M.today.length)+' calls open'],
   ['Research loop','re-test, then propose',R.hypotheses.filter(h=>h.verdict==='adopt').length+' to adopt'],
   ['You','quiz, ask, approve','your call']];
  const vert=W<600;const sky=css('--skyink');
