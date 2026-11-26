@@ -1,0 +1,435 @@
+<title>Desk Field Guide</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* Eye View desk theme v1 (26 Nov 2026). Shared by Desk Daily, Desk Ledger, CFA card and the HQ hub.
+   VOICE work: a research desk read at 8am and after the close
+   IDEA a newspaper markets page: deep-teal masthead, fine rules, figures in a ruled strip, each section headed by what it shows
+   PICTURE the desk's main chart in each page's first screen (S&P against the desk's band on Daily, the due-next list on Ledger)
+   COLOUR white ground (night #0d1416), ink, deep teal = the desk's own marks, claret = down/miss, green = up/hit, amber = flags
+   TYPE Libre Franklin 800 for headings and figures, Libre Franklin 400/500 for text
+   LAYOUT full-width masthead band with page links, sticky section bar, 1120px content; lead row splits 1.35:1 on a laptop, stacks on a phone
+   Token names (--vio, --amb, --grn, --red, --blu, --p1, --p2, --line, --l2, --tx, --dim, --d2) are kept from the old pages so existing render code keeps working. */
+:root{
+  --bg:#ffffff;--p1:#ffffff;--p2:#f1f4f4;--lead:#e7f1f1;--line:#d9dfe1;--l2:#e9edee;
+  --tx:#14181b;--dim:#4f5a61;--d2:#6b767d;
+  --band:#0b3b41;--bandtx:#ffffff;--banddim:#b7d0d2;--lens:#7fd6cf;
+  --red:#b3123f;--grn:#16794a;--amb:#9a5b00;--blu:#2a5db0;--vio:#0d7680;
+  --viobg:rgba(13,118,128,.12);--redbg:rgba(179,18,63,.08);--grnbg:rgba(22,121,74,.09);--ambbg:rgba(196,128,0,.12);
+  --sans:"Libre Franklin",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;--mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  color-scheme:light}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0d1416;--p1:#121b1e;--p2:#182428;--lead:#10292c;--line:#25363a;--l2:#1b2a2e;
+  --tx:#e8eff0;--dim:#a3b3b7;--d2:#82959a;
+  --band:#08262a;--bandtx:#f2f7f7;--banddim:#9dbcbf;--lens:#5fd0c6;
+  --red:#ff6f8e;--grn:#4cc38a;--amb:#f0b429;--blu:#7fa9ff;--vio:#4fc3c9;
+  --viobg:rgba(79,195,201,.16);--redbg:rgba(255,111,142,.12);--grnbg:rgba(76,195,138,.12);--ambbg:rgba(240,180,41,.13);
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d1416;--p1:#121b1e;--p2:#182428;--lead:#10292c;--line:#25363a;--l2:#1b2a2e;
+  --tx:#e8eff0;--dim:#a3b3b7;--d2:#82959a;
+  --band:#08262a;--bandtx:#f2f7f7;--banddim:#9dbcbf;--lens:#5fd0c6;
+  --red:#ff6f8e;--grn:#4cc38a;--amb:#f0b429;--blu:#7fa9ff;--vio:#4fc3c9;
+  --viobg:rgba(79,195,201,.16);--redbg:rgba(255,111,142,.12);--grnbg:rgba(76,195,138,.12);--ambbg:rgba(240,180,41,.13);
+  color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.55 var(--sans);-webkit-text-size-adjust:100%;overflow-x:clip}
+a{color:var(--blu)}
+.gut{max-width:1120px;margin:0 auto;padding-left:max(5vw,16px,env(safe-area-inset-left,0px));padding-right:max(5vw,16px,env(safe-area-inset-right,0px))}
+/* masthead */
+.mast{background:var(--band);color:var(--bandtx);margin-top:calc(-1*env(safe-area-inset-top,0px));padding-top:calc(env(safe-area-inset-top,0px) + 14px);padding-bottom:26px}
+.mast a{color:inherit}
+.brand{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 20px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,.16)}
+.mark{display:flex;align-items:center;gap:9px;font-weight:800;font-size:16px;letter-spacing:-.01em;text-decoration:none}
+.mark svg{width:34px;height:20px;flex:none}
+.pages{display:flex;flex-wrap:wrap;gap:2px 4px;font-size:14px}
+.pages a{text-decoration:none;color:var(--banddim);padding:6px 9px;border-radius:4px}
+.pages a:hover{color:var(--bandtx);background:rgba(255,255,255,.08)}
+.pages a[aria-current="page"]{color:var(--bandtx);box-shadow:inset 0 -2px 0 var(--lens);border-radius:0}
+.mast h1{font-size:clamp(34px,5vw,50px);font-weight:800;line-height:1.05;letter-spacing:-.02em;margin:22px 0 8px}
+.stamp{color:var(--banddim);font-size:15px;max-width:70ch;margin:0}
+.stamp a{color:var(--bandtx)}
+.status{display:inline-flex;align-items:center;gap:8px;margin-top:12px;font-size:14px;color:var(--bandtx)}
+.status::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--lens);flex:none}
+/* sticky section bar */
+body::before{content:"";position:fixed;left:0;right:0;top:0;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:6}
+.jump{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.jump .gut{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+.jump .gut::-webkit-scrollbar{display:none}
+.jump a{flex:none;font-size:14px;font-weight:500;color:var(--dim);text-decoration:none;padding:12px 10px;white-space:nowrap;border-bottom:2px solid transparent}
+.jump a:hover{color:var(--tx)}
+.jump a.on{color:var(--tx);border-bottom-color:var(--vio)}
+main{padding-block:24px 72px}
+/* the section pattern */
+.sec{margin-top:44px;padding-top:20px;border-top:2px solid var(--tx);scroll-margin-top:calc(env(safe-area-inset-top,0px) + 56px)}
+.sec-h{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 24px;margin-bottom:16px}
+h2{font-size:clamp(22px,2.6vw,27px);font-weight:800;line-height:1.15;letter-spacing:-.015em;margin:0}
+.sec-n,h2 .n{font-size:15px;color:var(--dim);margin:0;font-weight:400;letter-spacing:0}
+h3{font-size:16px;font-weight:700;margin:18px 0 6px}
+p{margin:0 0 12px}
+.card{background:var(--p1);border:1px solid var(--line);border-radius:6px;padding:16px 18px;margin-bottom:14px}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border-block:1px solid var(--line);margin-bottom:14px}
+.tile{background:var(--bg);padding:14px 16px 14px 0;min-width:0}
+.tile+.tile{padding-left:16px}
+.tile .k{font-size:14px;font-weight:600;color:var(--tx)}
+.tile .v{font-size:clamp(24px,2.8vw,30px);font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.15;margin:4px 0 2px}
+.tile .s{font-size:13px;color:var(--dim);line-height:1.45}
+@media (max-width:700px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}.tile,.tile+.tile{padding:12px 12px 12px 0}.tile:nth-child(2n){padding-left:12px}}
+.flag{background:var(--ambbg);border-radius:4px;padding:9px 12px;font-size:14px;margin-bottom:8px}
+.flag::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--amb);margin-right:8px;vertical-align:2px}
+.alert{background:var(--redbg);border-radius:4px;padding:9px 12px;font-size:15px;margin-top:10px}
+.alert::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--red);margin-right:8px;vertical-align:2px}
+.up{color:var(--grn)}.dn{color:var(--red)}.am{color:var(--amb)}.mut{color:var(--dim)}.sm{font-size:14px}
+.note{font-size:14px;color:var(--dim);margin:10px 0 0;max-width:80ch}
+.empty{color:var(--d2);font-size:14px;padding:6px 0}
+svg{display:block;width:100%;height:auto}
+svg text{font-family:var(--sans)}
+.legend{display:flex;gap:6px 16px;flex-wrap:wrap;font-size:13px;color:var(--dim);margin-top:8px}
+.legend i{display:inline-block;width:12px;height:8px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-size:13px;font-weight:600;color:var(--dim);padding:0 10px 8px 0;border-bottom:1px solid var(--tx);white-space:nowrap}
+td{padding:9px 10px 9px 0;border-bottom:1px solid var(--l2);vertical-align:top;font-variant-numeric:tabular-nums}
+tr:last-child td{border-bottom:none}
+th.r,td.r{text-align:right;white-space:nowrap}
+td .sub{display:block;font-size:13px;color:var(--d2);line-height:1.4;margin-top:2px}
+.pill,.phase{display:inline-block;font-size:13px;font-weight:600;padding:1px 9px;border-radius:20px;white-space:nowrap;background:var(--viobg);color:var(--vio)}
+button{font-family:inherit}
+:focus-visible{outline:2px solid var(--vio);outline-offset:2px}
+footer{margin-top:48px;padding-top:16px;border-top:2px solid var(--tx);color:var(--dim);font-size:14px;line-height:1.6;max-width:90ch}
+footer b{color:var(--tx)}
+@media (max-width:600px){table{font-size:13px}th,td{padding:7px 8px 7px 0}}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+@media (max-width:600px){.card{padding:14px 12px}}
+
+/* Desk Field Guide (26 Nov 2026), on top of desk_theme.css
+   VOICE work: a reference read slowly by one analyst who is learning CFA Level I
+   IDEA the newspaper markets page's explainer spread: one real call followed through the machine
+   PICTURE the flow of call mb27-up: three forecasters merging into the final 45%, graded at Friday's close
+   COLOUR desk theme: teal masthead, desk teal for the desk's marks, amber for the formula, claret/green outcomes
+   TYPE Libre Franklin 800 headings and figures, 400/500 text
+   LAYOUT masthead + ruled figure strip, then the flow full width with its steps in two columns beneath; phone stacks */
+.fig{position:relative;height:380px;margin:18px 0 10px}
+.fig>svg{position:absolute;inset:0;width:100%;height:100%}
+.fig text{font-family:var(--sans)}
+@media (max-width:640px){.fig{height:620px}}
+.grid2{display:grid;gap:8px 36px}
+@media (min-width:860px){.grid2{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.steps{margin:6px 0 0;padding-left:22px}
+.steps li{margin-bottom:10px;max-width:62ch}
+.steps li::marker{font-weight:800;color:var(--vio)}
+.ex{background:var(--lead);border-radius:6px;padding:12px 14px;font-size:15px}
+details.quiz{margin-top:16px;border:1px solid var(--line);border-radius:6px;background:var(--p1)}
+details.quiz summary{cursor:pointer;padding:12px 14px;font-weight:600;list-style:none;min-height:44px}
+details.quiz summary::-webkit-details-marker{display:none}
+details.quiz summary::before{content:"Q";display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--vio);color:var(--bg);font-size:13px;font-weight:800;margin-right:10px;vertical-align:1px}
+details.quiz[open] summary{border-bottom:1px solid var(--l2)}
+details.quiz p{padding:10px 14px 2px;margin:0 0 10px}
+.graded td:nth-child(5){min-width:16em;color:var(--dim);font-size:14px}
+.clock{display:grid;gap:0;border-top:1px solid var(--line)}
+.tick{display:grid;grid-template-columns:8.5rem minmax(0,1fr);gap:4px 22px;padding:14px 0;border-bottom:1px solid var(--l2)}
+.tick>b{font-size:clamp(22px,2.6vw,28px);font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;color:var(--vio);white-space:nowrap;line-height:1.1}
+.tick.sun>b{color:var(--amb)}
+.tick h3{margin:2px 0 2px}
+.tick p{margin:0;max-width:70ch;color:var(--dim)}
+@media (max-width:520px){.tick{grid-template-columns:minmax(0,1fr)}.tick>b{min-width:0}}
+.cards{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
+.pg{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:6px;padding:16px 18px;text-decoration:none;color:var(--tx);background:var(--p1)}
+.pg:hover{border-color:var(--vio)}
+.pg h3{margin:0 0 6px;font-size:18px;font-weight:800}
+.pg p{font-size:15px;flex:1}
+.pg span{font-size:14px;color:var(--vio);font-weight:600}
+.trk{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));margin-top:14px}
+.trk .card{margin:0}
+.trk h3{margin-top:0;font-size:18px}
+.trk p{font-size:15px}
+.bars{display:grid;gap:14px;margin-top:4px}
+.brow .lab{display:flex;justify-content:space-between;gap:8px;font-size:14px;font-weight:600}
+.brow .lab span{font-weight:400;color:var(--dim)}
+.btrack{position:relative;height:30px;margin-top:4px}
+.btrack .b{position:absolute;left:0;height:12px;border-radius:3px}
+.btrack .b.new{top:0;background:var(--vio)}
+.btrack .b.old{top:16px;background:var(--line)}
+.btrack .t{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--amb)}
+.btrack .v{position:absolute;font-size:12.5px;line-height:12px;font-variant-numeric:tabular-nums;white-space:nowrap;padding-left:6px}
+.chg{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr))}
+.chg .c{border-top:2px solid var(--amb);padding-top:10px}
+.chg h3{margin:8px 0 4px}
+.chg p{font-size:15px;color:var(--dim)}
+.pill.wip{background:var(--ambbg);color:var(--amb)}
+.gl{display:grid;gap:0 36px;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));margin:0}
+.gl div{padding:10px 0;border-bottom:1px solid var(--l2)}
+.gl dt{font-weight:700}
+.gl dd{margin:2px 0 0;color:var(--dim);font-size:15px}
+.tick>b small{display:block;font-size:13px;font-weight:600;letter-spacing:0;margin-bottom:2px}
+
+</style>
+<header class="mast">
+<div class="gut">
+<div class="brand"><a class="mark" href="https://claude.ai/artifact/R7i5cJx8SC6fpW9oQm7ZcM" target="_blank" rel="noopener"><svg viewBox="0 0 34 20" aria-hidden="true"><path d="M1.5 10C7 2.2 27 2.2 32.5 10C27 17.8 7 17.8 1.5 10Z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17" cy="10" r="5.4" fill="var(--lens)"/><circle cx="17" cy="10" r="2.2" fill="var(--band)"/></svg>Eye View</a><nav class="pages" aria-label="Desk pages"><a href="https://claude.ai/artifact/R7i5cJx8SC6fpW9oQm7ZcM" target="_blank" rel="noopener">HQ</a><a href="https://claude.ai/artifact/TcxbaSnEiAddmETVgBKL8q" target="_blank" rel="noopener">Daily</a><a href="https://claude.ai/artifact/7jU3VUdjX9x22fNqXoYbCL" target="_blank" rel="noopener">Ledger</a><a href="https://claude.ai/artifact/NL7yQRq1UYSwBeSemnB6Dm" target="_blank" rel="noopener">Desk Room</a><a href="https://claude.ai/artifact/M2T7uHbVzqydb38BcrRi8F" target="_blank" rel="noopener">Scorecard</a><a href="https://claude.ai/artifact/7L9ApUMePWy4aWrt4ZY5kW" target="_blank" rel="noopener">CFA card</a><a aria-current="page">Guide</a></nav></div>
+<h1>How the desk works</h1>
+<p class="stamp">Every page, run and rule on the Eye View desk, in plain words, with real calls from the ledger. The desk writes down odds before the market answers, then grades itself. After 111 graded calls it scores about the same as a coin flip, and it knows where it leaks.</p>
+<p class="status"><span>Written 26 Nov 2026 (Thanksgiving), desk v2.8. Five changes are being built now; see <a href="#next" style="color:inherit">what's changing</a>.</span></p>
+</div>
+</header>
+<nav class="jump" aria-label="Sections"><div class="gut">
+<a href="#call">Life of a call</a><a href="#grade">Grading</a><a href="#day">A desk day</a><a href="#pages">The pages</a><a href="#trackers">Trackers</a><a href="#ranges">Ranges</a><a href="#calib">Calibration</a><a href="#shrink">Monday/VIX rule</a><a href="#lab">The lab</a><a href="#book">Paper book</a><a href="#next">What's changing</a><a href="#words">Glossary</a>
+</div></nav>
+<main class="gut">
+
+<div class="tiles" style="margin-top:8px">
+<div class="tile"><div class="k">Calls logged</div><div class="v">127</div><div class="s">111 graded, 16 still open</div></div>
+<div class="tile"><div class="k">Desk Brier score</div><div class="v">0.255</div><div class="s">coin flip is 0.250; lower is better</div></div>
+<div class="tile"><div class="k">Trading days graded</div><div class="v">15</div><div class="s">9 to 25 Nov, a shock month</div></div>
+<div class="tile"><div class="k">Paper book</div><div class="v">$10,000</div><div class="s">first trade can open Fri 27 Nov</div></div>
+</div>
+
+<section class="sec" id="call">
+<div class="sec-h"><h2>One call, start to finish</h2><p class="sec-n">Real call mb27-up, made 26 Nov</p></div>
+<p>The question: <b>will the S&amp;P 500 close Friday 27 Nov above Wednesday's 7,182.78?</b> Three separate forecasters answer it, the desk's own answer gets corrected for its track record, and the three are averaged into one number. Friday's close grades it.</p>
+<div class="fig" id="flow" role="img" aria-label="Desk judgment 52% is calibrated to 37%; with the VIX formula at 50% and the simulator at 47% they blend into a final 45%, graded at Friday's close."></div>
+<div class="grid2">
+<ol class="steps">
+<li><b>Desk judgment, 52%.</b> Claude reads the tape: futures were up 0.6% early (counted at half weight, lesson L1), Europe rallied, but the S&amp;P sat below its 20, 50 and 200-day averages and three opening gaps in a row had failed.</li>
+<li><b>Calibrated, 37%.</b> When the desk said 50 to 70% in the past, it came true only 30% of the time (20 calls). The rule pulls 52% toward that record: (20 × 0.30 + 10 × 0.52) ÷ 30 = 0.373.</li>
+<li><b>VIX formula, 50%.</b> The no-opinion baseline. It assumes no drift and a daily move sized by the VIX. For "above today's price" that is exactly 50% by construction.</li>
+</ol>
+<ol class="steps" start="4">
+<li><b>Simulator, 46.7%.</b> A script replays the last 60 daily moves in random order 200,000 times, scaled to today's volatility, and counts how many paths end up.</li>
+<li><b>Final, 45%.</b> Equal thirds until each forecaster has 20 graded calls: (0.373 + 0.50 + 0.467) ÷ 3 = 0.447. After that, the forecaster with the better recent score gets more weight.</li>
+<li><b>Graded at Friday's close.</b> If the S&amp;P closes up, this call scores (1 − 0.447)² = <b>0.31</b>. If down, (0 − 0.447)² = <b>0.20</b>. The call also stores what would make it wrong: "an AI or tariff headline in the thin half session" (tag: gap reversal).</li>
+</ol>
+</div>
+<details class="quiz"><summary>Check yourself: if the calibration bin had said 50 to 70% calls came true 60% of the time instead of 30%, what would the calibrated number be?</summary><p>(20 × 0.60 + 10 × 0.52) ÷ 30 = <b>0.573</b>. The rule only drags the number down when the desk has been overconfident in that bin.</p></details>
+</section>
+
+<section class="sec" id="grade">
+<div class="sec-h"><h2>How a call gets graded</h2><p class="sec-n">The Brier score</p></div>
+<p>Each call is a probability that a claim comes true. When it resolves, the claim gets 1 (happened) or 0 (didn't), and the score is (probability − outcome)². Zero is perfect, 0.25 is what you get by always saying 50%, and 1 is confidently wrong. In the ledger, <b>hit</b> means the claim happened and <b>miss</b> means it didn't. That is not the same as the desk being right: a 25% call on something that doesn't happen is a good call.</p>
+<div class="tw"><table class="graded">
+<thead><tr><th>Call</th><th class="r">Said</th><th class="r">Result</th><th class="r">Score</th><th>What it teaches</th></tr></thead>
+<tbody>
+<tr><td>S&amp;P closes Wed 25 Nov inside 7,000 to 7,400<span class="sub">wed25-range, made 24 Nov</span></td><td class="r">78%</td><td class="r up">hit</td><td class="r">0.048</td><td>Closed 7,182.78. The intraday low of 6,970 broke the floor, but the call was on the close.</td></tr>
+<tr><td>NVDA moves more than 8.3% after earnings<span class="sub">nv-move, made 15 Nov</span></td><td class="r">25%</td><td class="r dn">miss</td><td class="r">0.063</td><td>Moved 2.9%. Options priced 8.3%; the desk bet it was overpriced. A "miss" that scores well.</td></tr>
+<tr><td>VIX closes above 32 on Wed 25 Nov<span class="sub">pre25-vix32, made that morning</span></td><td class="r">35%</td><td class="r dn">miss</td><td class="r">0.123</td><td>Prints of 28.04, 28.64 and 31.72 from three sites. All below 32, but no official Cboe close was found.</td></tr>
+<tr><td>S&amp;P closes up on Tue 24 Nov<span class="sub">tue24-up, made 23 Nov</span></td><td class="r">48%</td><td class="r dn">miss</td><td class="r">0.230</td><td>Fell 0.5% after a 4.7% surge. Near 50% means near 0.25 either way.</td></tr>
+<tr><td>S&amp;P closes up on Mon 23 Nov<span class="sub">mon23-up, made 20 Nov</span></td><td class="r">50%</td><td class="r up">hit</td><td class="r">0.250</td><td>Rose 4.73%. Saying 50% on a huge day earns exactly a coin flip.</td></tr>
+</tbody></table></div>
+<p class="note">Who grades: the 16:47 close run looks up closes and fills in the outcome, with its source. Misses also get a cause tag, so the Sunday review can count whether the pre-mortem guessed the right danger.</p>
+<details class="quiz"><summary>Check yourself: the desk says 70% and the claim fails. What's the Brier score, and is that better or worse than a coin flip?</summary><p>(0.70 − 0)² = <b>0.49</b>, almost twice as bad as always saying 50%. That is why overconfidence hurts more than timidity.</p></details>
+</section>
+
+<section class="sec" id="day">
+<div class="sec-h"><h2>A desk day, by the clock</h2><p class="sec-n">Toronto time (same as New York)</p></div>
+<p>Each run is a fresh Claude session that reads the rule book (the ledger's method notes) first, writes data, and never republishes the pages. Only the morning briefing has the paid data connectors; the other desk runs rely on web search, which is why some grades rest on conflicting numbers.</p>
+<div class="clock">
+<div class="tick"><b>07:56</b><div><h3>Morning briefing</h3><p>The adversarial briefing: bull and bear cases, official FMP prices into Desk Daily, its calls logged in the ledger. On 26 Nov it published "Thanksgiving Tape".</p></div></div>
+<div class="tick"><b>08:47</b><div><h3>Pre-open check</h3><p>Fresh calls before the bell, like pre25-vix32 above.</p></div></div>
+<div class="tick"><b>12:47</b><div><h3>Midday alert</h3><p>Silent unless a threshold breaks. From 30 Nov it also fills paper trades at real option prices and marks open ones.</p></div></div>
+<div class="tick"><b>16:47</b><div><h3>Close scorecard</h3><p>The main run. Grades every call due today, labels the day's regime, runs the three forecasters, the flows, credit, policy and auction trackers, and decides any paper trade.</p></div></div>
+<div class="tick"><b>18:15</b><div><h3>Nightly backbone (GitHub)</h3><p>Pulls 29 official FRED series, re-runs the lab, the ten-market board, the analysts and the Desk Room packets, and commits them. Sundays at 17:15.</p></div></div>
+<div class="tick"><b>18:23</b><div><h3>Event engine</h3><p>Previews tomorrow's watchlist earnings and big data releases, with up to 5 scored calls, and writes post-mortems on yesterday's.</p></div></div>
+<div class="tick"><b>19:41</b><div><h3>HQ and Desk Room refresh</h3><p>Copies the nightly numbers into the HQ and Desk Room databases so the pages show today's data without being republished.</p></div></div>
+<div class="tick sun"><b><small>Sundays</small>19:17</b><div><h3>Sunday self-review</h3><p>Re-scores the week, counts pre-mortem hits, runs the miss autopsy, refreshes the Scorecard, rewrites the rule book where the evidence says so, and publishes a Monday Guess page.</p></div></div>
+</div>
+</section>
+
+<section class="sec" id="pages">
+<div class="sec-h"><h2>The pages and what each is for</h2><p class="sec-n">Open them from the bar at the top</p></div>
+<div class="cards">
+<a class="pg" href="https://claude.ai/artifact/TcxbaSnEiAddmETVgBKL8q" target="_blank" rel="noopener"><h3>Desk Daily</h3><p>The morning paper. The S&amp;P drawn against the desk's band, today's calls, the regime label, and sections for flows, credit and policy. Its database keeps one record per day.</p><span>Read it at 8 a.m. and after the close</span></a>
+<a class="pg" href="https://claude.ai/artifact/7jU3VUdjX9x22fNqXoYbCL" target="_blank" rel="noopener"><h3>Desk Ledger</h3><p>The permanent record: every call with its source and outcome, theses, events, run logs, the five lessons, and the rule book (method notes) every run obeys.</p><span>Where a disputed grade gets settled</span></a>
+<a class="pg" href="https://claude.ai/artifact/R7i5cJx8SC6fpW9oQm7ZcM" target="_blank" rel="noopener"><h3>Eye View HQ</h3><p>The research floor. Ten years of FRED data, the self-research verdicts, a ten-market board, seven specialist analysts, "days like today" playbooks, You vs the desk, and Ask the desk.</p><span>Refreshed every evening</span></a>
+<a class="pg" href="https://claude.ai/artifact/NL7yQRq1UYSwBeSemnB6Dm" target="_blank" rel="noopener"><h3>Desk Room</h3><p>A meeting of six specialist seats (volatility, rates, credit and funding, cross-asset, history, and a red team that argues against the room) and a Head of desk who writes a short report. Packets refresh nightly; a new meeting runs when you press the button.</p><span>A demo, not yet automatic</span></a>
+<a class="pg" href="https://claude.ai/artifact/M2T7uHbVzqydb38BcrRi8F" target="_blank" rel="noopener"><h3>Desk Scorecard</h3><p>Week by week: the desk against the VIX formula, the simulator, and "follow yesterday" (a fixed 60/40 lean toward the last day's direction). First read over 12 days: desk 0.229, follow-yesterday 0.224.</p><span>Updated by the Sunday review</span></a>
+<a class="pg" href="https://claude.ai/artifact/7L9ApUMePWy4aWrt4ZY5kW" target="_blank" rel="noopener"><h3>CFA weekly card</h3><p>Questions built only from the desk's own numbers, mapped to CFA Level I topics. Your answers are saved, and missed concepts come back the next week.</p><span>A new card each week</span></a>
+</div>
+</section>
+
+<section class="sec" id="trackers">
+<div class="sec-h"><h2>Trackers: context, never a vote</h2><p class="sec-n">All from free primary sources</p></div>
+<p>Each tracker runs in the close scorecard from a script copy stored in the ledger. They can name a warning in the day's watch list, but they never move a probability until the Sunday review has tested them on at least 20 days.</p>
+<div class="trk">
+<div class="card"><h3>Flows and positioning</h3><p>Who is holding what. CFTC futures positioning (dealers, asset managers, hedge funds), FINRA margin debt (money borrowed to buy stocks), SPY and IVV shares outstanding (new shares mean money flowing in), and leveraged ETF rebalancing.</p><p class="ex"><b>Example of the rebalance maths.</b> A 3x fund must trade L(L−1) × the day's move × its assets near the close. A 3x fund holding $10B on a −2% day sells about 3 × 2 × 2% × $10B = $1.2B. Illustration, not a real fund.</p></div>
+<div class="card"><h3>Credit and funding</h3><p>The bond market's mood. High-yield and investment-grade spreads (extra yield over Treasuries, in basis points, 1bp = 0.01%), the Chicago Fed's financial conditions index, SOFR against the Fed's IORB rate (repo cash costing more than the Fed pays banks means funding is tight), and SEC filings for new bond deals.</p><p class="ex"><b>The divergence alert</b> fires when high-yield spreads widen 40bp in 20 days while the S&amp;P is within 2% of its 60-day high: bonds worrying while stocks don't. Only 2 past episodes since Nov 2023, so it is a watch item.</p></div>
+<div class="card"><h3>Treasury auctions</h3><p>Demand for government debt. Bid-to-cover is bids divided by the amount sold (higher means more demand); dealer share is what the big banks had to absorb because others didn't bid (higher means weaker). Each auction is compared with the last six of the same maturity.</p></div>
+<div class="card"><h3>Policy and permitting</h3><p>Every Texas bill filed for the 2027 session, tagged by market theme, plus new federal rules from energy, environment and market regulators. A filed bill is not a passed bill.</p></div>
+<div class="card"><h3>Event engine</h3><p>Earnings for 16 watchlist names (NVDA, AMD, ORCL and others) and 11 macro releases (CPI, payrolls, FOMC). Two calls per event: does the move beat what options imply, and does it close up? Example: options implied an 8.3% Nvidia move; it moved 2.9%.</p></div>
+<div class="card"><h3>Real option chains</h3><p>Real SPY quotes from MarketData.app's free plan (bid, ask, implied volatility, open interest), one session delayed. They price the paper book. One request per run to save credits; the trial is used freely and every credit is logged.</p></div>
+</div>
+</section>
+
+<section class="sec" id="ranges">
+<div class="sec-h"><h2>Ranges that hold 80% of the time</h2><p class="sec-n">Rule 5, version 5, approved 26 Nov</p></div>
+<div class="grid2">
+<div>
+<p>An 80% range is a claim that the close lands inside it four days out of five. Too narrow and it breaks constantly; too wide and it says nothing. The old rule (1.6 times the VIX-implied move) held 98% of days since 2022: safe but useless.</p>
+<p>The new rule sizes the range from how much the S&amp;P actually moved over the last 20 days (realized volatility), times 0.96. In a storm (VIX above 25, or the 3-month VIX below the 1-month, called an inverted curve), it never goes narrower than the VIX implies. Then: range = last close × e<sup>±1.28 × σ × √days</sup>, where 1.28 is the z-score that leaves 10% in each tail.</p>
+<p class="ex"><b>Worked example, from the nightly build.</b> On 24 Nov the S&amp;P closed 7,201.09 with VIX above 25 (a storm). Daily σ came to about 1.93%, and 1.28 × 1.93% = 2.47%, so the next-day range was 7,028 to 7,379. The VIX band, built the same way from the VIX's own daily changes, was 20.9 to 33.2.</p>
+</div>
+<div>
+<div class="bars" id="rangeBars"></div>
+<p class="note">Held = share of days the close landed inside. Tested on 2022 to 2026 data the rule never saw. November's shock still breaks it: in the last 15 days the new S&amp;P range held only 53%, so when the prior day moved more than twice what VIX priced, the desk says ranges may run narrow.</p>
+</div>
+</div>
+<details class="quiz"><summary>Check yourself: why is the multiplier 1.28 and not 1.96?</summary><p>1.96 leaves 2.5% in each tail, which is a 95% range. An 80% range leaves 10% in each tail, and the z-score for that is <b>1.28</b>.</p></details>
+</section>
+
+<section class="sec" id="calib">
+<div class="sec-h"><h2>Calibration: does 70% mean 70%?</h2><p class="sec-n">From the 26 Nov check, 111 calls</p></div>
+<div class="grid2">
+<div>
+<p>A forecaster is calibrated when its 70% calls come true about 70% of the time. The desk's 70 to 85% calls came true only 55%, and 25 of those 32 calls were ranges. The ranges were the leak, which is why rule 5 changed.</p>
+<p>Rule 2 fixes the rest: each call's raw number is pulled toward how often that confidence bin has come true, weighted by how many calls are in the bin (worked in the mb27-up example above). Fancier fixes were tested walk-forward and did no better.</p>
+<p>One rule was dropped. The desk seemed to score 0.175 on quiet days and 0.31 on trend days, but that labelled each call using the day it resolved, which nobody knows in advance. Labelled with what was known when the call was made, the split flipped, so the trend-day rule is suspended.</p>
+</div>
+<div class="tw"><table>
+<thead><tr><th>Call type</th><th class="r">Calls</th><th class="r">Said</th><th class="r">Came true</th><th class="r">Brier</th></tr></thead>
+<tbody>
+<tr><td>S&amp;P 80% ranges</td><td class="r">13</td><td class="r">81%</td><td class="r dn">54%</td><td class="r">0.315</td></tr>
+<tr><td>VIX ranges</td><td class="r">12</td><td class="r">79%</td><td class="r dn">50%</td><td class="r">0.334</td></tr>
+<tr><td>S&amp;P up or down</td><td class="r">26</td><td class="r">49%</td><td class="r">27%</td><td class="r">0.226</td></tr>
+<tr><td>S&amp;P level lines</td><td class="r">32</td><td class="r">30%</td><td class="r">31%</td><td class="r">0.229</td></tr>
+<tr><td>Single stock, macro</td><td class="r">17</td><td class="r">47%</td><td class="r">53%</td><td class="r">0.238</td></tr>
+<tr><td>Multi-day path</td><td class="r">7</td><td class="r">47%</td><td class="r">57%</td><td class="r">0.261</td></tr>
+</tbody></table>
+<p class="note">Up/down calls came true 27% because the S&amp;P fell on 10 of 13 days; that was the tape, not bad calibration. Calls on the same day move together, so the real sample is closer to 15 days than 111 calls.</p></div>
+</div>
+</section>
+
+<section class="sec" id="shrink">
+<div class="sec-h"><h2>The Monday and VIX rule</h2><p class="sec-n">Rule 2, added 26 Nov after the miss autopsy</p></div>
+<div class="grid2">
+<div>
+<p>The Sunday miss autopsy groups graded calls by possible cause and checks whether each group's bad score could be luck, by shuffling the labels thousands of times. Two groups stood out.</p>
+<div class="tw"><table>
+<thead><tr><th>Group</th><th class="r">Calls</th><th class="r">Brier</th><th class="r">Chance it's luck</th></tr></thead>
+<tbody>
+<tr><td>Monday Guess and weekend calls</td><td class="r">17</td><td class="r dn">0.367</td><td class="r">0.8%</td></tr>
+<tr><td>VIX level and threshold calls</td><td class="r">25</td><td class="r dn">0.338</td><td class="r">2.2%</td></tr>
+<tr><td>Days that moved more than VIX priced</td><td class="r">n/a</td><td class="r">0.315</td><td class="r">0.1%</td></tr>
+</tbody></table></div>
+</div>
+<div>
+<p>So for those two groups, after calibrating, the desk moves the number <b>halfway toward the no-opinion formula</b>. For VIX calls the formula is the VIX band from rule 5.</p>
+<p class="ex"><b>Example.</b> A Monday call calibrates to 62% and the formula says 50%. The final number becomes 56%. It still leans, just less.</p>
+<p>The shrink lifts by itself once a group scores at or below the desk's overall Brier on 10 new graded calls. The Sunday review checks, and a reminder is set for 10 Dec.</p>
+</div>
+</div>
+</section>
+
+<section class="sec" id="lab">
+<div class="sec-h"><h2>The lab: testing beliefs on ten years</h2><p class="sec-n">On HQ, rebuilt nightly</p></div>
+<div class="grid2">
+<div>
+<h3>Self-research loop</h3>
+<p>Every desk belief is checked on data before 2022 (where ideas get fitted) and then on 2022 onwards (data it never saw). Only beliefs that pass the second test become proposals, and nothing changes without your yes. The 1.6x range rule failed here, which led to rule 5 v5.</p>
+<h3>Seven specialist analysts</h3>
+<p>Trend, bounce, fear gauge, vol curve, credit, rates and dollar, each watching one signal and refit every quarter on past data only. On about 1,950 unseen days, none beat the plain "the S&amp;P rises 54% of days" rate by more than noise. The lesson: don't expect skill on daily direction. These are being archived (see below).</p>
+</div>
+<div>
+<h3>Playbooks: days like today</h3>
+<p>The 150 past days most like the latest close (24 Nov: VIX 26.4, S&amp;P down 1.9% in 5 days and 6.8% in 20, inverted VIX curve). The S&amp;P was higher the next day 80% of the time, against 55% on all days. Tested honestly, analogs don't beat the up-rate, so read it as the spread of outcomes, not a forecast.</p>
+<h3>Ten-market board</h3>
+<p>S&amp;P, Nasdaq, Dow, VIX, 10-year and 2-year yields, the high-yield spread, WTI oil, the broad dollar and CAD per USD, each with its own range and up chance, graded automatically by the nightly job. You can lock in your own guesses on HQ before seeing the desk's.</p>
+</div>
+</div>
+</section>
+
+<section class="sec" id="book">
+<div class="sec-h"><h2>The paper book</h2><p class="sec-n">A test of the calls, never advice</p></div>
+<div class="grid2">
+<div>
+<p>A virtual $10,000 that trades SPY option spreads only when the desk and the plain formula disagree by 7 points or more on an S&amp;P level. The idea: if the desk has an edge, money follows the disagreements.</p>
+<p>Defined risk only: a vertical spread buys one option and sells another nearby, so the most it can lose is known up front. At most 2% of the book at risk per trade, one new trade a day, three open at most. Take profit at 80% of the maximum, otherwise hold to expiry.</p>
+</div>
+<div>
+<p>Prices are real quotes from the prior session, filled at mid plus half the bid/ask spread on every leg, which is deliberately unkind. The equity curve is compared with simply holding SPY from the same day.</p>
+<p class="ex"><b>Where it stands.</b> No trades yet. The first decision can come at the Fri 27 Nov close; the earliest fill is Mon 30 Nov at midday.</p>
+</div>
+</div>
+</section>
+
+<section class="sec" id="next">
+<div class="sec-h"><h2>What's changing now</h2><p class="sec-n">Being built since 26 Nov; this guide updates once merged</p></div>
+<div class="chg">
+<div class="c"><span class="pill wip">In progress</span><h3>Failure alarm</h3><p>If a scheduled run fails or goes silent, you hear about it, instead of finding a gap days later (the morning briefing went quiet from 7 to 25 Nov unnoticed).</p></div>
+<div class="c"><span class="pill wip">In progress</span><h3>Grading from FRED</h3><p>Closes come from the official FRED series, not web snippets. No more grading a VIX call on three different numbers like 28.04, 28.64 and 31.72.</p></div>
+<div class="c"><span class="pill wip">In progress</span><h3>One set of calls a day</h3><p>Calls come from the close run only, instead of the morning, pre-open, close and Monday runs each adding some. A cleaner, comparable record.</p></div>
+<div class="c"><span class="pill wip">In progress</span><h3>Archive the seven analysts</h3><p>They showed no edge over the up-rate, so they move to the archive instead of cluttering HQ.</p></div>
+<div class="c"><span class="pill wip">In progress</span><h3>A single Today page</h3><p>One page with what matters today, so you don't need to open five.</p></div>
+</div>
+</section>
+
+<section class="sec" id="words">
+<div class="sec-h"><h2>Glossary</h2><p class="sec-n">The jargon on these pages</p></div>
+<dl class="gl">
+<div><dt>VIX</dt><dd>The market's price for S&amp;P volatility over the next 30 days, as an annual %. VIX 24 implies a typical daily move of about 24 ÷ √252 ≈ 1.5%.</dd></div>
+<div><dt>Realized volatility</dt><dd>How much prices actually moved, measured from recent daily returns. In November it ran 31.7% against an average VIX of 23.9.</dd></div>
+<div><dt>σ (sigma)</dt><dd>Standard deviation: the size of a typical move. A one-day range scales with σ; a five-day range with σ × √5.</dd></div>
+<div><dt>Brier score</dt><dd>(probability − outcome)², averaged. 0 is perfect, 0.25 is a coin flip.</dd></div>
+<div><dt>Calibration</dt><dd>Whether calls at a given confidence come true that often.</dd></div>
+<div><dt>Out of sample</dt><dd>Testing a rule on data that wasn't used to build it. The only test that counts.</dd></div>
+<div><dt>Implied move</dt><dd>The move options are priced for, usually from a straddle (a call plus a put at the same strike).</dd></div>
+<div><dt>Spread (credit)</dt><dd>Extra yield a company pays over a Treasury of the same maturity. Wider means lenders are more nervous.</dd></div>
+<div><dt>Basis point (bp)</dt><dd>0.01%. A spread going from 3.00% to 3.40% widened 40bp.</dd></div>
+<div><dt>Bid-to-cover</dt><dd>Bids received ÷ bonds sold at an auction. Higher means stronger demand.</dd></div>
+<div><dt>Regime</dt><dd>The day's label: Chop (moved under 0.5%), Risk-off, Relief rally, Slide or Grind up. For the record only.</dd></div>
+<div><dt>Pre-mortem</dt><dd>Before a call resolves, writing the single most likely thing that would make it wrong.</dd></div>
+<div><dt>Vertical spread</dt><dd>Buy one option, sell another of the same type and expiry at a different strike. Caps both loss and gain.</dd></div>
+<div><dt>FRED</dt><dd>The St. Louis Fed's free database of official economic and market series. The desk's backbone.</dd></div>
+</dl>
+</section>
+
+<footer><b>Analysis only. Not investment advice.</b> Figures come from the Desk Ledger and Desk Daily databases, the 26 Nov calibration check, the miss autopsy and the nightly HQ build, read on 26 Nov 2026. Closes graded before FRED grading are from web sources and can conflict, as noted beside them.</footer>
+</main>
+
+<script>
+{
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const N={
+ q:{v:'?',t:'The question',s:'S&P up on Fri 27 Nov?',c:'--dim',wide:[.06,.5],nar:[.5,.06]},
+ raw:{v:'52%',t:'Desk judgment',s:'Claude reads the tape',c:'--vio',wide:[.25,.15],nar:[.17,.27]},
+ cal:{v:'37%',t:'Calibrated',s:'its 50-70% calls hit 30%',c:'--vio',wide:[.45,.15],nar:[.17,.49]},
+ base:{v:'50%',t:'VIX formula',s:'no-opinion baseline',c:'--amb',wide:[.35,.5],nar:[.5,.27]},
+ sim:{v:'47%',t:'Simulator',s:'200,000 replayed paths',c:'--blu',wide:[.35,.82],nar:[.83,.27]},
+ fin:{v:'45%',t:'Final call',s:'average of the three',c:'--tx',wide:[.66,.5],nar:[.5,.7],fill:true},
+ gr:{v:'Fri',t:'Graded at the close',s:'up: 0.31 · down: 0.20',c:'--grn',wide:[.88,.5],nar:[.5,.88],dash:true}
+};
+const E=[['q','raw'],['q','base'],['q','sim'],['raw','cal'],['cal','fin'],['base','fin'],['sim','fin'],['fin','gr']];
+const fig=document.getElementById('flow');
+function draw(){
+ const W=fig.clientWidth,H=fig.clientHeight,nar=W<640,r=nar?24:28;
+ const P=k=>{const f=nar?N[k].nar:N[k].wide;return [f[0]*W,f[1]*H]};
+ let o=`<svg viewBox="0 0 ${W} ${H}" aria-hidden="true">`;
+ for(const [a,b] of E){const [x1,y1]=P(a),[x2,y2]=P(b);
+  const d=nar?`M${x1},${y1} C${x1},${(y1+y2)/2} ${x2},${(y1+y2)/2} ${x2},${y2}`:`M${x1},${y1} C${(x1+x2)/2},${y1} ${(x1+x2)/2},${y2} ${x2},${y2}`;
+  o+=`<path d="${d}" fill="none" stroke="${css(N[b].c==='--tx'?N[a].c:N[b].c)}" stroke-width="3" opacity=".55"/>`;}
+ for(const k in N){const n=N[k],[x,y]=P(k),col=css(n.c),bg=css('--bg');
+  o+=`<circle cx="${x}" cy="${y}" r="${r}" fill="${n.fill?col:bg}" stroke="${col}" stroke-width="3" ${n.dash?'stroke-dasharray="5 4"':''}/>`;
+  o+=`<text x="${x}" y="${y+5}" text-anchor="middle" style="font-weight:800;font-size:${n.v.length>3?13:15}px;fill:${n.fill?bg:css('--tx')}">${n.v}</text>`;
+  const side=k==='q'&&nar;
+  const tx=side?x+r+10:x,ty=side?y-2:y+r+20,anc=side?'start':(!nar&&k==='q'?'start':(!nar&&k==='gr'?'end':'middle'));
+  const ax=(!nar&&k==='q')?x-r:(!nar&&k==='gr')?x+r:tx;
+  const st=`paint-order:stroke;stroke:${bg};stroke-width:4px`;
+  o+=`<text x="${ax}" y="${ty}" text-anchor="${anc}" style="font-weight:700;font-size:15px;fill:${css('--tx')};${st}">${n.t}</text>`;
+  if(!(nar&&['raw','base','sim'].includes(k)))o+=`<text x="${ax}" y="${ty+18}" text-anchor="${anc}" style="font-size:13px;fill:${css('--dim')};${st}">${n.s}</text>`;}
+ fig.innerHTML=o+'</svg>';
+}
+const roFlow=new ResizeObserver(draw);roFlow.observe(fig);
+const mq=window.matchMedia('(prefers-color-scheme: dark)');mq.addEventListener?.('change',draw);
+const moTheme=new MutationObserver(draw);moTheme.observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+const R=[
+ ['S&P, next day','2022 to 2026, 1,229 days',.795,.983],
+ ['S&P, five days','same test period',.791,.986],
+ ['VIX, next day','2022 to 2026, 1,262 days',.811,.990],
+ ['S&P, last 15 days','the November shock',.533,.867]
+];
+const lo=.4,sc=v=>((v-lo)/(1-lo)*100).toFixed(1)+'%';
+document.getElementById('rangeBars').innerHTML=R.map(([a,b,n,o])=>`<div class="brow"><div class="lab">${a}<span><b style="color:var(--vio)">new ${(n*100).toFixed(1)}%</b> · old ${(o*100).toFixed(1)}%</span></div><div class="btrack"><i class="b new" style="width:${sc(n)}"></i><i class="b old" style="width:${sc(o)}"></i><i class="t" style="left:${sc(.8)}"></i></div><div class="sm mut">${b}</div></div>`).join('')+
+ `<div class="legend"><span><i style="background:var(--vio)"></i>new rule (v5)</span><span><i style="background:var(--line)"></i>old 1.6x rule</span><span><i style="background:var(--amb);width:3px;height:12px"></i>80% target</span><span>scale starts at 40%</span></div>`;
+}
+
+</script>

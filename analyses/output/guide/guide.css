@@ -1,0 +1,60 @@
+/* Desk Field Guide (26 Nov 2026), on top of desk_theme.css
+   VOICE work: a reference read slowly by one analyst who is learning CFA Level I
+   IDEA the newspaper markets page's explainer spread: one real call followed through the machine
+   PICTURE the flow of call mb27-up: three forecasters merging into the final 45%, graded at Friday's close
+   COLOUR desk theme: teal masthead, desk teal for the desk's marks, amber for the formula, claret/green outcomes
+   TYPE Libre Franklin 800 headings and figures, 400/500 text
+   LAYOUT masthead + ruled figure strip, then the flow full width with its steps in two columns beneath; phone stacks */
+.fig{position:relative;height:380px;margin:18px 0 10px}
+.fig>svg{position:absolute;inset:0;width:100%;height:100%}
+.fig text{font-family:var(--sans)}
+@media (max-width:640px){.fig{height:620px}}
+.grid2{display:grid;gap:8px 36px}
+@media (min-width:860px){.grid2{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.steps{margin:6px 0 0;padding-left:22px}
+.steps li{margin-bottom:10px;max-width:62ch}
+.steps li::marker{font-weight:800;color:var(--vio)}
+.ex{background:var(--lead);border-radius:6px;padding:12px 14px;font-size:15px}
+details.quiz{margin-top:16px;border:1px solid var(--line);border-radius:6px;background:var(--p1)}
+details.quiz summary{cursor:pointer;padding:12px 14px;font-weight:600;list-style:none;min-height:44px}
+details.quiz summary::-webkit-details-marker{display:none}
+details.quiz summary::before{content:"Q";display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--vio);color:var(--bg);font-size:13px;font-weight:800;margin-right:10px;vertical-align:1px}
+details.quiz[open] summary{border-bottom:1px solid var(--l2)}
+details.quiz p{padding:10px 14px 2px;margin:0 0 10px}
+.graded td:nth-child(5){min-width:16em;color:var(--dim);font-size:14px}
+.clock{display:grid;gap:0;border-top:1px solid var(--line)}
+.tick{display:grid;grid-template-columns:8.5rem minmax(0,1fr);gap:4px 22px;padding:14px 0;border-bottom:1px solid var(--l2)}
+.tick>b{font-size:clamp(22px,2.6vw,28px);font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;color:var(--vio);white-space:nowrap;line-height:1.1}
+.tick.sun>b{color:var(--amb)}
+.tick h3{margin:2px 0 2px}
+.tick p{margin:0;max-width:70ch;color:var(--dim)}
+@media (max-width:520px){.tick{grid-template-columns:minmax(0,1fr)}.tick>b{min-width:0}}
+.cards{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
+.pg{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:6px;padding:16px 18px;text-decoration:none;color:var(--tx);background:var(--p1)}
+.pg:hover{border-color:var(--vio)}
+.pg h3{margin:0 0 6px;font-size:18px;font-weight:800}
+.pg p{font-size:15px;flex:1}
+.pg span{font-size:14px;color:var(--vio);font-weight:600}
+.trk{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));margin-top:14px}
+.trk .card{margin:0}
+.trk h3{margin-top:0;font-size:18px}
+.trk p{font-size:15px}
+.bars{display:grid;gap:14px;margin-top:4px}
+.brow .lab{display:flex;justify-content:space-between;gap:8px;font-size:14px;font-weight:600}
+.brow .lab span{font-weight:400;color:var(--dim)}
+.btrack{position:relative;height:30px;margin-top:4px}
+.btrack .b{position:absolute;left:0;height:12px;border-radius:3px}
+.btrack .b.new{top:0;background:var(--vio)}
+.btrack .b.old{top:16px;background:var(--line)}
+.btrack .t{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--amb)}
+.btrack .v{position:absolute;font-size:12.5px;line-height:12px;font-variant-numeric:tabular-nums;white-space:nowrap;padding-left:6px}
+.chg{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr))}
+.chg .c{border-top:2px solid var(--amb);padding-top:10px}
+.chg h3{margin:8px 0 4px}
+.chg p{font-size:15px;color:var(--dim)}
+.pill.wip{background:var(--ambbg);color:var(--amb)}
+.gl{display:grid;gap:0 36px;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));margin:0}
+.gl div{padding:10px 0;border-bottom:1px solid var(--l2)}
+.gl dt{font-weight:700}
+.gl dd{margin:2px 0 0;color:var(--dim);font-size:15px}
+.tick>b small{display:block;font-size:13px;font-weight:600;letter-spacing:0;margin-bottom:2px}
