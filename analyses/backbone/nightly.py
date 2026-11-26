@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 from analyses.backbone import pull  # noqa: E402
 from analyses.backbone.history import manifest  # noqa: E402
-from analyses.lab import lab, analysts, multiasset, playbook, research  # noqa: E402
+from analyses.lab import lab, analysts, multiasset, playbook, research, ranges  # noqa: E402
 
 HUB = ROOT / "analyses" / "output" / "hub" / "hub_data.json"
 
@@ -26,7 +26,7 @@ def build_hub(res):
         "built_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "backbone": {k: {x: v.get(x) for x in ("name", "group", "first", "last", "rows", "status")} for k, v in sorted(m.items())},
         "lab": res["lab"], "analysts": res["analysts"], "multiasset": res["multiasset"],
-        "playbook": res["playbook"], "research": res["research"],
+        "playbook": res["playbook"], "research": res["research"], "ranges": res["ranges"],
         "disclaimer": "Analysis only. Not investment advice.",
     }
 
@@ -41,7 +41,7 @@ def main(argv=None):
         if not ok:
             print("no data pulled; stopping")
             return 1
-    res = {"lab": lab.run(), "analysts": analysts.run(), "multiasset": multiasset.run(), "playbook": playbook.run()}
+    res = {"lab": lab.run(), "analysts": analysts.run(), "multiasset": multiasset.run(), "playbook": playbook.run(), "ranges": ranges.run()}
     latest = ROOT / "analyses" / "output" / "research" / "latest.json"
     if a.research or datetime.now(timezone.utc).weekday() == 6 or not latest.exists():
         res["research"] = research.run()

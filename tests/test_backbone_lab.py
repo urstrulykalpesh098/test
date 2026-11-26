@@ -4,7 +4,7 @@ from pathlib import Path
 
 from analyses.backbone import pull
 from analyses.backbone.history import load, aligned, asof
-from analyses.lab import core, lab, multiasset, research
+from analyses.lab import core, lab, multiasset, research, ranges
 
 
 def synth(dirpath, n=1600, seed=7):
@@ -102,6 +102,15 @@ class Lab(unittest.TestCase):
         cs = multiasset.grade(cs, self.hist)
         self.assertTrue(all(c["status"] == "graded" for c in cs))
         self.assertTrue(all(c["up"] in (0, 1) and c["in_band"] in (0, 1) for c in cs))
+
+    def test_ranges_rule(self):
+        closes = [100 * 1.01 ** (i % 2) for i in range(21)]
+        calm = ranges.spx_range(100, 15, 17, closes)
+        storm = ranges.spx_range(100, 40, 35, closes)
+        self.assertFalse(calm["storm"]); self.assertTrue(storm["storm"])
+        self.assertGreaterEqual(storm["half_width_pct"], calm["half_width_pct"])
+        res = ranges.backtest(self.hist)
+        self.assertGreaterEqual(res["spx_h1"]["old"]["oos"], res["spx_h1"]["new"]["oos"])  # 1.6x is the wider rule
 
     def test_research_verdicts(self):
         out = Path(self.tmp.name) / "r"
