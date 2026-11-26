@@ -66,6 +66,7 @@ def block(calls, base_prob, follow_rows):
             "desk_brier": br([(r["desk"], r["y"]) for r in fr]),
             "follow_brier": br([(r["follow"], r["y"]) for r in fr]),
             "formula_brier": br([(r["formula"], r["y"]) for r in fr]),
+            "always_dn_brier": br([(r["always_dn"], r["y"]) for r in fr]),
             "desk_right": B.hits(fr, "desk")[0], "desk_called": B.hits(fr, "desk")[1],
             "follow_right": B.hits(fr, "follow")[0], "follow_called": B.hits(fr, "follow")[1],
         },
