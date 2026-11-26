@@ -34,7 +34,7 @@ IDEAS NOT BUILT YET (pick from these)
 2. [BUILT 26 Nov — see docs/OPTION_CHAINS.md: MarketData.app free chains drive the paper book] Real option chains: Cboe's free 15-minute-delayed chains (IV, open interest, bid/ask) read through the Claude app's browser on my Mac — needs my Mac attached; would replace model prices in the paper book and give real skew/gamma.
 6. [BUILT 26 Nov — see EVENT ENGINE below] Event engine.
 7. Trackers: credit and funding (deals pulled/wide, spreads, CDS) and policy/permitting (January state legislatures, Texas).
-8. Weekly learning card mapping that week's market to the CFA Level I curriculum.
+8. [BUILT 26 Nov — see analyses/cfa_card/] Weekly learning card mapping that week's market to the CFA Level I curriculum.
 
 EVENT ENGINE (built 26 Nov): scheduled task "Desk: event engine" 18:23 ET weekdays (fresh session each run). Rules in the ledger's method/events_engine doc (copy in analyses/desk/events_engine_method.json): previews and up to 5 scored calls for the next session's watchlist earnings and big data releases, post-mortems with implied vs actual move, engine vs a no-judgment baseline. Ledger page has an "Event engine" section. Data caveat found 26 Nov: Bigdata.com and Financial Datasets out of credits; FMP plan covers indexes and mega caps only (no earnings calendar, no MRVL); Alpha Vantage options are premium.
 
