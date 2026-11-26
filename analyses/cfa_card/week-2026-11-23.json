@@ -1,0 +1,133 @@
+{
+  "week_of": "2026-11-23",
+  "title": "Thanksgiving week: a crash morning that came back",
+  "summary": "Mon +4.73% relief rally, Tue chop, Wed a 3.2% morning drop that almost fully reversed on hot core PCE and a tariff proposal. Thu closed. Fri half-day still to come.",
+  "status": "draft",
+  "status_note": "Mon to Wed graded. Thursday closed for Thanksgiving. Friday's half-day is still to come; the Sunday run finishes this card.",
+  "made": "2026-11-26",
+  "questions": [
+    {
+      "id": "q1",
+      "topic": "Quantitative Methods",
+      "concept": "Weighted mean",
+      "fact": "Desk grades this week: Mon 14 calls, Brier 0.334. Tue 8 calls, Brier 0.117. Wed 12 calls, Brier 0.170.",
+      "q": "What was the desk's Brier score across all 34 calls graded Mon to Wed?",
+      "kind": "num",
+      "answer": 0.225,
+      "tol": 0.003,
+      "unit": "",
+      "working": "Weight each day by its number of calls: (14 x 0.334 + 8 x 0.117 + 12 x 0.170) / 34 = 7.652 / 34 = 0.225. The simple average of the three days is 0.207, which overweights quiet Tuesday. A coin flip scores 0.25, so the week was slightly better than chance.",
+      "source": "Desk Daily days/2026-11-23, 2026-11-24, 2026-11-25 (grades)"
+    },
+    {
+      "id": "q2",
+      "topic": "Quantitative Methods",
+      "concept": "Normal distribution, confidence intervals",
+      "fact": "VIX closed Tuesday at 26.36. The desk turns VIX into a daily move with sigma = VIX / sqrt(252).",
+      "q": "Under a normal distribution, how wide (plus or minus, in %) is the plain 80% band for Wednesday's S&P move?",
+      "kind": "num",
+      "answer": 2.13,
+      "tol": 0.05,
+      "unit": "%",
+      "working": "Daily sigma = 26.36 / 15.87 = 1.66%. An 80% two-sided interval runs from the 10th to the 90th percentile, z = 1.28. So 1.28 x 1.66% = plus or minus 2.13%. The desk then widened it (7,000 to 7,400, about 2.8%) because its 80% bands had held only 5 times in 11.",
+      "source": "Desk Daily days/2026-11-25 (band.source)"
+    },
+    {
+      "id": "q3",
+      "topic": "Quantitative Methods",
+      "concept": "z-scores and fat tails",
+      "fact": "Monday's S&P move was +4.62% (log return). The VIX-implied daily move going in was 2.26%.",
+      "q": "If daily moves were truly normal, how often should a move at least this large (either direction) happen?",
+      "kind": "mc",
+      "choices": ["About 1 day in 3", "About 1 day in 10", "About 1 day in 25", "About 1 day in 300"],
+      "answer": 2,
+      "working": "z = 4.62 / 2.26 = 2.04. Two-sided P(|Z| > 2.04) is about 4.1%, roughly 1 day in 25. The desk's 26 Nov study found 5 of 13 days moved more than 1.28 sigma, where a normal curve expects about 2.6. Real returns have fatter tails than the normal.",
+      "source": "Desk Daily days/2026-11-23 (realized_pct, implied_pct); project file calibration/calibration_2026-11-26.md"
+    },
+    {
+      "id": "q4",
+      "topic": "Fixed Income",
+      "concept": "Modified duration",
+      "fact": "On Wednesday the 10-year Treasury yield fell about 8 basis points to roughly 4.85% (web sources only, not an official print). Take a 10-year par bond at 4.85% with modified duration 7.85.",
+      "q": "About how much did that bond's price change, in %?",
+      "kind": "num",
+      "answer": 0.63,
+      "tol": 0.03,
+      "unit": "%",
+      "working": "Change in price is about minus modified duration times change in yield: -7.85 x (-0.08%) = +0.63%. Yields down, price up. (7.85 is computed for a semiannual 10-year par bond at 4.85%, not quoted from a source.)",
+      "source": "Desk Daily days/2026-11-25 (regime notes); duration computed here"
+    },
+    {
+      "id": "q5",
+      "topic": "Economics",
+      "concept": "Flight to quality",
+      "fact": "Core PCE rose 3.3% from a year earlier versus 3.2% expected, the highest since November 2023. Yet the 10-year yield fell about 8bp while stocks dropped 3.2% intraday.",
+      "q": "Which explanation fits best?",
+      "kind": "mc",
+      "choices": ["Inflation expectations fell on the report", "Investors bought Treasuries as a haven while stocks sold off", "The Fed cut rates that morning", "The Treasury announced more bond supply"],
+      "answer": 1,
+      "working": "Hot inflation alone would push yields up. They fell because fear dominated: money moved from stocks into safe government bonds, which raises their prices and lowers yields. More supply would raise yields, and there was no Fed move (next FOMC is 9 Dec). This is the desk's reading of the day, not a measured fact.",
+      "source": "Desk Daily days/2026-11-25 (happened, regime)"
+    },
+    {
+      "id": "q6",
+      "topic": "Economics",
+      "concept": "Tariffs and trade restrictions",
+      "fact": "A formal proposal for Section 301 duties of 20 to 40% on 14 trading partners came out on Wednesday, with a hearing on 25 January. Nothing is in force yet.",
+      "q": "In the standard small-country model of an import tariff, which group in the importing country loses?",
+      "kind": "mc",
+      "choices": ["Domestic producers of the good", "The government", "Domestic consumers of the good", "Nobody, if the tariff is small"],
+      "answer": 2,
+      "working": "The tariff raises the domestic price. Consumers pay more and buy less, so they lose. Domestic producers gain (higher price, more output) and the government collects revenue. Consumers lose more than the other two gain, and the gap is the deadweight loss.",
+      "source": "Desk Daily days/2026-11-25 (happened)"
+    },
+    {
+      "id": "q7",
+      "topic": "Derivatives",
+      "concept": "Leverage and daily rebalancing",
+      "fact": "Leveraged and inverse funds must rebalance near the close by about L x (L - 1) x index move x fund assets. On Wednesday the desk estimated $2.08bn of Nasdaq-100 exposure to trade per 1% move.",
+      "q": "After an UP day, what does a -1x inverse fund have to do near the close?",
+      "kind": "mc",
+      "choices": ["Buy, adding to the up move", "Sell, leaning against the up move", "Nothing, inverse funds don't rebalance", "It depends on the fund's size"],
+      "answer": 0,
+      "working": "L x (L - 1) = (-1) x (-2) = +2, positive, the same sign as for a 2x or 3x fund. After an up day the inverse fund has lost money, so its short is now too big for its assets and it buys some back. Leveraged and inverse funds both trade with the day's move, never against it.",
+      "source": "Desk Daily days/2026-11-25 (flows.lev_per_1pct_usd), from ProShares fund assets"
+    },
+    {
+      "id": "q8",
+      "topic": "Equity",
+      "concept": "Primary and secondary markets",
+      "fact": "Anthropic (ANT) listed at an $83 IPO price. It closed Tuesday at $81.91, below that price, and Wednesday at about $82.79 (near single-sourced).",
+      "q": "When ANT shares change hands on the exchange this week, where does that happen and who gets the cash?",
+      "kind": "mc",
+      "choices": ["Primary market; Anthropic gets the cash", "Secondary market; Anthropic gets the cash", "Primary market; the selling investor gets the cash", "Secondary market; the selling investor gets the cash"],
+      "answer": 3,
+      "working": "Anthropic raised money once, in the primary market, at the IPO. Trading afterwards is the secondary market: one investor sells to another and the company receives nothing. A price below $83 doesn't take money away from Anthropic, though it matters for any later share sale.",
+      "source": "Desk Ledger predictions pre24-ant, wed25-ant"
+    },
+    {
+      "id": "q9",
+      "topic": "Ethics",
+      "concept": "Standards of Professional Conduct",
+      "fact": "Web sources gave Wednesday's VIX close as 28.04, 28.64 and 31.72. The desk's rule says never grade on conflicting numbers; the official FMP figure later came in at 28.29.",
+      "q": "Which Standard does the 'don't grade on conflicting numbers' rule most directly follow?",
+      "kind": "mc",
+      "choices": ["I(C) Misrepresentation", "V(A) Diligence and Reasonable Basis", "III(D) Performance Presentation", "IV(A) Loyalty to Employer"],
+      "answer": 1,
+      "working": "V(A) asks for diligence and a reasonable, adequate basis, backed by research, before acting or concluding. Picking one of three conflicting figures fails that. I(C) is about knowingly misleading people, and III(D) covers presenting performance fairly, which matters once the graded record is shown to anyone.",
+      "source": "Desk Daily days/2026-11-25 (data_quality); Desk Ledger predictions pre25-vix32, wed25-vix; method/notes rule 8"
+    },
+    {
+      "id": "q10",
+      "topic": "Portfolio Management",
+      "concept": "Behavioral biases",
+      "fact": "Over 111 graded calls, the desk's 70 to 85% calls came true 55% of the time. Most of the misses were its 80% S&P and VIX bands.",
+      "q": "Which behavioral bias does this show most clearly?",
+      "kind": "mc",
+      "choices": ["Loss aversion", "Overconfidence", "Mental accounting", "Endowment bias"],
+      "answer": 1,
+      "working": "Saying 80% and being right 55% of the time means the desk thought it knew more than it did: overconfidence, a cognitive bias in the curriculum. Its fix is the bin-calibration rule (method/notes rule 2) and wider bands (rule 5).",
+      "source": "Project file calibration/calibration_2026-11-26.md; Desk Ledger method/notes"
+    }
+  ]
+}
