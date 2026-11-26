@@ -89,6 +89,24 @@ footer a,.card a{color:var(--blu)}
 <h2>Calibration <span class="n">when the desk said X%, how often it happened</span></h2>
 <div class="card"><div id="chart3"></div><p class="note" id="calnote"></p></div>
 
+<h2>Three forecasters <span class="n">who has earned the most weight</span></h2>
+<div class="card tw"><table id="fc"></table><p class="note" id="fcnote"></p></div>
+
+<h2>Regime <span class="n">what kind of market each day was, and how the desk does in each</span></h2>
+<div class="card"><div id="regnow"></div><div class="tw" style="margin-top:10px"><table id="regtab"></table></div></div>
+
+<h2>Paper book <span class="n">pretend money: would the desk's calls have paid?</span></h2>
+<div class="tiles" id="booktiles">
+  <div class="tile"><div class="k">Book value</div><div class="v">–</div><div class="s">started at $10,000</div></div>
+  <div class="tile"><div class="k">vs holding SPY</div><div class="v">–</div><div class="s">same start date</div></div>
+  <div class="tile"><div class="k">Closed trades</div><div class="v">–</div><div class="s">win rate</div></div>
+  <div class="tile"><div class="k">Worst drawdown</div><div class="v">–</div><div class="s">peak to trough</div></div>
+</div>
+<div class="card"><div id="chart4"></div>
+<div class="legend"><span><i style="background:var(--vio)"></i>Paper book</span><span><i style="background:var(--d2)"></i>SPY bought and held</span></div>
+<div class="tw" style="margin-top:12px"><table id="booktab"></table></div>
+<p class="note">Paper only. Option prices are model estimates (Black-Scholes from the VIX with a skew adjustment and slippage), not market quotes. Rules: defined-risk SPY spreads, at most 2% of the book at risk per trade, one new trade a day, opened only when the desk's odds differ from the plain formula by 7 points or more. Not a recommendation to trade.</p></div>
+
 <h2>Day by day <span class="n">pick a session</span></h2>
 <div class="days" id="days" role="group" aria-label="Pick a trading day"></div>
 <div class="card dv" id="day"><div class="empty">No sessions yet.</div></div>
@@ -103,7 +121,7 @@ var esc=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){re
 var f0=function(x){return x==null?'–':Number(x).toLocaleString('en-US',{maximumFractionDigits:0})};
 var f2=function(x){return x==null?'–':Number(x).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})};
 var pc=function(x,d){return x==null?'–':(x>=0?'+':'−')+Math.abs(x).toFixed(d==null?2:d)+'%'};
-var S={days:[],meta:{}},sel=null;
+var S={days:[],meta:{},book:[]},sel=null;
 function css(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()}
 function list(a){return (a&&a.length)?'<ul>'+a.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul>':'<div class="empty">Nothing recorded.</div>'}
 
@@ -173,6 +191,7 @@ function renderDays(){
   var d=S.days.find(function(x){return x.date===sel});if(!d){$('day').innerHTML='<div class="empty">No sessions yet.</div>';return}
   var ch=d.sp&&d.sp.prev?(d.sp.close/d.sp.prev-1)*100:null,h='';
   h+='<div class="kv">'+(d.sp?'<div>S&amp;P close<b>'+f2(d.sp.close)+' <span class="'+(ch>=0?'up':'dn')+'" style="font-size:12px">'+pc(ch)+'</span></b></div><div>High–low<b>'+f0(d.sp.high)+'–'+f0(d.sp.low)+'</b></div>':'')+(d.vix?'<div>VIX<b>'+f2(d.vix.close)+'</b></div>':'')+(d.band?'<div>Desk 80% band<b>'+f0(d.band.lo)+'–'+f0(d.band.hi)+'</b></div>':'')+(d.grades?'<div>Graded that day<b>'+d.grades.hits+' of '+d.grades.n+(d.grades.brier!=null?' · '+d.grades.brier.toFixed(3):'')+'</b></div>':'')+'</div>';
+  if(d.regime_label)h+='<p style="margin:0 0 6px"><span class="phase" style="display:inline-block;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:20px;background:var(--viobg);color:var(--vio)">'+esc(d.regime_label.label||'')+'</span> <span class="mut" style="font-size:12.5px">'+esc([d.regime_label.stocks_vs_yields,d.regime_label.credit,d.regime_label.vol,d.regime_label.trend].filter(Boolean).join(' · '))+'</span></p>';
   if(d.headline)h+='<p style="margin:0 0 8px">'+esc(d.headline)+'</p>';
   if(d.happened)h+='<h3>What happened</h3>'+list(d.happened);
   if(d.regime)h+='<h3>Cross-asset</h3>'+list(d.regime);
@@ -182,7 +201,35 @@ function renderDays(){
   if(d.data_quality)h+='<p class="note">Data: '+esc(d.data_quality)+'</p>';
   $('day').innerHTML=h;
 }
-function renderAll(){renderNow();renderTiles();chart1();chart2();chart3();renderDays()}
+function renderFc(){
+  var sb=S.meta.scoreboard||{},rows=[['Desk (judgment, calibrated)',sb.desk_brier,sb.n_matched],['Plain VIX formula',sb.base_brier,sb.n_matched],['Simulator (calibrated Monte Carlo)',sb.sim_brier,sb.n_sim]];
+  var best=rows.filter(function(r){return r[1]!=null}).sort(function(a,b){return a[1]-b[1]})[0];
+  $('fc').innerHTML='<thead><tr><th>Forecaster</th><th>Brier</th><th>Calls</th><th>Weight now</th></tr></thead><tbody>'+rows.map(function(r,i){var w=(sb.weights||{})[['desk','base','sim'][i]];
+    return '<tr><td>'+esc(r[0])+(best&&r===best?' <span class="up" style="font-size:11px">leading</span>':'')+'</td><td>'+(r[1]==null?'–':r[1].toFixed(3))+'</td><td>'+(r[2]||0)+'</td><td>'+(w==null?'–':Math.round(w*100)+'%')+'</td></tr>'}).join('')+'</tbody>';
+  $('fcnote').textContent='A flat 50% guess scores 0.250. Each run blends the three, weighted by their recent record (equal weights until each has 20 graded calls). The simulator starts scoring from 27 Nov.';
+}
+function renderReg(){
+  var d=S.days[S.days.length-1],R=d&&d.regime_label;
+  $('regnow').innerHTML=R?'<b>'+esc(R.label)+'</b> <span class="mut">('+esc(d.date)+')</span><div class="mut" style="font-size:13px;margin-top:4px">'+esc([R.stocks_vs_yields,R.credit,R.vol,R.trend].filter(Boolean).join(' · '))+'</div>':'<div class="empty">The first regime label arrives with the next close run.</div>';
+  var B=(S.meta.scoreboard||{}).by_regime||[];
+  $('regtab').innerHTML=B.length?'<thead><tr><th>Regime</th><th>Days</th><th>Calls graded</th><th>Desk hit rate</th><th>Desk Brier</th></tr></thead><tbody>'+B.map(function(r){return '<tr><td>'+esc(r.label)+'</td><td>'+(r.days||0)+'</td><td>'+(r.n||0)+'</td><td>'+(r.hit==null?'–':Math.round(r.hit*100)+'%')+'</td><td>'+(r.brier==null?'–':r.brier.toFixed(3))+'</td></tr>'}).join('')+'</tbody>':'';
+}
+function renderBook(){
+  var B=S.meta.book;if(!B)return;var t=$('booktiles').children,c=B.curve||[];
+  t[0].querySelector('.v').textContent='$'+f0(B.equity);t[0].querySelector('.s').textContent='started $'+f0(B.start)+' · '+pc((B.equity/B.start-1)*100,1);
+  if(c.length>1){var sp=(c[c.length-1].spy/c[0].spy-1)*100,bk=(B.equity/B.start-1)*100;t[1].querySelector('.v').innerHTML='<span class="'+(bk-sp>=0?'up':'dn')+'">'+pc(bk-sp,1)+'</span>';t[1].querySelector('.s').textContent='SPY '+pc(sp,1)+' since '+c[0].date}
+  t[2].querySelector('.v').textContent=(B.trades||0);t[2].querySelector('.s').textContent=B.trades?Math.round((B.wins||0)/B.trades*100)+'% won':'none closed yet';
+  t[3].querySelector('.v').textContent=B.max_drawdown==null?'–':pc(-Math.abs(B.max_drawdown),1);
+  if(c.length>1){var W=820,H=180,L=56,R=10,T=10,Bt=24,n=c.length,eq=c.map(function(x){return x.equity}),sv=c.map(function(x){return B.start*x.spy/c[0].spy}),all=eq.concat(sv),lo=Math.min.apply(null,all),hi=Math.max.apply(null,all),pd=(hi-lo)*.1||50;lo-=pd;hi+=pd;
+    var X=function(i){return L+(W-L-R)*i/(n-1)},Y=function(v){return T+(H-T-Bt)*(1-(v-lo)/(hi-lo))},path=function(a){return a.map(function(v,i){return (i?'L':'M')+X(i).toFixed(1)+','+Y(v).toFixed(1)}).join('')},g='';
+    [lo,(lo+hi)/2,hi].forEach(function(v){g+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+Y(v)+'" y2="'+Y(v)+'" stroke="'+css('--l2')+'"/><text x="'+(L-6)+'" y="'+(Y(v)+4)+'" text-anchor="end" font-size="11" fill="'+css('--d2')+'">$'+f0(v)+'</text>'});
+    g+='<path d="'+path(sv)+'" fill="none" stroke="'+css('--d2')+'" stroke-width="1.6" stroke-dasharray="4 3"/><path d="'+path(eq)+'" fill="none" stroke="'+css('--vio')+'" stroke-width="2.2"/>';
+    g+='<text x="'+X(0)+'" y="'+(H-6)+'" font-size="10.5" fill="'+css('--d2')+'">'+esc(c[0].date)+'</text><text x="'+X(n-1)+'" y="'+(H-6)+'" text-anchor="end" font-size="10.5" fill="'+css('--d2')+'">'+esc(c[n-1].date)+'</text>';
+    $('chart4').innerHTML=svg(W,H,g)}else $('chart4').innerHTML='<div class="empty">The equity curve starts with the first marked close.</div>';
+  var P=(S.book||[]).slice().sort(function(a,b){return (b.opened||'').localeCompare(a.opened||'')});
+  $('booktab').innerHTML=P.length?'<thead><tr><th>Opened</th><th>Trade</th><th>Why</th><th>Risk</th><th>Status</th><th>P&amp;L</th></tr></thead><tbody>'+P.map(function(x){return '<tr><td>'+esc(x.opened)+'</td><td>'+esc(x.structure)+'<div class="mut" style="font-size:11.5px">exp '+esc(x.expiry||'')+' · '+(x.contracts||0)+'×</div></td><td class="mut" style="font-size:12px">'+esc(x.rationale||'')+'</td><td>$'+f0(x.max_loss_cash)+'</td><td>'+esc(x.status)+(x.exit_reason?'<div class="mut" style="font-size:11.5px">'+esc(x.exit_reason)+'</div>':'')+'</td><td class="'+((x.pnl||0)>=0?'up':'dn')+'">'+(x.pnl==null?'–':(x.pnl>=0?'+$':'−$')+f0(Math.abs(x.pnl)))+'</td></tr>'}).join('')+'</tbody>':'<tbody><tr><td class="empty">No paper trades yet. The book only trades when the desk and the formula disagree by 7 points or more.</td></tr></tbody>';
+}
+function renderAll(){renderNow();renderTiles();chart1();chart2();chart3();renderFc();renderReg();renderBook();renderDays()}
 $('days').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;sel=b.dataset.d;renderDays()});
 renderAll();
 var timer=setTimeout(function(){$('status').textContent='The desk store did not answer. Reload to try again.'},10000),got={};
@@ -191,6 +238,7 @@ function ready(k){got[k]=1;if(got.days&&got.meta){clearTimeout(timer);$('status'
   if(!db){clearTimeout(timer);$('status').textContent='Sign in to claude.ai to see the desk data.';return}
   db.collection('days').onSnapshot(function(s){S.days=s.docs.map(function(d){var x=d.data()||{};x.date=x.date||d.id;return x}).sort(function(a,b){return a.date.localeCompare(b.date)});
     if(!sel&&S.days.length)sel=S.days[S.days.length-1].date;ready('days');renderAll()},function(e){clearTimeout(timer);$('status').textContent='Could not read the desk ('+(e&&e.code||'error')+').'});
+  db.collection('book').onSnapshot(function(s){S.book=s.docs.map(function(d){var x=d.data()||{};x.id=d.id;return x});renderAll()},function(){});
   db.collection('meta').onSnapshot(function(s){S.meta={};s.docs.forEach(function(d){S.meta[d.id]=d.data()||{}});ready('meta');renderAll()},function(){});
 }).catch(function(){clearTimeout(timer);$('status').textContent='The desk store is unavailable in this view.'});
 var mq;try{mq=window.matchMedia('(prefers-color-scheme: dark)');mq.addEventListener('change',renderAll)}catch(e){}
