@@ -25,6 +25,20 @@ is reachable and answers 401 until Rk's token is added. Not yet run on real data
     python analyses/desk/chains.py selftest           # offline maths check (synthetic)
     (--source alpaca keeps the Alpaca path for US users.)
 
+## Limits found in the live test (26 Nov) and how the code handles them
+- Credits: about 1 credit per contract returned (one 21-day, +/-8% pull cost ~2,040).
+  Trial: 100,000/day (reset 09:30 ET). Free plan after the trial: 100/day.
+- One-device lock: MarketData.app locks the account for ~5 minutes when the calling IP changes,
+  and the cloud's outbound IP can change between requests.
+- So each run makes ONE request: `summary --budget <last limit> --legs ...` returns the chain
+  stats, the book's leg prices and the credit headers together. On a one-device 403 it waits
+  5.5 minutes and retries once, then stops (never guesses).
+- `--budget` >= 5000 (trial): wide pull, full skew term structure and gamma.
+  Otherwise (free plan, or unknown): narrow pull of the book's expiry, 40 strikes (~80 credits),
+  gamma omitted. Store `credits.limit` from each run's output and pass it next run, so the
+  switch from trial to free plan happens by itself.
+- Rk should avoid using the same token from another device during desk run times.
+
 ## Timing: the 24h delay
 Free data for session D becomes available after 09:30 ET on D+1. So:
 - Close run (16:47, day D) decides a paper trade as today.

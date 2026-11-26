@@ -124,7 +124,11 @@ def years(expiry: dt.date, now: dt.datetime):
 
 
 # ---------------------------------------------------------------- data
-def _get(base, path, params):
+LAST_HEADERS = {}
+LOCK_WAIT_S = 330   # MarketData.app one-device lock lasts ~5 minutes
+
+
+def _get(base, path, params, _retry=True):
     url = f"{base}{path}?{urllib.parse.urlencode(params)}"
     req = urllib.request.Request(url, headers={"Accept": "application/json"})
     if base == MD and os.environ.get("MARKETDATA_TOKEN"):
@@ -134,11 +138,36 @@ def _get(base, path, params):
         req.add_header("APCA-API-KEY-ID", kid)
         req.add_header("APCA-API-SECRET-KEY", sec)
     try:
-        with urllib.request.urlopen(req, timeout=30) as r:
+        with urllib.request.urlopen(req, timeout=60) as r:
+            LAST_HEADERS.clear()
+            LAST_HEADERS.update({k.lower(): v for k, v in r.headers.items()})
             return json.loads(r.read())
     except urllib.error.HTTPError as e:
-        body = e.read()[:300].decode("utf-8", "replace")
-        raise SystemExit(f"HTTP {e.code} on {base}{path}: {body}  (401 = token missing; 403 can also be MarketData.app's one-device IP lock: wait 5 min, retry once)")
+        body = e.read()[:400].decode("utf-8", "replace")
+        if base == MD and e.code == 403 and "one device" in body.lower() and _retry:
+            # Cloud egress IP changed since the last call. Wait out the lock, retry once.
+            print(f"note: MarketData.app IP lock; waiting {LOCK_WAIT_S}s and retrying once", file=sys.stderr)
+            import time
+            time.sleep(LOCK_WAIT_S)
+            return _get(base, path, params, _retry=False)
+        raise SystemExit(f"HTTP {e.code} on {base}{path}: {body}  "
+                         "(401 = token missing; 402/429 = out of credits; 403 = one-device IP lock)")
+
+
+def credits():
+    h = LAST_HEADERS
+    g = lambda k: int(h[k]) if h.get(k, "").lstrip("-").isdigit() else None
+    return {"limit": g("x-api-ratelimit-limit"), "remaining": g("x-api-ratelimit-remaining"),
+            "consumed": g("x-api-ratelimit-consumed"), "reset": g("x-api-ratelimit-reset")}
+
+
+def plan_request(budget, book_expiry):
+    """Pick ONE request that fits the day's credits (~1 credit per contract).
+    budget = daily credit limit from the last run's headers (None = unknown -> assume free plan)."""
+    if budget and budget >= 5000:            # trial / paid: wide pull, gives gamma and the full skew term
+        return {"mode": "wide", "days": 21, "band": 0.08, "expiry": None, "strike_limit": None}
+    # free plan (100/day): one expiry, ~40 strikes x call+put = ~80 contracts
+    return {"mode": "narrow", "days": 21, "band": 0.08, "expiry": book_expiry, "strike_limit": 40}
 
 
 def fetch_chain(underlying, exp_lo, exp_hi, k_lo, k_hi):
@@ -395,6 +424,13 @@ def live(args):
     now = dt.datetime.now(dt.timezone.utc)
     lo_e, hi_e = now.date(), now.date() + dt.timedelta(days=args.days)
     if args.source == "marketdata":
+        if args.budget is not None or args.auto:
+            p = plan_request(args.budget, getattr(args, "expiry", None) or _next_weekly(now.date()))
+            args.band, args.strike_limit = p["band"], p["strike_limit"]
+            lo_e, hi_e = now.date(), now.date() + dt.timedelta(days=p["days"])
+            if p["expiry"]:
+                args.expiry = p["expiry"]
+            args.plan = p["mode"]
         chain, oi, spot, as_of = fetch_marketdata("SPY", lo_e, hi_e, args.band, args.date,
                                                   getattr(args, "expiry", None), args.strike_limit)
         if not chain:
@@ -410,11 +446,26 @@ def live(args):
     return now, spot, chain, fetch_open_interest("SPY", lo_e, hi_e, k_lo, k_hi)
 
 
+def _next_weekly(d):
+    """Book rule: nearest weekly (Friday) expiry at least 3 trading days out (holidays ignored)."""
+    x, td = d, 0
+    while True:
+        x += dt.timedelta(days=1)
+        if x.weekday() < 5:
+            td += 1
+        if td >= 3 and x.weekday() == 4:
+            return x.isoformat()
+
+
 def cmd_summary(args):
     now, spot, chain, oi = live(args)
     out = summarize(chain, oi, spot, now)
     if args.source == "marketdata":
         out["source"] = "MarketData.app (prior session's closing quotes)"
+    out["credits"] = credits()
+    out["plan"] = getattr(args, "plan", "manual")
+    if out["plan"] == "narrow":
+        out["gamma"] = None   # one expiry, near strikes only: too partial to call a gamma level
     if args.legs:
         f = next(iter(out["expiries"].values()), {})
         exp = dt.date.fromisoformat(args.expiry) if args.expiry else min(c["expiry"] for c in chain.values())
@@ -488,6 +539,11 @@ def cmd_selftest(_):
         _get = real
     ok.append(("marketdata parser", len(ch) == 2 and sp == 700.0 and o["SPY261204P00690000"][0] == 5000,
                (len(ch), sp)))
+    ok.append(("planner: trial -> wide, free -> narrow",
+               plan_request(100000, "2026-12-04")["mode"] == "wide" and plan_request(100, "2026-12-04")["mode"] == "narrow"
+               and plan_request(None, "2026-12-04")["mode"] == "narrow", None))
+    ok.append(("next weekly >= 3 trading days", _next_weekly(dt.date(2026, 11, 26)) == "2026-12-04"
+               and _next_weekly(dt.date(2026, 11, 23)) == "2026-11-27", _next_weekly(dt.date(2026, 11, 26))))
     for name, good, val in ok:
         print(("PASS " if good else "FAIL ") + name + f"  [{val}]")
     print("SYNTHETIC test data only, not market data.")
@@ -503,6 +559,9 @@ def main():
         sp.add_argument("--band", type=float, default=0.12)
         sp.add_argument("--source", choices=["marketdata", "alpaca"], default="marketdata")
         sp.add_argument("--date", help="MarketData.app: session date YYYY-MM-DD (default: latest allowed)")
+        sp.add_argument("--budget", type=int, default=None,
+                        help="daily credit limit from the last run (credits.limit); picks wide or narrow")
+        sp.add_argument("--auto", action="store_true", help="plan the request automatically (unknown budget = free plan)")
         sp.add_argument("--strike-limit", type=int, default=None,
                         help="MarketData.app: only this many strikes around the money (saves credits)")
         sp.add_argument("--expiry", required=(name == "price"),
