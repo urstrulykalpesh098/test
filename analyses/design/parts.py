@@ -1,4 +1,5 @@
 PAGES = [
+    ("hq", "HQ", "https://claude.ai/artifact/R7i5cJx8SC6fpW9oQm7ZcM"),
     ("daily", "Daily", "https://claude.ai/artifact/TcxbaSnEiAddmETVgBKL8q"),
     ("ledger", "Ledger", "https://claude.ai/artifact/7jU3VUdjX9x22fNqXoYbCL"),
     ("scorecard", "Scorecard", "https://claude.ai/artifact/M2T7uHbVzqydb38BcrRi8F"),
@@ -18,7 +19,7 @@ def masthead(current, title, stamp, status=True, extra=""):
         for k, n, u in PAGES)
     st = '<div class="status" id="status">Loading…</div>' if status else ""
     return (f'<header class="mast"><div class="gut">\n'
-            f'<div class="brand"><a class="mark" href="{PAGES[0][2]}" target="_blank" rel="noopener">{EYE}Eye View</a>'
+            f'<div class="brand"><a class="mark" href="https://claude.ai/artifact/TcxbaSnEiAddmETVgBKL8q" target="_blank" rel="noopener">{EYE}Eye View</a>'
             f'<nav class="pages" aria-label="Desk pages">{links}</nav></div>\n'
             f'<h1>{title}</h1>\n<p class="stamp">{stamp}</p>\n{st}{extra}\n</div></header>\n')
 
