@@ -138,7 +138,7 @@ def _get(base, path, params):
             return json.loads(r.read())
     except urllib.error.HTTPError as e:
         body = e.read()[:300].decode("utf-8", "replace")
-        raise SystemExit(f"HTTP {e.code} on {base}{path}: {body}  (401/403 = token missing or not entitled)")
+        raise SystemExit(f"HTTP {e.code} on {base}{path}: {body}  (401 = token missing; 403 can also be MarketData.app's one-device IP lock: wait 5 min, retry once)")
 
 
 def fetch_chain(underlying, exp_lo, exp_hi, k_lo, k_hi):
@@ -313,7 +313,7 @@ def summarize(chain, oi, spot, now):
         "expiries": exps,
         "fallback_skew": {"put": front["put_skew_slope"], "call": front["call_skew_slope"]} if front else None,
         "gamma": gamma_stats(by_exp, oi, spot, now) if oi else None,
-        "note": "Derived numbers only; raw quotes are not stored (Alpaca terms).",
+        "note": "Derived numbers only; raw quotes are never stored or republished.",
     }
 
 
@@ -349,10 +349,15 @@ def _model_iv(spot, K, atm_iv, skew):
 
 
 # ---------------------------------------------------------------- live entry points
-def fetch_marketdata(underlying, exp_lo, exp_hi, band, date=None):
+def fetch_marketdata(underlying, exp_lo, exp_hi, band, date=None, expiration=None, strike_limit=None):
     """MarketData.app chain (free plan = prior session, 24h delayed). Columnar JSON.
     Returns (chain, oi, spot, as_of). Field names per their docs; unverified until a live run."""
-    p = {"from": exp_lo.isoformat(), "to": exp_hi.isoformat(), "range": "all"}
+    # MarketData.app bills about one credit per contract returned (measured 26 Nov: ~2,040
+    # credits for a 21-day, +/-8% pull), so keep requests narrow: one expiry, a few strikes.
+    p = {"expiration": expiration} if expiration else {"from": exp_lo.isoformat(), "to": exp_hi.isoformat()}
+    p["range"] = "all"
+    if strike_limit:
+        p["strikeLimit"] = strike_limit
     if date:
         p["date"] = date
     js = _get(MD, f"/v1/options/chain/{underlying}/", p)
@@ -390,7 +395,8 @@ def live(args):
     now = dt.datetime.now(dt.timezone.utc)
     lo_e, hi_e = now.date(), now.date() + dt.timedelta(days=args.days)
     if args.source == "marketdata":
-        chain, oi, spot, as_of = fetch_marketdata("SPY", lo_e, hi_e, args.band, args.date)
+        chain, oi, spot, as_of = fetch_marketdata("SPY", lo_e, hi_e, args.band, args.date,
+                                                  getattr(args, "expiry", None), args.strike_limit)
         if not chain:
             raise SystemExit("MarketData.app returned an empty chain; stop rather than guess.")
         return as_of, spot, chain, oi        # value everything at the quotes' own time
@@ -408,7 +414,12 @@ def cmd_summary(args):
     now, spot, chain, oi = live(args)
     out = summarize(chain, oi, spot, now)
     if args.source == "marketdata":
-        out["source"] = "MarketData.app free plan (prior session's data, 24h delayed)"
+        out["source"] = "MarketData.app (prior session's closing quotes)"
+    if args.legs:
+        f = next(iter(out["expiries"].values()), {})
+        exp = dt.date.fromisoformat(args.expiry) if args.expiry else min(c["expiry"] for c in chain.values())
+        out["price"] = price_legs(chain, json.loads(args.legs), exp, spot, now,
+                                  atm_iv=f.get("atm_iv"), skew=out.get("fallback_skew"))
     print(json.dumps(out, indent=1, default=str))
 
 
@@ -492,9 +503,12 @@ def main():
         sp.add_argument("--band", type=float, default=0.12)
         sp.add_argument("--source", choices=["marketdata", "alpaca"], default="marketdata")
         sp.add_argument("--date", help="MarketData.app: session date YYYY-MM-DD (default: latest allowed)")
-        if name == "price":
-            sp.add_argument("--expiry", required=True)
-            sp.add_argument("--legs", required=True)
+        sp.add_argument("--strike-limit", type=int, default=None,
+                        help="MarketData.app: only this many strikes around the money (saves credits)")
+        sp.add_argument("--expiry", required=(name == "price"),
+                        help="one expiry only (summary: optional; saves credits)")
+        sp.add_argument("--legs", required=(name == "price"),
+                        help='[[qty,"C"|"P",strike],...]; with summary, priced from the same request')
     sub.add_parser("selftest")
     a = ap.parse_args()
     {"summary": cmd_summary, "price": cmd_price, "selftest": cmd_selftest}[a.cmd](a)
