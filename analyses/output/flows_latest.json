@@ -1,0 +1,363 @@
+{
+ "generated_utc": "2026-11-26 04:12",
+ "disclaimer": "Analysis only. Not investment advice.",
+ "positioning": {
+  "source": "CFTC Traders in Financial Futures, futures only (publicreporting.cftc.gov dataset gpe5-46if)",
+  "note": "Positions as of Tuesday; CFTC publishes Friday 3:30 pm ET (holiday weeks slip). Net = long - short contracts.",
+  "markets": {
+   "S&P 500": {
+    "report_date": "2026-11-17",
+    "contract": "S&P 500 Consolidated - CHICAGO MERCANTILE EXCHANGE",
+    "units": "(S&P 500 INDEX X $50.00)",
+    "asset_mgr_net": 897548,
+    "lev_funds_net": -225274,
+    "dealer_net": -791415,
+    "oi": 2129804,
+    "asset_mgr_net_pct_oi": 42.1,
+    "lev_funds_net_pct_oi": -10.6,
+    "weeks_of_history": 156,
+    "asset_mgr_net_wow": -19048,
+    "lev_funds_net_wow": 69417,
+    "dealer_net_wow": -51963,
+    "asset_mgr_net_pct_oi_pctile_3y": 28,
+    "asset_mgr_net_pct_oi_z_3y": -0.51,
+    "lev_funds_net_pct_oi_pctile_3y": 95,
+    "lev_funds_net_pct_oi_z_3y": 1.56
+   },
+   "Nasdaq-100": {
+    "report_date": "2026-11-17",
+    "contract": "NASDAQ-100 Consolidated - CHICAGO MERCANTILE EXCHANGE",
+    "units": "(NASDAQ 100 INDEX X $20)",
+    "asset_mgr_net": 84381,
+    "lev_funds_net": -12468,
+    "dealer_net": -86747,
+    "oi": 314318,
+    "asset_mgr_net_pct_oi": 26.8,
+    "lev_funds_net_pct_oi": -4.0,
+    "weeks_of_history": 156,
+    "asset_mgr_net_wow": 10486,
+    "lev_funds_net_wow": -25357,
+    "dealer_net_wow": 9406,
+    "asset_mgr_net_pct_oi_pctile_3y": 61,
+    "asset_mgr_net_pct_oi_z_3y": 0.28,
+    "lev_funds_net_pct_oi_pctile_3y": 88,
+    "lev_funds_net_pct_oi_z_3y": 1.21
+   },
+   "Russell 2000": {
+    "report_date": "2026-11-17",
+    "contract": "RUSSELL E-MINI - CHICAGO MERCANTILE EXCHANGE",
+    "units": "(RUSSEL 2000 INDEX X $50)",
+    "asset_mgr_net": 30671,
+    "lev_funds_net": -42353,
+    "dealer_net": 12465,
+    "oi": 459730,
+    "asset_mgr_net_pct_oi": 6.7,
+    "lev_funds_net_pct_oi": -9.2,
+    "weeks_of_history": 156,
+    "asset_mgr_net_wow": 11008,
+    "lev_funds_net_wow": 2076,
+    "dealer_net_wow": -9798,
+    "asset_mgr_net_pct_oi_pctile_3y": 44,
+    "asset_mgr_net_pct_oi_z_3y": -0.43,
+    "lev_funds_net_pct_oi_pctile_3y": 69,
+    "lev_funds_net_pct_oi_z_3y": 0.56
+   },
+   "VIX": {
+    "report_date": "2026-11-17",
+    "contract": "VIX FUTURES - CBOE FUTURES EXCHANGE",
+    "units": "($1000 X INDEX)",
+    "asset_mgr_net": 11055,
+    "lev_funds_net": -72916,
+    "dealer_net": 61575,
+    "oi": 397522,
+    "asset_mgr_net_pct_oi": 2.8,
+    "lev_funds_net_pct_oi": -18.3,
+    "weeks_of_history": 156,
+    "asset_mgr_net_wow": 16550,
+    "lev_funds_net_wow": -38154,
+    "dealer_net_wow": 24547,
+    "asset_mgr_net_pct_oi_pctile_3y": 79,
+    "asset_mgr_net_pct_oi_z_3y": 0.83,
+    "lev_funds_net_pct_oi_pctile_3y": 5,
+    "lev_funds_net_pct_oi_z_3y": -1.79
+   },
+   "10Y Treasury": {
+    "report_date": "2026-11-17",
+    "contract": "UST 10Y NOTE - CHICAGO BOARD OF TRADE",
+    "units": "(CONTRACTS OF $100,000 FACE VALUE)",
+    "asset_mgr_net": 3270834,
+    "lev_funds_net": -2482443,
+    "dealer_net": -667956,
+    "oi": 6247430,
+    "asset_mgr_net_pct_oi": 52.4,
+    "lev_funds_net_pct_oi": -39.7,
+    "weeks_of_history": 156,
+    "asset_mgr_net_wow": 117073,
+    "lev_funds_net_wow": -181116,
+    "dealer_net_wow": -7932,
+    "asset_mgr_net_pct_oi_pctile_3y": 100,
+    "asset_mgr_net_pct_oi_z_3y": 2.14,
+    "lev_funds_net_pct_oi_pctile_3y": 31,
+    "lev_funds_net_pct_oi_z_3y": -0.65
+   },
+   "2Y Treasury": {
+    "report_date": "2026-11-17",
+    "contract": "UST 2Y NOTE - CHICAGO BOARD OF TRADE",
+    "units": "(CONTRACTS OF $200,000 FACE VALUE)",
+    "asset_mgr_net": 1655991,
+    "lev_funds_net": -1288895,
+    "dealer_net": -399291,
+    "oi": 4467824,
+    "asset_mgr_net_pct_oi": 37.1,
+    "lev_funds_net_pct_oi": -28.8,
+    "weeks_of_history": 156,
+    "asset_mgr_net_wow": -161210,
+    "lev_funds_net_wow": 216309,
+    "dealer_net_wow": 16549,
+    "asset_mgr_net_pct_oi_pctile_3y": 17,
+    "asset_mgr_net_pct_oi_z_3y": -1.18,
+    "lev_funds_net_pct_oi_pctile_3y": 97,
+    "lev_funds_net_pct_oi_z_3y": 2.1
+   }
+  }
+ },
+ "margin_debt": {
+  "source": "https://www.finra.org/sites/default/files/2021-03/margin-statistics.xlsx",
+  "note": "Debit balances in customers' securities margin accounts, $ millions, month-end. Published about the third week of the next month.",
+  "month": "2026-10",
+  "debit_balances_musd": 1448360.0,
+  "mom_pct": -2.14,
+  "yoy_pct": 22.4,
+  "yoy_pctile_since_1998": 69,
+  "record_month": "2026-06",
+  "record_musd": 1502072.0,
+  "off_record_pct": -3.6,
+  "free_credit_cash_musd": 210290,
+  "free_credit_margin_musd": 212890,
+  "last_13": [
+   {
+    "month": "2025-10",
+    "debit": 1183654.0
+   },
+   {
+    "month": "2025-11",
+    "debit": 1214321.0
+   },
+   {
+    "month": "2025-12",
+    "debit": 1225597.0
+   },
+   {
+    "month": "2026-01",
+    "debit": 1279042.0
+   },
+   {
+    "month": "2026-02",
+    "debit": 1253192.0
+   },
+   {
+    "month": "2026-03",
+    "debit": 1220922.0
+   },
+   {
+    "month": "2026-04",
+    "debit": 1304281.0
+   },
+   {
+    "month": "2026-05",
+    "debit": 1415557.0
+   },
+   {
+    "month": "2026-06",
+    "debit": 1502072.0
+   },
+   {
+    "month": "2026-07",
+    "debit": 1417225.0
+   },
+   {
+    "month": "2026-08",
+    "debit": 1453832.0
+   },
+   {
+    "month": "2026-09",
+    "debit": 1480054.0
+   },
+   {
+    "month": "2026-10",
+    "debit": 1448360.0
+   }
+  ]
+ },
+ "etf_flows_spy": {
+  "source": "https://www.ssga.com/us/en/intermediary/library-content/products/fund-data/etfs/us/navhist-us-en-spy.xlsx",
+  "note": "Flow = change in shares outstanding x NAV. SSGA's share count can lag creations/redemptions by a day; read single days loosely, 5-day sums more firmly.",
+  "as_of": "2026-11-24",
+  "aum_usd": 769730705630.88,
+  "nav": 718.51354,
+  "shares_out": 1071282116.0,
+  "flow_1d_usd": 1975912235,
+  "flow_5d_usd": 643374634,
+  "flow_20d_usd": 9675588716,
+  "flow_1d_z_1y": 0.42,
+  "flow_5d_z_1y": 0.01,
+  "last_10": [
+   {
+    "date": "2026-11-11",
+    "flow_usd": 2089074661
+   },
+   {
+    "date": "2026-11-12",
+    "flow_usd": 4239404501
+   },
+   {
+    "date": "2026-11-13",
+    "flow_usd": -6107915751
+   },
+   {
+    "date": "2026-11-16",
+    "flow_usd": 2552044419
+   },
+   {
+    "date": "2026-11-17",
+    "flow_usd": 6662611101
+   },
+   {
+    "date": "2026-11-18",
+    "flow_usd": 1351490590
+   },
+   {
+    "date": "2026-11-19",
+    "flow_usd": -11418725550
+   },
+   {
+    "date": "2026-11-20",
+    "flow_usd": -1482440123
+   },
+   {
+    "date": "2026-11-23",
+    "flow_usd": 10217137482
+   },
+   {
+    "date": "2026-11-24",
+    "flow_usd": 1975912235
+   }
+  ]
+ },
+ "etf_flows_ivv": {
+  "ticker": "IVV",
+  "source": "https://www.ishares.com/us/products/239726/ishares-core-sp-500-etf",
+  "shares_out": 1157650000.0,
+  "shares_as_of": "2026-11-25",
+  "net_assets_usd": 833363148107.0,
+  "nav_rounded": 719.87
+ },
+ "lev_etf_rebalance": {
+  "source": "ProShares fund pages (net assets as shown on fetch day; page does not state the as-of date, usually the prior close)",
+  "formula": "flow = L(L-1) x r x AUM, summed over funds tracking the same index",
+  "caveats": [
+   "Covers ProShares index funds only; Direxion funds missing: SPXL, SPXS, TNA, TZA, SOXL, SOXS (Direxion: site refuses automated requests)",
+   "AUM should be start-of-day; same-day creations/redemptions and swap resets make the real number differ",
+   "Single-stock leveraged ETFs (e.g. NVDA, TSLA 2x) not included"
+  ],
+  "funds": [
+   {
+    "ticker": "TQQQ",
+    "index": "Nasdaq-100",
+    "leverage": 3,
+    "aum_usd": 27161970395.0,
+    "per_1pct_move_usd": 1629718224,
+    "source": "https://www.proshares.com/our-etfs/leveraged-and-inverse/tqqq"
+   },
+   {
+    "ticker": "SQQQ",
+    "index": "Nasdaq-100",
+    "leverage": -3,
+    "aum_usd": 1801479826.0,
+    "per_1pct_move_usd": 216177579,
+    "source": "https://www.proshares.com/our-etfs/leveraged-and-inverse/sqqq"
+   },
+   {
+    "ticker": "QLD",
+    "index": "Nasdaq-100",
+    "leverage": 2,
+    "aum_usd": 10996625737.0,
+    "per_1pct_move_usd": 219932515,
+    "source": "https://www.proshares.com/our-etfs/leveraged-and-inverse/qld"
+   },
+   {
+    "ticker": "QID",
+    "index": "Nasdaq-100",
+    "leverage": -2,
+    "aum_usd": 256039943.0,
+    "per_1pct_move_usd": 15362397,
+    "source": "https://www.proshares.com/our-etfs/leveraged-and-inverse/qid"
+   },
+   {
+    "ticker": "UPRO",
+    "index": "S&P 500",
+    "leverage": 3,
+    "aum_usd": 4485655431.0,
+    "per_1pct_move_usd": 269139326,
+    "source": "https://www.proshares.com/our-etfs/leveraged-and-inverse/upro"
+   },
+   {
+    "ticker": "SPXU",
+    "index": "S&P 500",
+    "leverage": -3,
+    "aum_usd": 346164345.0,
+    "per_1pct_move_usd": 41539721,
+    "source": "https://www.proshares.com/our-etfs/leveraged-and-inverse/spxu"
+   },
+   {
+    "ticker": "SSO",
+    "index": "S&P 500",
+    "leverage": 2,
+    "aum_usd": 6257180173.0,
+    "per_1pct_move_usd": 125143603,
+    "source": "https://www.proshares.com/our-etfs/leveraged-and-inverse/sso"
+   },
+   {
+    "ticker": "SDS",
+    "index": "S&P 500",
+    "leverage": -2,
+    "aum_usd": 417068214.0,
+    "per_1pct_move_usd": 25024093,
+    "source": "https://www.proshares.com/our-etfs/leveraged-and-inverse/sds"
+   },
+   {
+    "ticker": "URTY",
+    "index": "Russell 2000",
+    "leverage": 3,
+    "aum_usd": 241524857.0,
+    "per_1pct_move_usd": 14491491,
+    "source": "https://www.proshares.com/our-etfs/leveraged-and-inverse/urty"
+   },
+   {
+    "ticker": "SRTY",
+    "index": "Russell 2000",
+    "leverage": -3,
+    "aum_usd": 52682532.0,
+    "per_1pct_move_usd": 6321904,
+    "source": "https://www.proshares.com/our-etfs/leveraged-and-inverse/srty"
+   }
+  ],
+  "by_index": {
+   "Nasdaq-100": {
+    "per_1pct_move_usd": 2081190714,
+    "assumed_move_pct": null,
+    "est_close_flow_usd": null
+   },
+   "S&P 500": {
+    "per_1pct_move_usd": 460846744,
+    "assumed_move_pct": null,
+    "est_close_flow_usd": null
+   },
+   "Russell 2000": {
+    "per_1pct_move_usd": 20813395,
+    "assumed_move_pct": null,
+    "est_close_flow_usd": null
+   }
+  }
+ }
+}
