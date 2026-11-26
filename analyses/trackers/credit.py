@@ -27,7 +27,7 @@ try:
 except ImportError:  # imported as analyses.trackers.credit
     from .common import get, pctile, zscore, SEC_UA
 
-VERSION = "credit v1.0 (2026-11-26)"
+VERSION = "credit v1.1 (2026-11-26)"
 HERE = Path(__file__).resolve().parent
 
 FRED_CSV = "https://fred.stlouisfed.org/graph/fredgraph.csv?id={}"
@@ -148,6 +148,47 @@ def deal_flow(as_of=None, n=21, max_back=40):
             "note": "424B2 is mostly bank structured notes; 424B5 and S-3ASR are closer to corporate deals. RW covers equity and debt registrations."}
 
 
+# ---------------------------------------------------------------- credit vs stocks divergence
+DIV_WIDEN_BP, DIV_NEAR_HIGH, DIV_LOOKBACK, DIV_COOLDOWN = 40, 0.98, 60, 10
+
+
+def divergence(hy=None, spx=None, as_of=None):
+    """Junk-bond spreads widening while stocks sit near their highs: bond investors pulling back before stock investors.
+    Fires when HY OAS is up DIV_WIDEN_BP+ over 20 observations AND the S&P 500 is within 2% of its 60-day closing high.
+    Backtest over the overlap of the two FRED series: forward 5- and 20-day S&P returns after each new episode
+    (fires at least DIV_COOLDOWN days apart) versus all days. Small samples: read as context, not a rule."""
+    hy = hy or fred("BAMLH0A0HYM2")
+    spx = spx or fred("SP500")
+    if as_of: hy, spx = [r for r in hy if r[0] <= as_of], [r for r in spx if r[0] <= as_of]
+    hyd = dict(hy)
+    days = [(d, v) for d, v in spx if d in hyd]  # common trading days
+    dates, px = [d for d, _ in days], [v for _, v in days]
+    hv = [hyd[d] for d in dates]
+    fire, eps, last_ep = [], [], -999
+    for i in range(max(DIV_LOOKBACK, 20), len(days)):
+        widen = (hv[i] - hv[i - 20]) * 100
+        near = px[i] >= DIV_NEAR_HIGH * max(px[i - DIV_LOOKBACK + 1:i + 1])
+        if widen >= DIV_WIDEN_BP and near:
+            fire.append(i)
+            if i - last_ep >= DIV_COOLDOWN: eps.append(i)
+            last_ep = i
+    fwd = lambda i, n: (px[i + n] / px[i] - 1) * 100 if i + n < len(px) else None
+
+    def stats(idx, n):
+        r = [x for x in (fwd(i, n) for i in idx) if x is not None]
+        return {"n": len(r), "avg_pct": round(st.mean(r), 2) if r else None, "pct_down": round(100 * sum(x < 0 for x in r) / len(r)) if r else None}
+    i = len(days) - 1
+    hi60 = max(px[i - DIV_LOOKBACK + 1:i + 1])
+    now = {"as_of": dates[i], "hy_widen_20_bp": round((hv[i] - hv[i - 20]) * 100), "spx": px[i], "spx_off_60d_high_pct": round((px[i] / hi60 - 1) * 100, 2)}
+    now["firing"] = now["hy_widen_20_bp"] >= DIV_WIDEN_BP and px[i] >= DIV_NEAR_HIGH * hi60
+    return {"now": now, "rule": f"HY spread +{DIV_WIDEN_BP}bp+ over 20 days while the S&P is within {round((1 - DIV_NEAR_HIGH) * 100)}% of its {DIV_LOOKBACK}-day high",
+            "sample": {"from": dates[0], "to": dates[-1], "days": len(days), "fire_days": len(fire), "episodes": len(eps),
+                       "episode_dates": [dates[j] for j in eps][-12:]},
+            "after_episodes": {"5d": stats(eps, 5), "20d": stats(eps, 20)},
+            "all_days": {"5d": stats(range(len(days)), 5), "20d": stats(range(len(days)), 20)},
+            "source": [FRED_CSV.format("BAMLH0A0HYM2"), FRED_CSV.format("SP500")]}
+
+
 # ---------------------------------------------------------------- flags and run
 def flags(sp, fu, df):
     F = []
@@ -186,7 +227,14 @@ def run(as_of=None):
     for key, fn in (("funding", lambda: funding(iorb)), ("deals", lambda: deal_flow(date.fromisoformat(as_of) if as_of else None))):
         try: res[key] = fn()
         except Exception as e: res[key] = {"error": f"{type(e).__name__}: {e}"}; res["gaps"].append(f"{key}: {res[key]['error']}")
+    try: res["divergence"] = divergence(as_of=as_of)
+    except Exception as e: res["divergence"] = {"error": f"{type(e).__name__}: {e}"}; res["gaps"].append(f"divergence: {res['divergence']['error']}")
     res["flags"] = flags(res["spreads"], res.get("funding", {}), res.get("deals", {}))
+    dv = res["divergence"].get("now", {})
+    if dv.get("firing"):
+        a = res["divergence"]["after_episodes"]["20d"]
+        res["flags"].insert(0, f"Credit vs stocks divergence: HY +{dv['hy_widen_20_bp']}bp in 20 days with the S&P {dv['spx_off_60d_high_pct']}% from its 60-day high"
+                            + (f" (past episodes: S&P {a['avg_pct']:+}% avg over 20 days, down {a['pct_down']}% of the time, n={a['n']})" if a["n"] else ""))
     res["gaps"] += GAPS_ALWAYS
     res["sources"] = [FRED_CSV.format("<series>"), f"{NYF}/rates/secured/sofr", f"{NYF}/rp/...", SEC_IDX.format(y="YYYY", q="Q", d="YYYYMMDD")]
     return res
@@ -199,12 +247,13 @@ def desk_docs(res, day):
     meta = {"updated": day, "version": VERSION, "spreads": sp,
             "funding": fu if "error" in fu else {"sofr": {k: v for k, v in fu["sofr"].items() if k != "last_20"},
                                                   "rrp_last_usd": fu["rrp"]["last_usd"], "srf_max_2w_usd": fu["srf"]["max_2w_usd"]},
-            "deals": de, "flags": res["flags"], "gaps": res["gaps"], "sources": res["sources"]}
+            "deals": de, "divergence": res.get("divergence"), "flags": res["flags"], "gaps": res["gaps"], "sources": res["sources"]}
     num = lambda k: sp.get(k, {}).get("last")
     dayc = {"hy_oas": num("BAMLH0A0HYM2"), "ig_oas": num("BAMLC0A0CM"), "ccc_oas": num("BAMLH0A3HYC"),
             "spread_as_of": sp.get("BAMLH0A0HYM2", {}).get("as_of"), "nfci": num("NFCI"), "stlfsi": num("STLFSI4"),
             "sofr_minus_iorb_bp": fu.get("sofr", {}).get("minus_iorb_bp"),
             "rw_count": de.get("counts", {}).get("RW", {}).get("count"), "b5_ratio": de.get("counts", {}).get("424B5", {}).get("ratio"),
+            "divergence_firing": (res.get("divergence") or {}).get("now", {}).get("firing"),
             "flags": res["flags"]}
     return {"meta_credit": meta, "day_credit": dayc}
 
@@ -226,6 +275,11 @@ def summary(r):
         c = de["counts"]
         L.append(f"  EDGAR {de['as_of']}: " + ", ".join(f"{f} {c[f]['count']} (median {c[f]['median_20d']})" for f in SEC_FORMS))
         if de["withdrawals"]: L.append(f"  Withdrawals: {'; '.join(de['withdrawals'][:8])}")
+    dv = r.get("divergence", {})
+    if "error" not in dv and dv:
+        n, a, b = dv["now"], dv["after_episodes"], dv["all_days"]
+        L.append(f"  Divergence ({dv['rule']}): now {'FIRING' if n['firing'] else 'off'} (HY {n['hy_widen_20_bp']:+}bp/20d, S&P {n['spx_off_60d_high_pct']}% off 60d high); "
+                 f"{dv['sample']['episodes']} episodes since {dv['sample']['from']}: S&P next 20d {a['20d']['avg_pct']}% avg (down {a['20d']['pct_down']}%) vs all days {b['20d']['avg_pct']}% (down {b['20d']['pct_down']}%)")
     for f in r["flags"]: L.append(f"  FLAG: {f}")
     for g in r["gaps"]: L.append(f"  gap: {g}")
     return "\n".join(L)
