@@ -164,9 +164,9 @@ def credits():
 def plan_request(budget, book_expiry):
     """Pick ONE request that fits the day's credits (~1 credit per contract).
     budget = daily credit limit from the last run's headers (None = unknown -> assume free plan)."""
-    if budget and budget >= 5000:            # trial / paid: wide pull, gives gamma and the full skew term
+    if budget is None or budget >= 10:       # historical pulls cost ~1 credit per 1,000 contracts: go wide
         return {"mode": "wide", "days": 21, "band": 0.08, "expiry": None, "strike_limit": None}
-    # free plan (100/day): one expiry, ~40 strikes x call+put = ~80 contracts
+    # nearly out of credits: smallest useful pull
     return {"mode": "narrow", "days": 21, "band": 0.08, "expiry": book_expiry, "strike_limit": 40}
 
 
@@ -378,11 +378,58 @@ def _model_iv(spot, K, atm_iv, skew):
 
 
 # ---------------------------------------------------------------- live entry points
+NYSE_HOLIDAYS = {"2026-11-26", "2026-12-25", "2027-01-01", "2027-01-18", "2027-02-15", "2027-03-26",
+                 "2027-05-31", "2027-06-18", "2027-07-05", "2027-09-06", "2027-11-25", "2027-12-24"}
+
+
+def is_session(d):
+    return d.weekday() < 5 and d.isoformat() not in NYSE_HOLIDAYS
+
+
+def prev_session(d):
+    d -= dt.timedelta(days=1)
+    while not is_session(d):
+        d -= dt.timedelta(days=1)
+    return d
+
+
+def latest_free_session(now_utc):
+    """Free/historical data for session D is released at 09:30 ET on the next session after D."""
+    from zoneinfo import ZoneInfo
+    et = now_utc.astimezone(ZoneInfo("America/New_York"))
+    release = et.date()
+    if not (is_session(release) and et.time() >= dt.time(9, 31)):
+        release = prev_session(release)
+    return prev_session(release)
+
+
+def parity_spot(chain, T_of):
+    """Spot from put-call parity at the strike where call and put mids are closest."""
+    best = None
+    for c in chain.values():
+        if c["kind"] != "C" or not usable(c):
+            continue
+        p = next((x for x in chain.values() if x["kind"] == "P" and x["K"] == c["K"]
+                  and x["expiry"] == c["expiry"] and usable(x)), None)
+        if not p:
+            continue
+        cm, pm = (c["bid"] + c["ask"]) / 2, (p["bid"] + p["ask"]) / 2
+        T = T_of(c["expiry"])
+        if T <= 0:
+            continue
+        s = (cm - pm + c["K"] * math.exp(-RATE * T)) * math.exp(DIV * T)
+        if best is None or abs(cm - pm) < best[0]:
+            best = (abs(cm - pm), s)
+    return best[1] if best else None
+
+
 def fetch_marketdata(underlying, exp_lo, exp_hi, band, date=None, expiration=None, strike_limit=None):
     """MarketData.app chain (free plan = prior session, 24h delayed). Columnar JSON.
     Returns (chain, oi, spot, as_of). Field names per their docs; unverified until a live run."""
-    # MarketData.app bills about one credit per contract returned (measured 26 Nov: ~2,040
-    # credits for a 21-day, +/-8% pull), so keep requests narrow: one expiry, a few strikes.
+    # Billing (MarketData.app chain docs, 12 Nov 2026): live/delayed chains cost 1 credit per
+    # contract (measured 26 Nov: ~2,040 for one wide pull); a historical pull with `date` costs
+    # 1 credit per 1,000 contracts. Free data is historical anyway, so ALWAYS send `date`.
+    date = date or latest_free_session(dt.datetime.now(dt.timezone.utc)).isoformat()
     p = {"expiration": expiration} if expiration else {"from": exp_lo.isoformat(), "to": exp_hi.isoformat()}
     p["range"] = "all"
     if strike_limit:
@@ -395,16 +442,13 @@ def fetch_marketdata(underlying, exp_lo, exp_hi, band, date=None, expiration=Non
     syms = js.get("optionSymbol") or []
     col = lambda k, i, d=None: (js.get(k) or [d] * len(syms))[i]
     spot = next((float(x) for x in (js.get("underlyingPrice") or []) if x), None)
-    if not spot:
-        raise SystemExit("MarketData.app returned no underlying price; stop rather than guess.")
+    close_t = dt.datetime.combine(dt.date.fromisoformat(date), dt.time(21, 0), tzinfo=dt.timezone.utc)
     chain, oi, stamps = {}, {}, []
     for i, sym in enumerate(syms):
         m = OCC.match(sym)
         if not m:
             continue
         K = int(m.group(4)) / 1000.0
-        if abs(math.log(K / spot)) > band:
-            continue
         chain[sym] = {"kind": m.group(3), "K": K,
                       "expiry": dt.datetime.strptime(m.group(2), "%y%m%d").date(),
                       "bid": float(col("bid", i, 0) or 0), "ask": float(col("ask", i, 0) or 0),
@@ -414,9 +458,15 @@ def fetch_marketdata(underlying, exp_lo, exp_hi, band, date=None, expiration=Non
             oi[sym] = (float(o), None)
         if col("updated", i):
             stamps.append(int(col("updated", i)))
-    as_of = (dt.datetime.fromtimestamp(max(stamps), dt.timezone.utc) if stamps
-             else dt.datetime.now(dt.timezone.utc))
-    oi = {k: (v[0], as_of.date().isoformat()) for k, v in oi.items()}
+    as_of = dt.datetime.fromtimestamp(max(stamps), dt.timezone.utc) if stamps else close_t
+    if not spot:   # historical rows may omit it: use put-call parity, and say so
+        spot = parity_spot(chain, lambda e: years(e, as_of))
+        if spot:
+            print("note: spot from put-call parity (no underlyingPrice in response)", file=sys.stderr)
+    if not spot:
+        raise SystemExit("MarketData.app returned no usable underlying price; stop rather than guess.")
+    chain = {k: v for k, v in chain.items() if abs(math.log(v["K"] / spot)) <= band}
+    oi = {k: (v[0], as_of.date().isoformat()) for k, v in oi.items() if k in chain}
     return chain, oi, spot, as_of
 
 
@@ -540,10 +590,17 @@ def cmd_selftest(_):
     ok.append(("marketdata parser", len(ch) == 2 and sp == 700.0 and o["SPY261204P00690000"][0] == 5000,
                (len(ch), sp)))
     ok.append(("planner: trial -> wide, free -> narrow",
-               plan_request(100000, "2026-12-04")["mode"] == "wide" and plan_request(100, "2026-12-04")["mode"] == "narrow"
-               and plan_request(None, "2026-12-04")["mode"] == "narrow", None))
+               plan_request(100000, "2026-12-04")["mode"] == "wide" and plan_request(100, "2026-12-04")["mode"] == "wide"
+               and plan_request(3, "2026-12-04")["mode"] == "narrow", None))
     ok.append(("next weekly >= 3 trading days", _next_weekly(dt.date(2026, 11, 26)) == "2026-12-04"
                and _next_weekly(dt.date(2026, 11, 23)) == "2026-11-27", _next_weekly(dt.date(2026, 11, 26))))
+    now_t = lambda y, mo, d, h, mi: dt.datetime(y, mo, d, h, mi, tzinfo=dt.timezone.utc)
+    ok.append(("latest free session", latest_free_session(now_t(2026, 11, 26, 5, 0)).isoformat() == "2026-11-24"
+               and latest_free_session(now_t(2026, 11, 27, 15, 0)).isoformat() == "2026-11-25"
+               and latest_free_session(now_t(2026, 11, 30, 14, 0)).isoformat() == "2026-11-25",
+               [latest_free_session(now_t(2026, 11, 27, 15, 0)).isoformat()]))
+    ok.append(("parity spot", abs((parity_spot(chain, lambda e: years(e, now)) or 0) - spot) < 0.5,
+               parity_spot(chain, lambda e: years(e, now))))
     for name, good, val in ok:
         print(("PASS " if good else "FAIL ") + name + f"  [{val}]")
     print("SYNTHETIC test data only, not market data.")
