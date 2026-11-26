@@ -1,30 +1,131 @@
 <title>CFA Weekly Card</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-/* VOICE everyday, study
+/* Eye View desk theme v1 (26 Nov 2026). Shared by Desk Daily, Desk Ledger, CFA card and the HQ hub.
+   VOICE work: a research desk read at 8am and after the close
+   IDEA a newspaper markets page: deep-teal masthead, fine rules, figures in a ruled strip, each section headed by what it shows
+   PICTURE the desk's main chart in each page's first screen (S&P against the desk's band on Daily, the due-next list on Ledger)
+   COLOUR white ground (night #0d1416), ink, deep teal = the desk's own marks, claret = down/miss, green = up/hit, amber = flags
+   TYPE Libre Franklin 800 for headings and figures, Libre Franklin 400/500 for text
+   LAYOUT full-width masthead band with page links, sticky section bar, 1120px content; lead row splits 1.35:1 on a laptop, stacks on a phone
+   Token names (--vio, --amb, --grn, --red, --blu, --p1, --p2, --line, --l2, --tx, --dim, --d2) are kept from the old pages so existing render code keeps working. */
+:root{
+  --bg:#ffffff;--p1:#ffffff;--p2:#f1f4f4;--lead:#e7f1f1;--line:#d9dfe1;--l2:#e9edee;
+  --tx:#14181b;--dim:#4f5a61;--d2:#6b767d;
+  --band:#0b3b41;--bandtx:#ffffff;--banddim:#b7d0d2;--lens:#7fd6cf;
+  --red:#b3123f;--grn:#16794a;--amb:#9a5b00;--blu:#2a5db0;--vio:#0d7680;
+  --viobg:rgba(13,118,128,.12);--redbg:rgba(179,18,63,.08);--grnbg:rgba(22,121,74,.09);--ambbg:rgba(196,128,0,.12);
+  --sans:"Libre Franklin",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;--mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  color-scheme:light}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0d1416;--p1:#121b1e;--p2:#182428;--lead:#10292c;--line:#25363a;--l2:#1b2a2e;
+  --tx:#e8eff0;--dim:#a3b3b7;--d2:#82959a;
+  --band:#08262a;--bandtx:#f2f7f7;--banddim:#9dbcbf;--lens:#5fd0c6;
+  --red:#ff6f8e;--grn:#4cc38a;--amb:#f0b429;--blu:#7fa9ff;--vio:#4fc3c9;
+  --viobg:rgba(79,195,201,.16);--redbg:rgba(255,111,142,.12);--grnbg:rgba(76,195,138,.12);--ambbg:rgba(240,180,41,.13);
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d1416;--p1:#121b1e;--p2:#182428;--lead:#10292c;--line:#25363a;--l2:#1b2a2e;
+  --tx:#e8eff0;--dim:#a3b3b7;--d2:#82959a;
+  --band:#08262a;--bandtx:#f2f7f7;--banddim:#9dbcbf;--lens:#5fd0c6;
+  --red:#ff6f8e;--grn:#4cc38a;--amb:#f0b429;--blu:#7fa9ff;--vio:#4fc3c9;
+  --viobg:rgba(79,195,201,.16);--redbg:rgba(255,111,142,.12);--grnbg:rgba(76,195,138,.12);--ambbg:rgba(240,180,41,.13);
+  color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.55 var(--sans);-webkit-text-size-adjust:100%;overflow-x:clip}
+a{color:var(--blu)}
+.gut{max-width:1120px;margin:0 auto;padding-left:max(5vw,16px,env(safe-area-inset-left,0px));padding-right:max(5vw,16px,env(safe-area-inset-right,0px))}
+/* masthead */
+.mast{background:var(--band);color:var(--bandtx);margin-top:calc(-1*env(safe-area-inset-top,0px));padding-top:calc(env(safe-area-inset-top,0px) + 14px);padding-bottom:26px}
+.mast a{color:inherit}
+.brand{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 20px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,.16)}
+.mark{display:flex;align-items:center;gap:9px;font-weight:800;font-size:16px;letter-spacing:-.01em;text-decoration:none}
+.mark svg{width:34px;height:20px;flex:none}
+.pages{display:flex;flex-wrap:wrap;gap:2px 4px;font-size:14px}
+.pages a{text-decoration:none;color:var(--banddim);padding:6px 9px;border-radius:4px}
+.pages a:hover{color:var(--bandtx);background:rgba(255,255,255,.08)}
+.pages a[aria-current="page"]{color:var(--bandtx);box-shadow:inset 0 -2px 0 var(--lens);border-radius:0}
+.mast h1{font-size:clamp(34px,5vw,50px);font-weight:800;line-height:1.05;letter-spacing:-.02em;margin:22px 0 8px}
+.stamp{color:var(--banddim);font-size:15px;max-width:70ch;margin:0}
+.stamp a{color:var(--bandtx)}
+.status{display:inline-flex;align-items:center;gap:8px;margin-top:12px;font-size:14px;color:var(--bandtx)}
+.status::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--lens);flex:none}
+/* sticky section bar */
+body::before{content:"";position:fixed;left:0;right:0;top:0;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:6}
+.jump{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.jump .gut{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+.jump .gut::-webkit-scrollbar{display:none}
+.jump a{flex:none;font-size:14px;font-weight:500;color:var(--dim);text-decoration:none;padding:12px 10px;white-space:nowrap;border-bottom:2px solid transparent}
+.jump a:hover{color:var(--tx)}
+.jump a.on{color:var(--tx);border-bottom-color:var(--vio)}
+main{padding-block:24px 72px}
+/* the section pattern */
+.sec{margin-top:44px;padding-top:20px;border-top:2px solid var(--tx);scroll-margin-top:calc(env(safe-area-inset-top,0px) + 56px)}
+.sec-h{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 24px;margin-bottom:16px}
+h2{font-size:clamp(22px,2.6vw,27px);font-weight:800;line-height:1.15;letter-spacing:-.015em;margin:0}
+.sec-n,h2 .n{font-size:15px;color:var(--dim);margin:0;font-weight:400;letter-spacing:0}
+h3{font-size:16px;font-weight:700;margin:18px 0 6px}
+p{margin:0 0 12px}
+.card{background:var(--p1);border:1px solid var(--line);border-radius:6px;padding:16px 18px;margin-bottom:14px}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border-block:1px solid var(--line);margin-bottom:14px}
+.tile{background:var(--bg);padding:14px 16px 14px 0;min-width:0}
+.tile+.tile{padding-left:16px}
+.tile .k{font-size:14px;font-weight:600;color:var(--tx)}
+.tile .v{font-size:clamp(24px,2.8vw,30px);font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.15;margin:4px 0 2px}
+.tile .s{font-size:13px;color:var(--dim);line-height:1.45}
+@media (max-width:700px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}.tile,.tile+.tile{padding:12px 12px 12px 0}.tile:nth-child(2n){padding-left:12px}}
+.flag{background:var(--ambbg);border-radius:4px;padding:9px 12px;font-size:14px;margin-bottom:8px}
+.flag::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--amb);margin-right:8px;vertical-align:2px}
+.alert{background:var(--redbg);border-radius:4px;padding:9px 12px;font-size:15px;margin-top:10px}
+.alert::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--red);margin-right:8px;vertical-align:2px}
+.up{color:var(--grn)}.dn{color:var(--red)}.am{color:var(--amb)}.mut{color:var(--dim)}.sm{font-size:14px}
+.note{font-size:14px;color:var(--dim);margin:10px 0 0;max-width:80ch}
+.empty{color:var(--d2);font-size:14px;padding:6px 0}
+svg{display:block;width:100%;height:auto}
+svg text{font-family:var(--sans)}
+.legend{display:flex;gap:6px 16px;flex-wrap:wrap;font-size:13px;color:var(--dim);margin-top:8px}
+.legend i{display:inline-block;width:12px;height:8px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-size:13px;font-weight:600;color:var(--dim);padding:0 10px 8px 0;border-bottom:1px solid var(--tx);white-space:nowrap}
+td{padding:9px 10px 9px 0;border-bottom:1px solid var(--l2);vertical-align:top;font-variant-numeric:tabular-nums}
+tr:last-child td{border-bottom:none}
+th.r,td.r{text-align:right;white-space:nowrap}
+td .sub{display:block;font-size:13px;color:var(--d2);line-height:1.4;margin-top:2px}
+.pill,.phase{display:inline-block;font-size:13px;font-weight:600;padding:1px 9px;border-radius:20px;white-space:nowrap;background:var(--viobg);color:var(--vio)}
+button{font-family:inherit}
+:focus-visible{outline:2px solid var(--vio);outline-offset:2px}
+footer{margin-top:48px;padding-top:16px;border-top:2px solid var(--tx);color:var(--dim);font-size:14px;line-height:1.6;max-width:90ch}
+footer b{color:var(--tx)}
+@media (max-width:600px){table{font-size:13px}th,td{padding:7px 8px 7px 0}}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+@media (max-width:600px){.card{padding:14px 12px}}
+
+/* Spaced repetition: a missed question goes to box 1 and returns after 1 week; each right answer moves it up (2, 4, 8 weeks); right in box 4 = mastered; wrong anywhere = back to box 1.
+   VOICE everyday, study
    IDEA an exam answer sheet: each question is a card, choices are bubbles you fill
    PICTURE the live question card with its bubble row; a strip of bubbles tracks the week
    COLOUR white paper, ink, answer-sheet green, coral for a wrong mark
    TYPE Space Grotesk + Inter
    LAYOUT one column ~760px: title and week picker, bubble strip, card, then score by topic */
-:root{color-scheme:light dark;--bg:light-dark(#ffffff,#0b1310);--ink:light-dark(#121614,#e8efe9);--mute:light-dark(#56615a,#9fb0a5);--line:light-dark(#cfe3d6,#22382b);--green:light-dark(#0a7d4f,#3ccf8e);--mist:light-dark(#eaf6ef,#12241a);--coral:light-dark(#d6452b,#ff7a5c);--coralmist:light-dark(#fdece8,#2a1510)}
+:root{color-scheme:light dark;--ink:light-dark(#14181b,#e8eff0);--mute:light-dark(#4f5a61,#a3b3b7);--green:light-dark(#0d7680,#4fc3c9);--mist:light-dark(#e7f1f1,#10292c);--coral:light-dark(#b3123f,#ff6f8e);--coralmist:light-dark(#fbe9ee,#2a1519)}
 :root[data-theme=light]{color-scheme:light}
 :root[data-theme=dark]{color-scheme:dark}
 *{box-sizing:border-box;min-width:0}
-body{background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,sans-serif;overflow-x:clip;margin:0}
+body{color:var(--ink)}
 .wrap{max-width:780px;margin:0 auto;padding-block:clamp(24px,4vw,48px);padding-left:max(5vw,16px,env(safe-area-inset-left,0px));padding-right:max(5vw,16px,env(safe-area-inset-right,0px))}
-h1{font:600 clamp(32px,5vw,44px)/1.05 "Space Grotesk",system-ui,sans-serif;letter-spacing:-.02em;margin:0}
+h1{font:700 clamp(32px,5vw,44px)/1.05 var(--sans);letter-spacing:-.02em;margin:0}
 .head{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:end;justify-content:space-between}
 .sub{color:var(--mute);margin:8px 0 0}
-select{font:16px Inter,sans-serif;padding:8px 10px;border:1.5px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+select{font:16px var(--sans);padding:8px 10px;border:1.5px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
 .week{margin-top:20px;padding:14px 16px;background:var(--mist);border-radius:10px}
-.week b{font-family:"Space Grotesk",sans-serif;font-size:19px;font-weight:600}
+.week b{font-family:var(--sans);font-size:19px;font-weight:600}
 .week p{margin:4px 0 0}
 .note{font-size:14px;color:var(--mute)}
 .strip{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 14px}
-.dot{width:36px;height:36px;border-radius:50%;border:2px solid var(--green);background:transparent;color:var(--green);font:600 13px "Space Grotesk",sans-serif;cursor:pointer}
+.dot{width:36px;height:36px;border-radius:50%;border:2px solid var(--green);background:transparent;color:var(--green);font:700 13px var(--sans);cursor:pointer}
 .dot.on{outline:3px solid color-mix(in srgb,var(--green) 35%,transparent);outline-offset:2px}
 .dot.ok{background:var(--green);color:var(--bg)}
 .dot.no{background:var(--coral);border-color:var(--coral);color:var(--bg)}
@@ -32,46 +133,66 @@ select{font:16px Inter,sans-serif;padding:8px 10px;border:1.5px solid var(--line
 .topic{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:14px;color:var(--green);font-weight:600}
 .topic span+span{color:var(--mute);font-weight:500}
 .fact{margin:14px 0 0;padding-left:12px;border-left:3px solid var(--line);color:var(--mute)}
-.q{font:600 clamp(20px,3vw,25px)/1.25 "Space Grotesk",sans-serif;letter-spacing:-.01em;margin:16px 0 18px}
+.q{font:700 clamp(20px,3vw,25px)/1.25 var(--sans);letter-spacing:-.01em;margin:16px 0 18px}
 .choices{display:grid;gap:10px}
-.ch{display:flex;gap:14px;align-items:center;text-align:left;width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:transparent;color:var(--ink);font:16px Inter,sans-serif;cursor:pointer;min-height:48px}
+.ch{display:flex;gap:14px;align-items:center;text-align:left;width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:transparent;color:var(--ink);font:16px var(--sans);cursor:pointer;min-height:48px}
 .ch:hover:not(:disabled){border-color:var(--green)}
-.ch .b{flex:none;width:30px;height:30px;border-radius:50%;border:2px solid var(--green);display:grid;place-items:center;font:600 13px "Space Grotesk",sans-serif;color:var(--green)}
+.ch .b{flex:none;width:30px;height:30px;border-radius:50%;border:2px solid var(--green);display:grid;place-items:center;font:700 13px var(--sans);color:var(--green)}
 .ch.pick .b{background:var(--green);color:var(--bg)}
 .ch.right{border-color:var(--green);background:var(--mist)}
 .ch.wrong{border-color:var(--coral);background:var(--coralmist)}
 .ch.wrong .b{background:var(--coral);border-color:var(--coral);color:var(--bg)}
 .ch:disabled{cursor:default}
 .num{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
-.num input{font:18px Inter,sans-serif;width:9em;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
-.btn{font:600 15px Inter,sans-serif;padding:11px 18px;border-radius:10px;border:2px solid var(--green);background:var(--green);color:var(--bg);cursor:pointer;min-height:44px}
+.num input{font:18px var(--sans);width:9em;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
+.btn{font:700 15px var(--sans);padding:11px 18px;border-radius:10px;border:2px solid var(--green);background:var(--green);color:var(--bg);cursor:pointer;min-height:44px}
 .btn.ghost{background:transparent;color:var(--green)}
 .btn:disabled{opacity:.45;cursor:default}
 .verdict{margin-top:18px;padding:14px 16px;border-radius:10px;background:var(--mist)}
 .verdict.bad{background:var(--coralmist)}
-.verdict h3{margin:0 0 6px;font:600 18px "Space Grotesk",sans-serif}
+.verdict h3{margin:0 0 6px;font:700 18px var(--sans)}
 .verdict p{margin:0}
 .verdict .src{margin-top:8px;font-size:14px;color:var(--mute)}
 .nav{display:flex;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}
-h2{font:600 24px/1.2 "Space Grotesk",sans-serif;margin:36px 0 12px}
+h2{font:700 24px/1.2 var(--sans);margin:36px 0 12px}
 .row{display:grid;grid-template-columns:minmax(0,11em) minmax(0,1fr) auto;gap:12px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line);font-size:15px}
 .bar{height:10px;border-radius:5px;background:var(--mist);overflow:hidden}
 .bar i{display:block;height:100%;background:var(--green)}
 .row b{white-space:nowrap;font-variant-numeric:tabular-nums}
 .empty{padding:28px;border:2px dashed var(--line);border-radius:14px;color:var(--mute)}
+.rev{margin-top:20px;border:2px solid var(--green);border-radius:12px;padding:14px 16px;display:grid;gap:12px}
+.rev .top{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between}
+.rev .top b{font:700 19px var(--sans)}
+.boxes{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.bx{border-radius:8px;background:var(--mist);padding:8px 6px;text-align:center;font-size:13px;color:var(--mute)}
+.bx b{display:block;font:700 22px var(--sans);color:var(--ink);font-variant-numeric:tabular-nums}
+.bx.m{background:var(--green);color:var(--bg)}
+.bx.m b{color:var(--bg)}
+.tag{display:inline-block;font-size:13px;padding:2px 8px;border-radius:20px;background:var(--mist);color:var(--green);font-weight:600}
 footer{margin-top:36px;font-size:14px;color:var(--mute)}
+
+/* CFA card on the desk masthead */
+.mast .gut,.wrap{max-width:820px}
+.wrap{padding-left:max(5vw,16px,env(safe-area-inset-left,0px));padding-right:max(5vw,16px,env(safe-area-inset-right,0px))}
+.wk{display:inline-flex;align-items:center;gap:10px;margin-top:14px;font-size:15px;color:var(--banddim)}
+.wk select{background:transparent;color:var(--bandtx);border:1.5px solid rgba(255,255,255,.35);border-radius:4px;font:16px var(--sans);padding:8px 10px}
+.wk select option{color:#14181b;background:#fff}
+.dot,.ch .b,.btn,.card,.ch,.week,.verdict,.rev,.bx,.num input,select{border-radius:6px}
+.dot,.ch .b{border-radius:50%}
+.card{margin-bottom:0}
+.wrap{padding-block:22px 56px}
+.week{margin-top:0}
 </style>
 
+<header class="mast"><div class="gut">
+<div class="brand"><a class="mark" href="https://claude.ai/artifact/TcxbaSnEiAddmETVgBKL8q" target="_blank" rel="noopener"><svg viewBox="0 0 34 20" aria-hidden="true"><path d="M1.5 10C7 2.2 27 2.2 32.5 10C27 17.8 7 17.8 1.5 10Z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17" cy="10" r="5.4" fill="var(--lens)"/><circle cx="17" cy="10" r="2.2" fill="var(--band)"/></svg>Eye View</a><nav class="pages" aria-label="Desk pages"><a href="https://claude.ai/artifact/TcxbaSnEiAddmETVgBKL8q" target="_blank" rel="noopener">Daily</a><a href="https://claude.ai/artifact/7jU3VUdjX9x22fNqXoYbCL" target="_blank" rel="noopener">Ledger</a><a href="https://claude.ai/artifact/M2T7uHbVzqydb38BcrRi8F" target="_blank" rel="noopener">Scorecard</a><a href="https://claude.ai/artifact/7L9ApUMePWy4aWrt4ZY5kW" target="_blank" rel="noopener" aria-current="page">CFA card</a></nav></div>
+<h1>CFA weekly card</h1>
+<p class="stamp">This week's market, turned into Level I questions. Answer first, then read the working. Missed questions come back for review.</p>
+<label class="wk">Week <select id="wk" aria-label="Week"></select></label>
+</div></header>
 <div class="wrap">
-  <div class="head">
-    <div>
-      <h1>CFA weekly card</h1>
-      <p class="sub">This week's market, turned into Level I questions. Answer first, then read the working.</p>
-    </div>
-    <label class="note">Week <select id="wk" aria-label="Week"></select></label>
-  </div>
   <div id="main"><div class="empty" id="msg">Loading this week's card…</div></div>
-  <footer>Built from the Eye View desk's own records (Desk Daily and Desk Ledger); each answer names its source. Topic areas follow the CFA Level I curriculum; check reading names against your own exam year. Not investment advice.</footer>
+  <footer>Built from the Eye View desk's own records (Desk Daily and Desk Ledger); each answer names its source. Topic areas follow the CFA Level I curriculum; check reading names against your own exam year. <b>Not investment advice.</b></footer>
 </div>
 
 <script>
@@ -79,9 +200,17 @@ footer{margin-top:36px;font-size:14px;color:var(--mute)}
 const $=s=>document.querySelector(s);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
 const L='ABCDEFGH';
+const GAP=[0,7,14,28,56];
 let db=null,weeks=[],cur=null,qi=0,att={},attUnsub=null,picked=null;
+let mode='week',reviews={},rq=[],ri=0,rAns={};
 
+const pad=n=>String(n).padStart(2,'0');
+const ymd=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const today=()=>ymd(new Date());
+function addDays(n){const d=new Date();d.setDate(d.getDate()+n);return ymd(d)}
+function nice(d){const t=new Date(d+'T12:00:00');return isNaN(t)?d:t.toLocaleDateString('en-CA',{weekday:'short',day:'numeric',month:'short'})}
 function week(){return weeks.find(w=>w.id===cur)}
+function findQ(wid,qid){const w=weeks.find(x=>x.id===wid);return w&&(w.questions||[]).find(q=>q.id===qid)}
 function setWeeks(list){
   weeks=list.sort((a,b)=>b.id.localeCompare(a.id));
   const sel=$('#wk');
@@ -92,7 +221,7 @@ function setWeeks(list){
 function fmt(d){const t=new Date(d+'T12:00:00Z');return isNaN(t)?d:'Week of '+t.toLocaleDateString('en-CA',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'})}
 function msg(t){$('#main').innerHTML=`<div class="empty">${esc(t)}</div>`}
 function choose(id){
-  cur=id;qi=0;picked=null;att={};$('#wk').value=id;
+  cur=id;qi=0;picked=null;att={};mode='week';$('#wk').value=id;
   try{const s=JSON.parse(localStorage.getItem('cfa-pos')||'{}');if(s[id]!=null)qi=s[id]}catch(e){}
   if(attUnsub)attUnsub();
   attUnsub=db.doc('attempts/'+id).onSnapshot(s=>{att=(s.exists&&s.data().answers)||{};render()},()=>render());
@@ -100,8 +229,35 @@ function choose(id){
 }
 function savePos(){try{const s=JSON.parse(localStorage.getItem('cfa-pos')||'{}');s[cur]=qi;localStorage.setItem('cfa-pos',JSON.stringify(s))}catch(e){}}
 function correct(q,v){return q.kind==='num'?Math.abs(Number(v)-Number(q.answer))<=Number(q.tol||0):Number(v)===Number(q.answer)}
+function dueList(){const t=today();return Object.entries(reviews).filter(([k,r])=>r.box>=1&&r.box<=4&&r.due&&r.due<=t&&findQ(r.week,r.qid)).sort((a,b)=>a[1].due.localeCompare(b[1].due)).map(([k])=>k)}
+
+function cardHTML(q,a,extra){
+  const done=!!a;let ans='';
+  if(q.kind==='num'){
+    ans=`<div class="num"><input id="nv" inputmode="decimal" type="text" placeholder="Your answer" value="${done?esc(a.value):''}" ${done?'disabled':''}><span>${esc(q.unit||'')}</span>${done?'':'<button class="btn" id="chk">Check</button>'}</div>`;
+  }else{
+    ans=`<div class="choices">${(q.choices||[]).map((c,i)=>{let cl='';if(done){if(i===Number(q.answer))cl='right';else if(i===Number(a.value))cl='wrong'}else if(picked===i)cl='pick';return `<button class="ch ${cl}" data-c="${i}" ${done?'disabled':''}><span class="b">${L[i]}</span><span>${esc(c)}</span></button>`}).join('')}</div>${done?'':`<div class="nav"><span></span><button class="btn" id="chk" ${picked==null?'disabled':''}>Check</button></div>`}`;
+  }
+  let v='';
+  if(done){
+    const right=q.kind==='num'?`${esc(q.answer)}${esc(q.unit||'')}`:`${L[Number(q.answer)]}. ${esc((q.choices||[])[Number(q.answer)])}`;
+    v=`<div class="verdict ${a.correct?'':'bad'}"><h3>${a.correct?'Right.':'Not quite.'} Answer: ${right}</h3><p>${esc(q.working)}</p>${extra.after?`<p class="src">${extra.after}</p>`:''}<p class="src">Source: ${esc(q.source)}</p></div>`;
+  }
+  return `<div class="card"><div class="topic"><span>${esc(q.topic)}</span><span>${esc(q.concept)}</span>${extra.tag?`<span class="tag">${extra.tag}</span>`:''}</div>${q.fact?`<p class="fact">${esc(q.fact)}</p>`:''}<p class="q">${esc(q.q)}</p>${ans}${v}${extra.nav}</div>`;
+}
+
+function revPanel(){
+  const rs=Object.values(reviews);if(!rs.length)return '';
+  const cnt=[0,0,0,0,0,0];rs.forEach(r=>{const b=Math.min(5,Math.max(1,Number(r.box)||1));cnt[b]++});
+  const due=dueList().length;
+  const upcoming=rs.filter(r=>r.box<=4&&r.due&&r.due>today()).map(r=>r.due).sort();
+  const head=due?`<b>${due} question${due>1?'s':''} due for review</b><button class="btn" id="rstart">Start review</button>`:`<b>Nothing due today</b><span class="note">${upcoming.length?`Next review ${esc(nice(upcoming[0]))} (${upcoming.filter(d=>d===upcoming[0]).length})`:'All caught up'}</span>`;
+  const names=['','1 week','2 weeks','4 weeks','8 weeks','Mastered'];
+  return `<div class="rev"><div class="top">${head}</div><div class="boxes">${[1,2,3,4,5].map(b=>`<div class="bx ${b===5?'m':''}"><b>${cnt[b]}</b>${names[b]}</div>`).join('')}</div><span class="note">Missed questions come back after 1 week. Each right answer pushes the next review out (2, 4, 8 weeks); a miss sends it back to 1 week.</span></div>`;
+}
 
 function render(){
+  if(mode==='review')return renderReview();
   const w=week();if(!w)return;
   const qs=Array.isArray(w.questions)?w.questions:[];
   if(qi>=qs.length)qi=0;
@@ -109,46 +265,67 @@ function render(){
   const strip=qs.map((x,i)=>{const a=att[x.id];const c=a?(a.correct?'ok':'no'):'';return `<button class="dot ${c} ${i===qi?'on':''}" data-i="${i}" aria-label="Question ${i+1}">${i+1}</button>`}).join('');
   let body='';
   if(q){
-    const a=att[q.id];
-    const done=!!a;
-    let ans='';
-    if(q.kind==='num'){
-      ans=`<div class="num"><input id="nv" inputmode="decimal" type="text" placeholder="Your answer" value="${done?esc(a.value):''}" ${done?'disabled':''}><span>${esc(q.unit||'')}</span>${done?'':'<button class="btn" id="chk">Check</button>'}</div>`;
-    }else{
-      ans=`<div class="choices">${(q.choices||[]).map((c,i)=>{let cl='';if(done){if(i===Number(q.answer))cl='right';else if(i===Number(a.value))cl='wrong'}else if(picked===i)cl='pick';return `<button class="ch ${cl}" data-c="${i}" ${done?'disabled':''}><span class="b">${L[i]}</span><span>${esc(c)}</span></button>`}).join('')}</div>${done?'':`<div class="nav"><span></span><button class="btn" id="chk" ${picked==null?'disabled':''}>Check</button></div>`}`;
-    }
-    let v='';
-    if(done){
-      const right=q.kind==='num'?`${esc(q.answer)}${esc(q.unit||'')}`:`${L[Number(q.answer)]}. ${esc((q.choices||[])[Number(q.answer)])}`;
-      v=`<div class="verdict ${a.correct?'':'bad'}"><h3>${a.correct?'Right.':'Not quite.'} Answer: ${right}</h3><p>${esc(q.working)}</p><p class="src">Source: ${esc(q.source)}</p></div>`;
-    }
-    body=`<div class="card"><div class="topic"><span>${esc(q.topic)}</span><span>${esc(q.concept)}</span></div>${q.fact?`<p class="fact">${esc(q.fact)}</p>`:''}<p class="q">${esc(q.q)}</p>${ans}${v}
-      <div class="nav"><button class="btn ghost" id="prev" ${qi===0?'disabled':''}>Previous</button><button class="btn ghost" id="next" ${qi>=qs.length-1?'disabled':''}>Next question</button></div></div>`;
+    const a=att[q.id],r=reviews[cur+'__'+q.id];
+    const after=a&&!a.correct&&r?`Added to your review deck. It comes back ${esc(nice(r.due))}.`:'';
+    body=cardHTML(q,a,{after,tag:q.review_of?'Concept back for review':'',nav:`<div class="nav"><button class="btn ghost" id="prev" ${qi===0?'disabled':''}>Previous</button><button class="btn ghost" id="next" ${qi>=qs.length-1?'disabled':''}>Next question</button></div>`});
   }
   const n=qs.filter(x=>att[x.id]).length,k=qs.filter(x=>att[x.id]&&att[x.id].correct).length;
   const topics={};qs.forEach(x=>{const t=topics[x.topic]||(topics[x.topic]={n:0,a:0,k:0});t.n++;if(att[x.id]){t.a++;if(att[x.id].correct)t.k++}});
   const rows=Object.entries(topics).map(([t,o])=>`<div class="row"><span>${esc(t)}</span><div class="bar"><i style="width:${o.a?Math.round(100*o.k/o.a):0}%"></i></div><b>${o.a?`${o.k} of ${o.a}`:''}${o.a<o.n?` <span class="note">${o.a?'+':''}${o.n-o.a} to do</span>`:''}</b></div>`).join('');
-  $('#main').innerHTML=`<div class="week"><b>${esc(w.title||'')}</b><p>${esc(w.summary||'')}</p>${w.status!=='final'&&w.status_note?`<p class="note">${esc(w.status_note)}</p>`:''}</div>
+  $('#main').innerHTML=`${revPanel()}<div class="week"><b>${esc(w.title||'')}</b><p>${esc(w.summary||'')}</p>${w.status!=='final'&&w.status_note?`<p class="note">${esc(w.status_note)}</p>`:''}</div>
     <div class="strip">${strip}</div>${body}
     <h2>${n?`${k} of ${n} right so far`:'Your score'}</h2>${rows}
-    ${n?`<div class="nav"><span class="note">First answers count; the Sunday run brings back what you missed.</span><button class="btn ghost" id="reset">Clear my answers for this week</button></div>`:''}`;
+    ${n?`<div class="nav"><span class="note">First answers count. Clearing keeps your review deck.</span><button class="btn ghost" id="reset">Clear my answers for this week</button></div>`:''}`;
 }
 
+function renderReview(){
+  if(ri>=rq.length){
+    const got=Object.values(rAns).filter(x=>x.correct).length;
+    $('#main').innerHTML=`${revPanel()}<div class="card" style="margin-top:20px"><p class="q">Review done: ${got} of ${rq.length} right.</p><p>Right answers moved up a box and come back later; misses come back in a week.</p><div class="nav"><span></span><button class="btn" id="rexit">Back to this week's card</button></div></div>`;return;
+  }
+  const key=rq[ri],r=reviews[key]||{},q=findQ(r.week,r.qid);
+  if(!q){ri++;return renderReview()}
+  const a=rAns[key];
+  const after=a?(a.correct?(a.box>4?'Mastered. It leaves the deck.':`Moved to box ${a.box}. Next review ${esc(nice(a.due))}.`):`Back to box 1. Next review ${esc(nice(a.due))}.`):'';
+  const strip=rq.map((k,i)=>{const x=rAns[k];return `<span class="dot ${x?(x.correct?'ok':'no'):''} ${i===ri?'on':''}" style="display:inline-grid;place-items:center">${i+1}</span>`}).join('');
+  $('#main').innerHTML=`<div class="week"><b>Review</b><p>${rq.length} question${rq.length>1?'s':''} from earlier weeks, oldest due first.</p></div><div class="strip">${strip}</div>`+
+    cardHTML(q,a,{tag:`From the ${esc(fmt(r.week).toLowerCase())} card`,after,nav:`<div class="nav"><button class="btn ghost" id="rexit">Stop review</button><button class="btn" id="rnext" ${a?'':'disabled'}>${ri>=rq.length-1?'Finish':'Next'}</button></div>`});
+}
+
+function readAnswer(q){
+  if(q.kind==='num'){const v=String($('#nv').value).replace(/[,%\s]/g,'');if(v===''||isNaN(Number(v)))return null;return Number(v)}
+  return picked;
+}
 async function submit(){
-  const w=week(),q=w.questions[qi];let v;
-  if(q.kind==='num'){v=String($('#nv').value).replace(/[,%\s]/g,'');if(v===''||isNaN(Number(v)))return;v=Number(v)}else{if(picked==null)return;v=picked}
-  const ok=correct(q,v);
-  att={...att,[q.id]:{value:v,correct:ok,at:new Date().toISOString(),topic:q.topic}};picked=null;render();
+  if(mode==='review')return submitReview();
+  const w=week(),q=w.questions[qi];const v=readAnswer(q);if(v==null)return;
+  const ok=correct(q,v),now=new Date().toISOString();
+  att={...att,[q.id]:{value:v,correct:ok,at:now,topic:q.topic}};picked=null;
+  const key=cur+'__'+q.id;
+  if(!ok&&!reviews[key]){reviews={...reviews,[key]:{week:cur,qid:q.id,topic:q.topic,concept:q.concept,box:1,due:addDays(GAP[1]),reps:0,lapses:1,last:now,history:[{at:now,correct:false,from:'card'}]}};db.doc('review/'+key).set(reviews[key]).catch(()=>{})}
+  render();
   try{await db.doc('attempts/'+cur).set({week_of:cur,answers:att,updated:new Date().toISOString()})}catch(e){}
+}
+function submitReview(){
+  const key=rq[ri],r=reviews[key],q=findQ(r.week,r.qid);const v=readAnswer(q);if(v==null)return;
+  const ok=correct(q,v),now=new Date().toISOString();
+  const box=ok?(Number(r.box)||1)+1:1;
+  const due=box>4?null:addDays(GAP[box]);
+  const nr={...r,box,due,reps:(r.reps||0)+1,lapses:(r.lapses||0)+(ok?0:1),last:now,history:[...(r.history||[]),{at:now,correct:ok,from:'review'}].slice(-20)};
+  rAns={...rAns,[key]:{value:v,correct:ok,box,due}};reviews={...reviews,[key]:nr};picked=null;render();
+  db.doc('review/'+key).set(nr).catch(()=>{});
 }
 
 document.addEventListener('click',e=>{
-  const t=e.target.closest('button');if(!t||!week())return;
+  const t=e.target.closest('button');if(!t||!weeks.length)return;
   if(t.dataset.i!=null){qi=Number(t.dataset.i);picked=null;savePos();render()}
   else if(t.dataset.c!=null){picked=Number(t.dataset.c);render()}
   else if(t.id==='chk')submit();
   else if(t.id==='next'){qi++;picked=null;savePos();render()}
   else if(t.id==='prev'){qi--;picked=null;savePos();render()}
+  else if(t.id==='rstart'){rq=dueList();ri=0;rAns={};picked=null;mode='review';render();window.scrollTo(0,0)}
+  else if(t.id==='rnext'){ri++;picked=null;render()}
+  else if(t.id==='rexit'){mode='week';picked=null;render()}
   else if(t.id==='reset'){if(t.dataset.sure){att={};render();db.doc('attempts/'+cur).delete().catch(()=>{})}else{t.dataset.sure='1';t.textContent='Tap again to clear'}}
 });
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='nv')submit()});
@@ -159,6 +336,7 @@ const timer=setTimeout(()=>msg('Could not reach the card data. Open this page in
   if(!d){clearTimeout(timer);msg('Open this page in Claude while signed in to load the cards.');return}
   db=d;
   db.collection('weeks').onSnapshot(s=>{clearTimeout(timer);setWeeks(s.docs.map(x=>({id:x.id,...x.data()})))},()=>{clearTimeout(timer);msg('Could not load the cards.')});
+  db.collection('review').onSnapshot(s=>{const o={};s.docs.forEach(x=>{o[x.id]=x.data()});reviews=o;if(mode!=='review'&&weeks.length)render()},()=>{});
 });
 }
 </script>
