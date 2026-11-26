@@ -365,7 +365,13 @@ def price_legs(chain, legs, expiry, spot, now, atm_iv=None, skew=None):
         fill_in += q * m + abs(q) * h    # opening: pay half the width on every leg
         fill_out += q * m - abs(q) * h   # closing: give up half the width again
         detail.append({"q": q, "kind": kind, "K": K, "mid": round(m, 3), "half_width": round(h, 3), "src": leg_src})
+    ks = sorted({float(K) for _, _, K in legs})
+    grid = [0.0] + ks + [ks[-1] * 2]
+    pay = [sum(q * (max(0.0, S - K) if kd == "C" else max(0.0, K - S)) for q, kd, K in legs) for S in grid]
+    max_loss, max_gain = fill_in - min(pay), max(pay) - fill_in     # per share, after the opening fill
     return {"expiry": expiry.isoformat(), "mid": round(mid, 3), "open_fill": round(fill_in, 3),
+            "max_loss_per_share": round(max_loss, 3), "max_gain_per_share": round(max_gain, 3),
+            "max_value_per_share": round(max(pay), 3),
             "close_fill": round(fill_out, 3), "source": src, "legs": detail}
 
 
@@ -588,6 +594,11 @@ def cmd_selftest(_):
     p = price_legs(chain, [[1, "P", 690], [-1, "P", 680]], e7, spot, now)
     ok.append(("spread priced from quotes", p["source"] == "alpaca" and 0 < p["mid"] < 10, p["mid"]))
     ok.append(("fills straddle mid", p["close_fill"] < p["mid"] < p["open_fill"], (p["close_fill"], p["open_fill"])))
+    ok.append(("debit spread risk", abs(p["max_loss_per_share"] - p["open_fill"]) < 1e-6
+               and abs(p["max_gain_per_share"] - (10 - p["open_fill"])) < 1e-6, (p["max_loss_per_share"], p["max_gain_per_share"])))
+    cr = price_legs(chain, [[-1, "P", 690], [1, "P", 680]], e7, spot, now)
+    ok.append(("credit spread risk", abs(cr["max_loss_per_share"] - (10 + cr["open_fill"])) < 1e-6 and cr["open_fill"] < 0,
+               (cr["open_fill"], cr["max_loss_per_share"])))
     pm = price_legs(chain, [[1, "P", 690], [-1, "P", 123]], e7, spot, now, atm_iv=20)
     ok.append(("missing leg falls back to model", pm["source"] == "mixed", pm["source"]))
     iv_c = _model_iv(spot, 721, 20.0, s["fallback_skew"]) * 100
