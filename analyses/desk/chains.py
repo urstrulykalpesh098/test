@@ -477,7 +477,7 @@ def live(args):
         if args.budget is not None or args.auto:
             p = plan_request(args.budget, getattr(args, "expiry", None) or _next_weekly(now.date()))
             args.band, args.strike_limit = p["band"], p["strike_limit"]
-            lo_e, hi_e = now.date(), now.date() + dt.timedelta(days=p["days"])
+            lo_e, hi_e = now.date(), now.date() + dt.timedelta(days=max(p["days"], args.days))
             if p["expiry"]:
                 args.expiry = p["expiry"]
             args.plan = p["mode"]
@@ -509,6 +509,13 @@ def _next_weekly(d):
 
 
 def cmd_summary(args):
+    args.book_items = []
+    if args.book:
+        raw = open(args.book).read() if os.path.exists(args.book) else args.book
+        args.book_items = json.loads(raw)
+        far = max((dt.date.fromisoformat(i["expiry"]) for i in args.book_items), default=None)
+        if far:
+            args.days = max(args.days, (far - dt.date.today()).days + 1)
     now, spot, chain, oi = live(args)
     out = summarize(chain, oi, spot, now)
     if args.source == "marketdata":
@@ -522,6 +529,14 @@ def cmd_summary(args):
         exp = dt.date.fromisoformat(args.expiry) if args.expiry else min(c["expiry"] for c in chain.values())
         out["price"] = price_legs(chain, json.loads(args.legs), exp, spot, now,
                                   atm_iv=f.get("atm_iv"), skew=out.get("fallback_skew"))
+    for item in getattr(args, "book_items", []):
+        exp = dt.date.fromisoformat(item["expiry"])
+        e = out["expiries"].get(item["expiry"]) or next(iter(out["expiries"].values()), {})
+        if exp < now.date():
+            out.setdefault("book", {})[item["id"]] = {"skipped": "expired before these quotes"}
+            continue
+        out.setdefault("book", {})[item["id"]] = price_legs(
+            chain, item["legs"], exp, spot, now, atm_iv=e.get("atm_iv"), skew=out.get("fallback_skew"))
     print(json.dumps(out, indent=1, default=str))
 
 
@@ -624,6 +639,9 @@ def main():
                         help="MarketData.app: only this many strikes around the money (saves credits)")
         sp.add_argument("--expiry", required=(name == "price"),
                         help="one expiry only (summary: optional; saves credits)")
+        if name == "summary":
+            sp.add_argument("--book", help='JSON list (or file) [{"id","expiry","legs"}]: price every '
+                            'paper-book structure from the same single request')
         sp.add_argument("--legs", required=(name == "price"),
                         help='[[qty,"C"|"P",strike],...]; with summary, priced from the same request')
     sub.add_parser("selftest")
