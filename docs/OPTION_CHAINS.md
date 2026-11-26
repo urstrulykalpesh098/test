@@ -1,7 +1,11 @@
 # Real option chains (idea 2) — MarketData.app free plan
 
-Status (26 Nov 2026): code built and self-tested offline (synthetic data). The live endpoint
-is reachable and answers 401 until Rk's token is added. Not yet run on real data.
+Status (26 Nov 2026): LIVE. Two live tests passed (second: full 45-day chain for 5 credits,
+no IP lock). Wired in: Desk Ledger method/chains_script holds this script (update it whenever
+chains.py changes); meta/book rules now use real prices; the close scorecard writes new trades
+as "pending"; the midday run fills them at the decision day's closing quotes, marks open ones,
+applies the 80% take-profit and writes meta/chains and days/<date>.options.
+First possible fill: Mon 30 Nov midday, for a trade decided at the Fri 27 Nov close.
 
 ## Why MarketData.app
 - Cboe's site terms bar storing their data or building on it without written consent.

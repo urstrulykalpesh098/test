@@ -31,7 +31,7 @@ STATE AS OF 26 NOV 2026 (desk v2.1)
 - Five lessons in the ledger's lessons memory (gap fade, pull tails to 50%, wider ranges, don't default up in a falling tape, wider VIX bands).
 
 IDEAS NOT BUILT YET (pick from these)
-2. Real option chains: Cboe's free 15-minute-delayed chains (IV, open interest, bid/ask) read through the Claude app's browser on my Mac — needs my Mac attached; would replace model prices in the paper book and give real skew/gamma.
+2. [BUILT 26 Nov — see docs/OPTION_CHAINS.md: MarketData.app free chains drive the paper book] Real option chains: Cboe's free 15-minute-delayed chains (IV, open interest, bid/ask) read through the Claude app's browser on my Mac — needs my Mac attached; would replace model prices in the paper book and give real skew/gamma.
 6. Event engine: automatic preview + post-mortem for watchlist earnings and big data releases, implied vs actual move, scored in the ledger.
 7. Trackers: credit and funding (deals pulled/wide, spreads, CDS) and policy/permitting (January state legislatures, Texas).
 8. Weekly learning card mapping that week's market to the CFA Level I curriculum.
