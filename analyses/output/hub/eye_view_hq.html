@@ -194,7 +194,13 @@ const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim
 let D=null,H=null;
 const ro=new ResizeObserver(()=>{if(D){drawRoute();drawBands();drawFan();}});
 
-fetch('data.json').then(r=>r.json()).then(d=>{D=d;render();}).catch(e=>{$('finding').textContent='Could not load the desk data file.';});
+(async()=>{
+ let d=null;
+ try{const db0=await Promise.race([window.claude?.use?.('db'),new Promise(r=>setTimeout(()=>r(null),6000))]);
+  if(db0){const s=await Promise.race([db0.doc('hub/latest').get(),new Promise(r=>setTimeout(()=>r(null),6000))]);if(s&&s.exists){const x=s.data();d=JSON.parse(x.json);d._fresh=x.updated_at||null;}}}catch(e){d=null}
+ if(!d){d=await (await fetch('data.json')).json();}
+ D=d;render();
+})().catch(e=>{$('finding').textContent='Could not load the desk data file.';});
 
 function render(){
  const L=D.lab,R=D.research,M=D.multiasset,bb=D.backbone;
@@ -245,7 +251,7 @@ function render(){
  // backbone
  $('bbT').innerHTML='<thead><tr><th>Series</th><th>Group</th><th class="n">From</th><th class="n">Latest</th><th class="n">Points</th><th>Status</th></tr></thead><tbody>'+
   Object.entries(bb).sort((a,b)=>a[1].group.localeCompare(b[1].group)).map(([k,v])=>`<tr><td>${esc(v.name)}<div class="sub">${esc(k)}</div></td><td>${esc(v.group)}</td><td class="n">${esc(v.first)}</td><td class="n">${esc(v.last)}</td><td class="n">${(v.rows||0).toLocaleString('en-US')}</td><td style="color:var(${v.status==='ok'?'--good':'--bad'})">${esc(v.status)}</td></tr>`).join('')+'</tbody>';
- $('foot').textContent=`Built ${D.built_at.replace('T',' ').slice(0,16)} UTC from analyses/output/hub/hub_data.json. ${D.disclaimer}`;
+ $('foot').textContent=`Data built ${D.built_at.replace('T',' ').slice(0,16)} UTC by the nightly job${D._fresh?', loaded into this page '+String(D._fresh).replace('T',' ').slice(0,16)+' UTC':' (snapshot published with the page)'}. Ask the desk history runs to the page's last publish. ${D.disclaimer}`;
  ['route','bandChart','fan'].forEach(i=>ro.observe($(i)));
  drawRoute();drawBands();drawFan();
  quiz();
