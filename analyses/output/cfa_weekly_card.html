@@ -1,0 +1,164 @@
+<title>CFA Weekly Card</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* VOICE everyday, study
+   IDEA an exam answer sheet: each question is a card, choices are bubbles you fill
+   PICTURE the live question card with its bubble row; a strip of bubbles tracks the week
+   COLOUR white paper, ink, answer-sheet green, coral for a wrong mark
+   TYPE Space Grotesk + Inter
+   LAYOUT one column ~760px: title and week picker, bubble strip, card, then score by topic */
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#0b1310);--ink:light-dark(#121614,#e8efe9);--mute:light-dark(#56615a,#9fb0a5);--line:light-dark(#cfe3d6,#22382b);--green:light-dark(#0a7d4f,#3ccf8e);--mist:light-dark(#eaf6ef,#12241a);--coral:light-dark(#d6452b,#ff7a5c);--coralmist:light-dark(#fdece8,#2a1510)}
+:root[data-theme=light]{color-scheme:light}
+:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,sans-serif;overflow-x:clip;margin:0}
+.wrap{max-width:780px;margin:0 auto;padding-block:clamp(24px,4vw,48px);padding-left:max(5vw,16px,env(safe-area-inset-left,0px));padding-right:max(5vw,16px,env(safe-area-inset-right,0px))}
+h1{font:600 clamp(32px,5vw,44px)/1.05 "Space Grotesk",system-ui,sans-serif;letter-spacing:-.02em;margin:0}
+.head{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:end;justify-content:space-between}
+.sub{color:var(--mute);margin:8px 0 0}
+select{font:16px Inter,sans-serif;padding:8px 10px;border:1.5px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+.week{margin-top:20px;padding:14px 16px;background:var(--mist);border-radius:10px}
+.week b{font-family:"Space Grotesk",sans-serif;font-size:19px;font-weight:600}
+.week p{margin:4px 0 0}
+.note{font-size:14px;color:var(--mute)}
+.strip{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 14px}
+.dot{width:36px;height:36px;border-radius:50%;border:2px solid var(--green);background:transparent;color:var(--green);font:600 13px "Space Grotesk",sans-serif;cursor:pointer}
+.dot.on{outline:3px solid color-mix(in srgb,var(--green) 35%,transparent);outline-offset:2px}
+.dot.ok{background:var(--green);color:var(--bg)}
+.dot.no{background:var(--coral);border-color:var(--coral);color:var(--bg)}
+.card{border:2px solid var(--green);border-radius:14px;padding:clamp(18px,3vw,30px)}
+.topic{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:14px;color:var(--green);font-weight:600}
+.topic span+span{color:var(--mute);font-weight:500}
+.fact{margin:14px 0 0;padding-left:12px;border-left:3px solid var(--line);color:var(--mute)}
+.q{font:600 clamp(20px,3vw,25px)/1.25 "Space Grotesk",sans-serif;letter-spacing:-.01em;margin:16px 0 18px}
+.choices{display:grid;gap:10px}
+.ch{display:flex;gap:14px;align-items:center;text-align:left;width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:transparent;color:var(--ink);font:16px Inter,sans-serif;cursor:pointer;min-height:48px}
+.ch:hover:not(:disabled){border-color:var(--green)}
+.ch .b{flex:none;width:30px;height:30px;border-radius:50%;border:2px solid var(--green);display:grid;place-items:center;font:600 13px "Space Grotesk",sans-serif;color:var(--green)}
+.ch.pick .b{background:var(--green);color:var(--bg)}
+.ch.right{border-color:var(--green);background:var(--mist)}
+.ch.wrong{border-color:var(--coral);background:var(--coralmist)}
+.ch.wrong .b{background:var(--coral);border-color:var(--coral);color:var(--bg)}
+.ch:disabled{cursor:default}
+.num{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.num input{font:18px Inter,sans-serif;width:9em;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
+.btn{font:600 15px Inter,sans-serif;padding:11px 18px;border-radius:10px;border:2px solid var(--green);background:var(--green);color:var(--bg);cursor:pointer;min-height:44px}
+.btn.ghost{background:transparent;color:var(--green)}
+.btn:disabled{opacity:.45;cursor:default}
+.verdict{margin-top:18px;padding:14px 16px;border-radius:10px;background:var(--mist)}
+.verdict.bad{background:var(--coralmist)}
+.verdict h3{margin:0 0 6px;font:600 18px "Space Grotesk",sans-serif}
+.verdict p{margin:0}
+.verdict .src{margin-top:8px;font-size:14px;color:var(--mute)}
+.nav{display:flex;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}
+h2{font:600 24px/1.2 "Space Grotesk",sans-serif;margin:36px 0 12px}
+.row{display:grid;grid-template-columns:minmax(0,11em) minmax(0,1fr) auto;gap:12px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line);font-size:15px}
+.bar{height:10px;border-radius:5px;background:var(--mist);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--green)}
+.row b{white-space:nowrap;font-variant-numeric:tabular-nums}
+.empty{padding:28px;border:2px dashed var(--line);border-radius:14px;color:var(--mute)}
+footer{margin-top:36px;font-size:14px;color:var(--mute)}
+</style>
+
+<div class="wrap">
+  <div class="head">
+    <div>
+      <h1>CFA weekly card</h1>
+      <p class="sub">This week's market, turned into Level I questions. Answer first, then read the working.</p>
+    </div>
+    <label class="note">Week <select id="wk" aria-label="Week"></select></label>
+  </div>
+  <div id="main"><div class="empty" id="msg">Loading this week's card…</div></div>
+  <footer>Built from the Eye View desk's own records (Desk Daily and Desk Ledger); each answer names its source. Topic areas follow the CFA Level I curriculum; check reading names against your own exam year. Not investment advice.</footer>
+</div>
+
+<script>
+{
+const $=s=>document.querySelector(s);
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+const L='ABCDEFGH';
+let db=null,weeks=[],cur=null,qi=0,att={},attUnsub=null,picked=null;
+
+function week(){return weeks.find(w=>w.id===cur)}
+function setWeeks(list){
+  weeks=list.sort((a,b)=>b.id.localeCompare(a.id));
+  const sel=$('#wk');
+  sel.innerHTML=weeks.map(w=>`<option value="${esc(w.id)}">${esc(fmt(w.week_of||w.id))}</option>`).join('');
+  if(!weeks.length){msg('No card yet. The Sunday desk run writes one each week.');return}
+  if(!cur||!week()){choose(weeks[0].id)}else{sel.value=cur;render()}
+}
+function fmt(d){const t=new Date(d+'T12:00:00Z');return isNaN(t)?d:'Week of '+t.toLocaleDateString('en-CA',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'})}
+function msg(t){$('#main').innerHTML=`<div class="empty">${esc(t)}</div>`}
+function choose(id){
+  cur=id;qi=0;picked=null;att={};$('#wk').value=id;
+  try{const s=JSON.parse(localStorage.getItem('cfa-pos')||'{}');if(s[id]!=null)qi=s[id]}catch(e){}
+  if(attUnsub)attUnsub();
+  attUnsub=db.doc('attempts/'+id).onSnapshot(s=>{att=(s.exists&&s.data().answers)||{};render()},()=>render());
+  render();
+}
+function savePos(){try{const s=JSON.parse(localStorage.getItem('cfa-pos')||'{}');s[cur]=qi;localStorage.setItem('cfa-pos',JSON.stringify(s))}catch(e){}}
+function correct(q,v){return q.kind==='num'?Math.abs(Number(v)-Number(q.answer))<=Number(q.tol||0):Number(v)===Number(q.answer)}
+
+function render(){
+  const w=week();if(!w)return;
+  const qs=Array.isArray(w.questions)?w.questions:[];
+  if(qi>=qs.length)qi=0;
+  const q=qs[qi];
+  const strip=qs.map((x,i)=>{const a=att[x.id];const c=a?(a.correct?'ok':'no'):'';return `<button class="dot ${c} ${i===qi?'on':''}" data-i="${i}" aria-label="Question ${i+1}">${i+1}</button>`}).join('');
+  let body='';
+  if(q){
+    const a=att[q.id];
+    const done=!!a;
+    let ans='';
+    if(q.kind==='num'){
+      ans=`<div class="num"><input id="nv" inputmode="decimal" type="text" placeholder="Your answer" value="${done?esc(a.value):''}" ${done?'disabled':''}><span>${esc(q.unit||'')}</span>${done?'':'<button class="btn" id="chk">Check</button>'}</div>`;
+    }else{
+      ans=`<div class="choices">${(q.choices||[]).map((c,i)=>{let cl='';if(done){if(i===Number(q.answer))cl='right';else if(i===Number(a.value))cl='wrong'}else if(picked===i)cl='pick';return `<button class="ch ${cl}" data-c="${i}" ${done?'disabled':''}><span class="b">${L[i]}</span><span>${esc(c)}</span></button>`}).join('')}</div>${done?'':`<div class="nav"><span></span><button class="btn" id="chk" ${picked==null?'disabled':''}>Check</button></div>`}`;
+    }
+    let v='';
+    if(done){
+      const right=q.kind==='num'?`${esc(q.answer)}${esc(q.unit||'')}`:`${L[Number(q.answer)]}. ${esc((q.choices||[])[Number(q.answer)])}`;
+      v=`<div class="verdict ${a.correct?'':'bad'}"><h3>${a.correct?'Right.':'Not quite.'} Answer: ${right}</h3><p>${esc(q.working)}</p><p class="src">Source: ${esc(q.source)}</p></div>`;
+    }
+    body=`<div class="card"><div class="topic"><span>${esc(q.topic)}</span><span>${esc(q.concept)}</span></div>${q.fact?`<p class="fact">${esc(q.fact)}</p>`:''}<p class="q">${esc(q.q)}</p>${ans}${v}
+      <div class="nav"><button class="btn ghost" id="prev" ${qi===0?'disabled':''}>Previous</button><button class="btn ghost" id="next" ${qi>=qs.length-1?'disabled':''}>Next question</button></div></div>`;
+  }
+  const n=qs.filter(x=>att[x.id]).length,k=qs.filter(x=>att[x.id]&&att[x.id].correct).length;
+  const topics={};qs.forEach(x=>{const t=topics[x.topic]||(topics[x.topic]={n:0,a:0,k:0});t.n++;if(att[x.id]){t.a++;if(att[x.id].correct)t.k++}});
+  const rows=Object.entries(topics).map(([t,o])=>`<div class="row"><span>${esc(t)}</span><div class="bar"><i style="width:${o.a?Math.round(100*o.k/o.a):0}%"></i></div><b>${o.a?`${o.k} of ${o.a}`:''}${o.a<o.n?` <span class="note">${o.a?'+':''}${o.n-o.a} to do</span>`:''}</b></div>`).join('');
+  $('#main').innerHTML=`<div class="week"><b>${esc(w.title||'')}</b><p>${esc(w.summary||'')}</p>${w.status!=='final'&&w.status_note?`<p class="note">${esc(w.status_note)}</p>`:''}</div>
+    <div class="strip">${strip}</div>${body}
+    <h2>${n?`${k} of ${n} right so far`:'Your score'}</h2>${rows}
+    ${n?`<div class="nav"><span class="note">First answers count; the Sunday run brings back what you missed.</span><button class="btn ghost" id="reset">Clear my answers for this week</button></div>`:''}`;
+}
+
+async function submit(){
+  const w=week(),q=w.questions[qi];let v;
+  if(q.kind==='num'){v=String($('#nv').value).replace(/[,%\s]/g,'');if(v===''||isNaN(Number(v)))return;v=Number(v)}else{if(picked==null)return;v=picked}
+  const ok=correct(q,v);
+  att={...att,[q.id]:{value:v,correct:ok,at:new Date().toISOString(),topic:q.topic}};picked=null;render();
+  try{await db.doc('attempts/'+cur).set({week_of:cur,answers:att,updated:new Date().toISOString()})}catch(e){}
+}
+
+document.addEventListener('click',e=>{
+  const t=e.target.closest('button');if(!t||!week())return;
+  if(t.dataset.i!=null){qi=Number(t.dataset.i);picked=null;savePos();render()}
+  else if(t.dataset.c!=null){picked=Number(t.dataset.c);render()}
+  else if(t.id==='chk')submit();
+  else if(t.id==='next'){qi++;picked=null;savePos();render()}
+  else if(t.id==='prev'){qi--;picked=null;savePos();render()}
+  else if(t.id==='reset'){if(t.dataset.sure){att={};render();db.doc('attempts/'+cur).delete().catch(()=>{})}else{t.dataset.sure='1';t.textContent='Tap again to clear'}}
+});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='nv')submit()});
+$('#wk').addEventListener('change',e=>choose(e.target.value));
+
+const timer=setTimeout(()=>msg('Could not reach the card data. Open this page in Claude while signed in.'),10000);
+(window.claude?.use?window.claude.use('db'):Promise.resolve(null)).then(d=>{
+  if(!d){clearTimeout(timer);msg('Open this page in Claude while signed in to load the cards.');return}
+  db=d;
+  db.collection('weeks').onSnapshot(s=>{clearTimeout(timer);setWeeks(s.docs.map(x=>({id:x.id,...x.data()})))},()=>{clearTimeout(timer);msg('Could not load the cards.')});
+});
+}
+</script>

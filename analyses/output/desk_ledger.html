@@ -105,6 +105,10 @@ footer{margin-top:36px;padding-top:14px;border-top:1px solid var(--line);color:v
 <h2>Method notes <span class="n">rewritten each Sunday by the desk's self-review</span></h2>
 <div class="card" id="method"><div class="empty">The first self-review runs Sunday 29 Nov.</div></div>
 
+<h2>Event engine <span class="n">previews and post-mortems for earnings and big data releases</span></h2>
+<div class="card"><p class="sm" id="engsum" style="margin:0 0 10px"></p><div class="tw"><table id="engine"></table></div>
+<p class="sm mut" style="margin:10px 0 0">Implied move = what options priced for the reaction session (source named on each row; "hist" means no options figure was found and the stock's own average reaction was used). Baseline = a no-judgment forecaster: for earnings, how often the stock's last 8 reactions beat today's implied move; for data, how often the last 12 prints beat consensus. Analysis only, not investment advice.</p></div>
+
 <h2>Calendar <span class="n">dated catalysts from all reports</span></h2>
 <div class="card" id="events"></div>
 
@@ -166,6 +170,16 @@ function render(){
 
   $('theses').innerHTML=S.theses.length?'<thead><tr><th>Thesis</th><th>Kill condition</th><th>Status</th></tr></thead><tbody>'+S.theses.slice().sort(function(a,b){return (a.order||0)-(b.order||0)}).map(function(x){
     return '<tr><td><b>'+esc(x.thesis)+'</b><span class="sub">'+esc(x.source)+'</span></td><td class="sm">'+esc(x.kill)+(x.evidence?'<span class="sub">Latest: '+esc(x.evidence)+(x.updated?' ('+esc(x.updated)+')':'')+'</span>':'')+'</td><td><span class="pill th-'+esc(x.status)+'">'+esc(x.status)+'</span></td></tr>'}).join('')+'</tbody>':'<tbody><tr><td class="empty">No theses yet.</td></tr></tbody>';
+
+  var EG=S.events.filter(function(e){return e.engine}).sort(function(a,b){return (b.date+(b.time||'')).localeCompare(a.date+(a.time||''))});
+  var EC=P.filter(function(p){return p.kind==='event'&&(p.status==='hit'||p.status==='miss')&&typeof p.prob==='number'});
+  var EB=EC.filter(function(p){return typeof p.prob_base==='number'});
+  var br=function(xs,k){return xs.reduce(function(a,p){var y=p.status==='hit'?1:0;return a+Math.pow(p[k]-y,2)},0)/xs.length};
+  $('engsum').textContent=EC.length?('Event calls graded: '+EC.length+' ('+EC.filter(function(p){return p.status==='hit'}).length+' hit). Brier '+br(EC,'prob').toFixed(3)+(EB.length?'; engine vs baseline on the same '+EB.length+': '+br(EB,'prob').toFixed(3)+' vs '+br(EB,'prob_base').toFixed(3)+' ('+(br(EB,'prob')<br(EB,'prob_base')?'engine ahead':'baseline ahead or tied')+')':'')+'. Needs about 20 graded calls before it means much.'):'No event calls graded yet. The engine runs weekday evenings and previews the next session\'s watchlist earnings and big data releases.';
+  var mv=function(x){return typeof x==='number'?'\u00b1'+x.toFixed(1)+'%':'\u2013'};
+  $('engine').innerHTML=EG.length?'<thead><tr><th>Date</th><th>Event</th><th class="r">Implied</th><th class="r">Actual</th><th>Calls</th><th>Post-mortem</th></tr></thead><tbody>'+EG.map(function(e){
+    var cs=P.filter(function(p){return p.event_id===e.id});
+    return '<tr><td class="r" style="text-align:left">'+esc(e.date)+'<span class="sub">'+esc(e.time||'')+'</span></td><td><b>'+esc(e.ticker||'')+'</b> '+esc(e.event)+(e.consensus?'<span class="sub">Consensus: '+esc(e.consensus)+(e.actual?' \u00b7 actual: '+esc(e.actual):'')+'</span>':'')+'</td><td class="r">'+mv(e.implied_move_pct)+'<span class="sub">'+esc(e.implied_source||'')+'</span></td><td class="r">'+(typeof e.reaction_pct==='number'?(e.reaction_pct>=0?'+':'\u2212')+Math.abs(e.reaction_pct).toFixed(1)+'%':'\u2013')+'</td><td class="sm">'+(cs.length?cs.map(function(p){return '<span class="pill st-'+esc(p.status)+'">'+esc(p.status)+'</span> '+esc(p.claim)+' ('+(typeof p.prob==='number'?pct(p.prob):'\u2013')+(typeof p.prob_base==='number'?' vs base '+pct(p.prob_base):'')+')'}).join('<br>'):'<span class="mut">none</span>')+'</td><td class="sm">'+esc(e.postmortem||e.preview||'')+(e.page?' <a href="'+esc(e.page)+'" target="_blank" rel="noopener" style="color:var(--blu)">page</a>':'')+'</td></tr>'}).join('')+'</tbody>':'<tbody><tr><td class="empty">No engine events yet.</td></tr></tbody>';
 
   var ev=S.events.slice().sort(function(a,b){return (a.date+(a.time||'')).localeCompare(b.date+(b.time||''))});
   $('events').innerHTML=ev.length?ev.map(function(e){var past=e.date<today;

@@ -22,6 +22,13 @@ FLOWS TRACKER (built 26 Nov, desk v2.2)
 - When flows.py changes in the repo, update the ledger's method/flows_script code field too.
 - The Default cloud environment's allowlist holds the source hosts (cftc.gov, finra.org, ssga.com, ishares.com, proshares.com, plus direxion.com and invesco.com).
 
+CREDIT AND POLICY TRACKERS (built 26 Nov, idea 7; wired in as desk v2.4)
+- analyses/trackers/credit.py: ICE BofA spreads (HY, BB, CCC, IG, BBB), NFCI, St. Louis stress index, CP and T-bill from FRED; SOFR vs IORB, RRP and standing repo use from the NY Fed; deal flow (424B2/424B5/FWP/S-3ASR) and registration withdrawals (RW) from SEC EDGAR daily indexes. Gaps: CDS and "deals priced wide" have no free primary source. Runtime about 2 minutes (EDGAR is the slow part).
+- analyses/trackers/policy.py: every Texas 90R bill filed since prefiling opened 9 Nov (TLO "bills by filing date" report), captions tagged by market theme; Federal Register rules from FERC, EPA, Interior, Energy, NRC, Army Corps, SEC, CFTC, Treasury; Texas session dates from the Texas Constitution. Other states' January dates are a gap until NCSL publishes 2027. Pass --prev with the last readout or meta/policy so each run reads only new filing days.
+- Both are context only (method/notes rule 12). The close scorecard (step 3b) runs the single-file copies stored in Desk Ledger method/credit_script and method/policy_script and writes Desk Daily meta/credit, meta/policy, days/{date}.credit and days/{date}.policy; the Desk Daily page has Credit and funding and Policy and permitting sections. When credit.py, policy.py or common.py change, run `python analyses/trackers/bundle.py OUTDIR` and update both ledger docs' code fields.
+- Added later on 26 Nov (desk v2.6): credit.py v1.1 adds a credit vs stocks divergence alert (HY +40bp in 20 days while the S&P is within 2% of its 60-day high) with a FRED backtest (only 2 episodes since Nov 2023, so a watch item); analyses/trackers/auctions.py scores Treasury coupon auctions (bid-to-cover and dealer share vs the last six of the same term) from Treasury Fiscal Data, stored as ledger method/auctions_script and run in close step 3b (needs api.fiscaldata.treasury.gov on the allowlist); analyses/desk/miss_autopsy.py groups graded calls by possible cause with a permutation chance check, stored as ledger method/autopsy_script and run in Sunday step 2d, writing reports/miss_autopsy_<date>. First autopsy (26 Nov, 111 calls): Monday Guess calls (Brier 0.367, chance 0.008), VIX calls (0.338, 0.022) and days that moved more than the VIX priced (0.315, 0.001) are the weak spots.
+- Allowlist hosts added for these: fred.stlouisfed.org, markets.newyorkfed.org, www.sec.gov, www.federalregister.gov, capitol.texas.gov. FRED stalls on browser-like User-Agents; the trackers send a plain one. SEC_USER_AGENT env var overrides the SEC contact string.
+
 STATE AS OF 26 NOV 2026 (desk v2.1)
 - Track record: 110+ graded calls; desk Brier 0.256 overall (coin flip = 0.25). On 63 S&P calls: desk 0.229 vs plain VIX formula 0.236. Overconfident: its 70–85% calls came true 55%.
 - Regime: desk scores 0.175 in Chop but ~0.31 on trend days.
@@ -31,11 +38,18 @@ STATE AS OF 26 NOV 2026 (desk v2.1)
 - Five lessons in the ledger's lessons memory (gap fade, pull tails to 50%, wider ranges, don't default up in a falling tape, wider VIX bands).
 
 IDEAS NOT BUILT YET (pick from these)
-2. Real option chains: Cboe's free 15-minute-delayed chains (IV, open interest, bid/ask) read through the Claude app's browser on my Mac — needs my Mac attached; would replace model prices in the paper book and give real skew/gamma.
-6. Event engine: automatic preview + post-mortem for watchlist earnings and big data releases, implied vs actual move, scored in the ledger.
+2. [BUILT 26 Nov — see docs/OPTION_CHAINS.md: MarketData.app free chains drive the paper book] Real option chains: Cboe's free 15-minute-delayed chains (IV, open interest, bid/ask) read through the Claude app's browser on my Mac — needs my Mac attached; would replace model prices in the paper book and give real skew/gamma.
+6. [BUILT 26 Nov — see EVENT ENGINE below] Event engine.
 7. Trackers: credit and funding (deals pulled/wide, spreads, CDS) and policy/permitting (January state legislatures, Texas).
-8. Weekly learning card mapping that week's market to the CFA Level I curriculum.
+8. [BUILT 26 Nov — see analyses/cfa_card/] Weekly learning card mapping that week's market to the CFA Level I curriculum.
+
+EVENT ENGINE (built 26 Nov): scheduled task "Desk: event engine" 18:23 ET weekdays (fresh session each run). Rules in the ledger's method/events_engine doc (copy in analyses/desk/events_engine_method.json): previews and up to 5 scored calls for the next session's watchlist earnings and big data releases, post-mortems with implied vs actual move, engine vs a no-judgment baseline. Ledger page has an "Event engine" section. Data caveat found 26 Nov: Bigdata.com and Financial Datasets out of credits; FMP plan covers indexes and mega caps only (no earnings calendar, no MRVL); Alpha Vantage options are premium.
 
 HOUSE RULES: plain words, cite sources, flag unverified numbers, never invent data, "not investment advice" on every page, and don't republish the Desk Daily page from scheduled runs (they write data only).
 
 FIRST TASK: read the two pages and their data, tell me in 5 lines how the desk has done since 26 Nov (calls, forecasters, paper book), then ask which idea to build.
+
+SCORECARD, BASELINE, PRE-MORTEM, REVERSAL STUDY (built 26 Nov, desk v2.5)
+- Desk Scorecard https://claude.ai/artifact/M2T7uHbVzqydb38BcrRi8F: weekly desk vs VIX formula vs simulator vs "trend follows yesterday" (60/40 toward the last session's direction), plus paper book vs SPY. Built by analyses/scorecard/scorecard.py (copy in the ledger as method/scorecard_script); the Sunday self-review refreshes it (step 2c). First read: on up/down calls the desk 0.229, follow-yesterday 0.224, always-down 0.205 over 12 days; not significant.
+- Pre-mortem tag (method/notes rule 6): every call stores wrong_if and wrong_tag; misses get miss_cause and premortem_hit; the Sunday review counts them. Record only.
+- Streak and reversal study: analyses/studies/reversal.py and reversal_2026-11-26.md. One year of S&P days: faint follow tilt on ordinary days, bounce after 1%+ drops and 3 down days; every interval crosses 50%. Re-run on the longer FRED history when analyses/data/history/ lands.
