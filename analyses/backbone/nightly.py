@@ -1,8 +1,13 @@
 """One command for the whole next-level stack, in order:
-pull data -> lab studies -> analysts -> multi-asset calls (grade + new) -> playbooks
+pull data -> lab studies -> multi-asset calls (grade + new) -> playbooks
 -> research loop (Sundays, or --research) -> hub data file for the Eye View HQ page.
 
-    python analyses/backbone/nightly.py [--no-pull] [--research]
+    python analyses/backbone/nightly.py [--no-pull] [--research] [--with-analysts]
+
+The seven one-feature analysts were archived on 27 Nov 2026 (desk v2.9): over 1,951
+out-of-sample days none beat the plain up-rate (all Brier 0.2484-0.2486 vs 0.2484).
+Their code (analyses/lab/analysts.py) and last scores (analyses/output/lab/analysts.json)
+stay in the repo and the hub shows the archived scores. --with-analysts runs them again.
 
 Writes analyses/output/hub/hub_data.json (everything the HQ page shows).
 Not investment advice; analysis only.
@@ -21,6 +26,20 @@ from analyses.deskroom import packets  # noqa: E402
 HUB = ROOT / "analyses" / "output" / "hub" / "hub_data.json"
 
 
+ANALYSTS_JSON = ROOT / "analyses" / "output" / "lab" / "analysts.json"
+
+
+def archived_analysts():
+    """Last scores of the archived analyst panel, marked as archived (not re-run nightly)."""
+    try:
+        A = json.loads(ANALYSTS_JSON.read_text())
+    except (FileNotFoundError, ValueError):
+        A = {}
+    A["archived"] = {"on": "2026-11-27", "why": "None of the seven beat the plain up-rate over 1,951 out-of-sample days.",
+                     "how_to_restore": "python analyses/backbone/nightly.py --with-analysts"}
+    return A
+
+
 def build_hub(res):
     m = manifest()
     return {
@@ -36,13 +55,15 @@ def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--no-pull", action="store_true")
     ap.add_argument("--research", action="store_true", help="run the research loop even if it is not Sunday")
+    ap.add_argument("--with-analysts", action="store_true", help="re-run the archived analyst panel")
     a = ap.parse_args(argv)
     if not a.no_pull:
         ok, bad = pull.run()
         if not ok:
             print("no data pulled; stopping")
             return 1
-    res = {"lab": lab.run(), "analysts": analysts.run(), "multiasset": multiasset.run(), "playbook": playbook.run(), "ranges": ranges.run()}
+    res = {"lab": lab.run(), "multiasset": multiasset.run(), "playbook": playbook.run(), "ranges": ranges.run()}
+    res["analysts"] = analysts.run() if a.with_analysts else archived_analysts()
     latest = ROOT / "analyses" / "output" / "research" / "latest.json"
     if a.research or datetime.now(timezone.utc).weekday() == 6 or not latest.exists():
         res["research"] = research.run()

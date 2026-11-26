@@ -1,3 +1,4 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Desk Daily</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -122,16 +123,43 @@ footer b{color:var(--tx)}
 .kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border-block:1px solid var(--line);margin-bottom:12px}
 .kv div{background:var(--p1);padding:9px 10px 9px 0;font-size:13px;color:var(--dim)}
 .kv b{display:block;color:var(--tx);font-size:17px;font-weight:700;font-variant-numeric:tabular-nums}
+/* Front door: the 30-second read (v2.9) */
+.door{border:1px solid var(--line);border-radius:6px;padding:18px 20px;margin:0 0 22px;background:var(--p1)}
+.door-top{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin-bottom:12px}
+.door-top h2{font-size:clamp(20px,2.4vw,24px)}
+.light{display:inline-flex;align-items:center;gap:7px;font-size:14px;font-weight:600;padding:3px 11px;border-radius:20px}
+.light::before{content:"";width:9px;height:9px;border-radius:50%;background:currentColor}
+.light.green{color:var(--grn);background:var(--grnbg)}.light.amber{color:var(--amb);background:var(--ambbg)}.light.red{color:var(--red);background:var(--redbg)}.light.none{color:var(--d2);background:var(--p2)}
+.door-grid{display:grid;gap:14px 28px;grid-template-columns:minmax(0,1fr)}
+@media (min-width:820px){.door-grid{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr)}}
+.door h3{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--dim);margin:0 0 6px}
+.calls{list-style:none;margin:0;padding:0}
+.calls li{display:flex;gap:12px;align-items:baseline;padding:7px 0;border-bottom:1px solid var(--l2);font-size:15px}
+.calls li:last-child{border-bottom:none}
+.calls .p{flex:none;width:3.4em;font-weight:800;font-variant-numeric:tabular-nums;font-size:17px}
+.calls .ne{font-size:12px;font-weight:600;color:var(--d2);background:var(--p2);border-radius:10px;padding:0 7px;margin-left:6px;white-space:nowrap}
+.door .line{font-size:15px;margin:0 0 6px}
+.door details{font-size:14px;margin-top:8px}.door summary{cursor:pointer;color:var(--dim)}
+.door .drill{font-size:14px;color:var(--dim);margin-top:12px;padding-top:10px;border-top:1px solid var(--l2)}
+.door .drill a{display:inline-block;margin-right:12px;white-space:nowrap}
 </style>
 
 <header class="mast"><div class="gut">
-<div class="brand"><a class="mark" href="https://claude.ai/artifact/TcxbaSnEiAddmETVgBKL8q" target="_blank" rel="noopener"><svg viewBox="0 0 34 20" aria-hidden="true"><path d="M1.5 10C7 2.2 27 2.2 32.5 10C27 17.8 7 17.8 1.5 10Z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17" cy="10" r="5.4" fill="var(--lens)"/><circle cx="17" cy="10" r="2.2" fill="var(--band)"/></svg>Eye View</a><nav class="pages" aria-label="Desk pages"><a href="https://claude.ai/artifact/R7i5cJx8SC6fpW9oQm7ZcM" target="_blank" rel="noopener">HQ</a><a href="https://claude.ai/artifact/TcxbaSnEiAddmETVgBKL8q" target="_blank" rel="noopener" aria-current="page">Daily</a><a href="https://claude.ai/artifact/7jU3VUdjX9x22fNqXoYbCL" target="_blank" rel="noopener">Ledger</a><a href="https://claude.ai/artifact/M2T7uHbVzqydb38BcrRi8F" target="_blank" rel="noopener">Scorecard</a><a href="https://claude.ai/artifact/7L9ApUMePWy4aWrt4ZY5kW" target="_blank" rel="noopener">CFA card</a></nav></div>
+<div class="brand"><a class="mark" href="https://claude.ai/artifact/TcxbaSnEiAddmETVgBKL8q" target="_blank" rel="noopener"><svg viewBox="0 0 34 20" aria-hidden="true"><path d="M1.5 10C7 2.2 27 2.2 32.5 10C27 17.8 7 17.8 1.5 10Z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17" cy="10" r="5.4" fill="var(--lens)"/><circle cx="17" cy="10" r="2.2" fill="var(--band)"/></svg>Eye View</a><nav class="pages" aria-label="Desk pages"><a href="https://claude.ai/artifact/R7i5cJx8SC6fpW9oQm7ZcM" target="_blank" rel="noopener">HQ</a><a href="https://claude.ai/artifact/TcxbaSnEiAddmETVgBKL8q" target="_blank" rel="noopener" aria-current="page">Daily</a><a href="https://claude.ai/artifact/7jU3VUdjX9x22fNqXoYbCL" target="_blank" rel="noopener">Ledger</a><a href="https://claude.ai/artifact/M2T7uHbVzqydb38BcrRi8F" target="_blank" rel="noopener">Scorecard</a><a href="https://claude.ai/artifact/7L9ApUMePWy4aWrt4ZY5kW" target="_blank" rel="noopener">CFA card</a><a href="https://claude.ai/artifact/NL7yQRq1UYSwBeSemnB6Dm" target="_blank" rel="noopener">Desk Room</a></nav></div>
 <h1>Desk Daily</h1>
-<p class="stamp">What the desk thinks today, how its calls have scored, and the context around them. Written by scheduled runs before the open (about 8:47 ET), at midday if something breaks and after the close (about 4:47 ET). Every call is graded in the <a href="https://claude.ai/artifact/7jU3VUdjX9x22fNqXoYbCL" target="_blank" rel="noopener">Desk Ledger</a>.</p>
+<p class="stamp">Start here. The box below is the 30-second read: is the desk healthy, how did the last calls do, what it says for the next session. Everything under it is detail. The desk makes one set of calls a day, after the close (about 4:47 ET), graded on official FRED closes in the <a href="https://claude.ai/artifact/7jU3VUdjX9x22fNqXoYbCL" target="_blank" rel="noopener">Desk Ledger</a>.</p>
 <div class="status" id="status">Loading…</div>
 </div></header>
 <nav class="jump" aria-label="Sections"><div class="gut" id="jump"></div></nav>
 <main class="gut">
+<section class="door" id="door" aria-label="Today at a glance">
+<div class="door-top"><h2>Today at a glance</h2><span class="light none" id="light">Checking runs…</span></div>
+<div class="door-grid">
+<div><h3>Next session's calls</h3><div id="dcalls"><div class="empty">The close run posts the next session's calls here.</div></div></div>
+<div><h3>Last graded</h3><p class="line" id="dlast">–</p><h3 style="margin-top:12px">Context</h3><p class="line" id="dctx">–</p><div id="dhealth"></div></div>
+</div>
+<div class="drill">Go deeper: <a href="https://claude.ai/artifact/7jU3VUdjX9x22fNqXoYbCL" target="_blank" rel="noopener">every call (Ledger)</a><a href="https://claude.ai/artifact/M2T7uHbVzqydb38BcrRi8F" target="_blank" rel="noopener">weekly score (Scorecard)</a><a href="https://claude.ai/artifact/R7i5cJx8SC6fpW9oQm7ZcM" target="_blank" rel="noopener">history and lab (HQ)</a><a href="https://claude.ai/artifact/NL7yQRq1UYSwBeSemnB6Dm" target="_blank" rel="noopener">specialist debate (Desk Room)</a><a href="https://claude.ai/artifact/7L9ApUMePWy4aWrt4ZY5kW" target="_blank" rel="noopener">CFA card</a></div>
+</section>
 <div class="tiles strip" id="tiles"><div class="tile"><div class="k">S&amp;P 500</div><div class="v">–</div><div class="s">last close</div></div><div class="tile"><div class="k">VIX</div><div class="v">–</div><div class="s">last close</div></div><div class="tile"><div class="k">Desk vs formula</div><div class="v">–</div><div class="s">Brier, lower is better</div></div><div class="tile"><div class="k">Moves vs VIX promise</div><div class="v">–</div><div class="s">realized ÷ implied vol</div></div></div>
 <div class="lead">
 <div class="card now" id="now"><span class="phase">Waiting</span><div class="sum mut">The latest desk read appears here.</div></div>
@@ -187,7 +215,7 @@ footer b{color:var(--tx)}
 <div class="card"><div id="chart4"></div>
 <div class="legend"><span><i style="background:var(--vio)"></i>Paper book</span><span><i style="background:var(--d2)"></i>SPY bought and held</span></div>
 <div class="tw" style="margin-top:12px"><table id="booktab"></table></div>
-<p class="note">Paper only. Option prices are model estimates (Black-Scholes from the VIX with a skew adjustment and slippage), not market quotes. Rules: defined-risk SPY spreads, at most 2% of the book at risk per trade, one new trade a day, opened only when the desk's odds differ from the plain formula by 7 points or more. Not a recommendation to trade.</p></div>
+<p class="note">Paper only. Option prices come from real end-of-day SPY option chains (MarketData.app, one session late); a leg priced by model is labelled as such. Rules: defined-risk SPY spreads, at most 2% of the book at risk per trade, one new trade a day, opened only when the desk's odds differ from the plain formula by 7 points or more. Not a recommendation to trade.</p></div>
 </section>
 <section class="sec" id="days-sec" data-nav="Day by day">
 <header class="sec-h"><h2>Day by day</h2><p class="sec-n">Pick a session</p></header>
@@ -217,6 +245,22 @@ function renderNow(){
   if(L.changed&&L.changed.length)h+='<h3 style="font-size:14px;margin:14px 0 4px">What changed</h3>'+list(L.changed);
   (L.alerts||[]).forEach(function(a){h+='<div class="alert">'+esc(a)+'</div>'});
   $('now').innerHTML=h;
+}
+function renderDoor(){
+  var H=S.meta.health,lt=$('light');
+  if(H&&H.status){lt.className='light '+H.status;lt.textContent={green:'All runs healthy',amber:'Check runs',red:'Run missing'}[H.status]+' · '+(H.date||'');
+    $('dhealth').innerHTML=(H.issues&&H.issues.length)?'<details'+(H.status==='red'?' open':'')+'><summary>'+esc(H.summary||'')+'</summary><ul>'+H.issues.map(function(i){return '<li class="'+(i.level==='red'?'dn':'am')+'">'+esc(i.what)+'</li>'}).join('')+'</ul></details>':''}
+  else{lt.className='light none';lt.textContent='Health check starts with the next close run'}
+  var C=S.meta.calls,L=S.meta.latest||{};
+  if(C&&C.calls&&C.calls.length){$('dcalls').innerHTML='<ul class="calls">'+C.calls.map(function(c){var ne=c.edge===false||c.edge==='none';return '<li><span class="p">'+(c.prob==null?'–':Math.round(c.prob*100)+'%')+'</span><span>'+esc(c.claim)+(ne?'<span class="ne">no edge: base rate</span>':'')+(c.why&&!ne?'<span class="mut" style="display:block;font-size:13px">'+esc(c.why)+'</span>':'')+'</span></li>'}).join('')+'</ul><p class="note" style="margin-top:6px">Made '+esc(C.made||'')+' for '+esc(C.for||'')+'. "No edge" means the desk had no evidence beyond the plain formula, so it says so instead of guessing.</p>'}
+  else if(L.call){$('dcalls').innerHTML='<p class="line">'+esc(L.call)+'</p>'}
+  var g=null;for(var i=S.days.length-1;i>=0;i--){if(S.days[i].grades&&S.days[i].grades.n){g=S.days[i];break}}
+  $('dlast').innerHTML=g?'<b>'+g.grades.hits+' of '+g.grades.n+'</b> calls came true on '+esc(g.date)+(g.grades.brier!=null?' <span class="mut">(Brier '+g.grades.brier.toFixed(3)+'; 0.25 = coin flip)</span>':''):'No graded day yet.';
+  var cr=S.meta.credit||{},hy=(cr.spreads||{}).BAMLH0A0HYM2,fl=S.meta.flows||{},bits=[];
+  if(hy&&hy.last!=null)bits.push('High-yield spread '+hy.last.toFixed(2)+'% ('+bp(hy.chg_20)+' in 20 days)');
+  var nf=(fl.flags||[]).length+(cr.flags||[]).length;bits.push(nf?nf+' flow/credit flag'+(nf>1?'s':'')+' up (see below)':'no flow or credit flags');
+  if(L.phase)bits.push('latest read: '+L.phase+(L.at?' '+L.at:''));
+  $('dctx').textContent=bits.join(' · ');
 }
 function renderTiles(){
   var d=S.days[S.days.length-1],sb=S.meta.scoreboard||{},t=$('tiles').children;
@@ -376,7 +420,7 @@ function renderPolicy(){
   $('polfr').innerHTML=R.length?'<thead><tr><th>Federal Register</th><th>Type</th><th>Rule</th></tr></thead><tbody>'+R.map(function(r){return '<tr><td>'+esc(r.date)+'<div class="mut" style="font-size:13px">'+esc((r.agencies||[]).slice(0,1).join(''))+'</div></td><td class="mut" style="font-size:13px">'+esc(r.type)+(r.significant?' <span class="am">significant</span>':'')+'</td><td style="font-size:13px"><a href="'+esc(r.url)+'" target="_blank" rel="noopener">'+esc(r.title)+'</a></td></tr>'}).join('')+'</tbody>':'';
   $('polnote').innerHTML='A filed bill is not a law: most never pass. Bills are tagged by keywords in their official captions, so a tag means "worth a look", not "matters". The Texas session runs 140 days from its January start. Context only, never part of the desk\'s probabilities. Sources: Texas Legislature Online (bills by filing date), Federal Register API, Texas Constitution art. III. Missing: '+esc((P.gaps||[]).join('. '))+'. Updated '+esc(P.updated||'')+'.';
 }
-function renderAll(){renderNow();renderTiles();chart1();chart2();chart3();renderFc();renderReg();renderFlows();renderCredit();renderDiv();renderAuctions();renderPolicy();renderBook();renderDays()}
+function renderAll(){renderDoor();renderNow();renderTiles();chart1();chart2();chart3();renderFc();renderReg();renderFlows();renderCredit();renderDiv();renderAuctions();renderPolicy();renderBook();renderDays()}
 $('days').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;sel=b.dataset.d;renderDays()});
 renderAll();
 var timer=setTimeout(function(){$('status').textContent='The desk store did not answer. Reload to try again.'},10000),got={};
@@ -399,3 +443,5 @@ j.innerHTML=S.map(s=>'<a href="#'+s.id+'">'+s.dataset.nav.replace(/[&<>"]/g,'')+
 const as=[...j.querySelectorAll('a')];
 if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){as.forEach(a=>{const on=a.getAttribute('href')==='#'+e.target.id;a.classList.toggle('on',on);if(on&&j.scrollWidth>j.clientWidth){j.scrollLeft=a.offsetLeft-24}})}})},{rootMargin:'-15% 0px -75% 0px'});S.forEach(s=>io.observe(s))}}}
 </script>
+
+</body></html>
