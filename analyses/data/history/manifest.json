@@ -19,6 +19,46 @@
   "source": "FRED",
   "status": "ok"
  },
+ "CBOE_SPX": {
+  "fetched_at": "2026-11-26T23:34:24Z",
+  "first": "1975-01-02",
+  "group": "vol",
+  "last": "2026-11-25",
+  "name": "S&P 500 index close (Cboe file)",
+  "rows": 13085,
+  "source": "Cboe",
+  "status": "ok"
+ },
+ "CBOE_VIX": {
+  "fetched_at": "2026-11-26T23:34:23Z",
+  "first": "1990-01-02",
+  "group": "vol",
+  "last": "2026-11-25",
+  "name": "Cboe VIX close",
+  "rows": 9324,
+  "source": "Cboe",
+  "status": "ok"
+ },
+ "CBOE_VIX3M": {
+  "fetched_at": "2026-11-26T23:34:24Z",
+  "first": "2009-09-18",
+  "group": "vol",
+  "last": "2026-11-25",
+  "name": "Cboe 3-month VIX close",
+  "rows": 4324,
+  "source": "Cboe",
+  "status": "ok"
+ },
+ "CBOE_VIX9D": {
+  "fetched_at": "2026-11-26T23:34:23Z",
+  "first": "2011-01-04",
+  "group": "vol",
+  "last": "2026-11-25",
+  "name": "Cboe 9-day VIX close",
+  "rows": 3998,
+  "source": "Cboe",
+  "status": "ok"
+ },
  "DCOILBRENTEU": {
   "fetched_at": "2026-11-26T19:47:33Z",
   "first": "1987-05-20",
