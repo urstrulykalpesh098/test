@@ -1,0 +1,258 @@
+<title>Eye View Desk Room</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* VOICE work: a desk's evening meeting, read in thirty seconds by the person who runs it
+   IDEA the boardroom minute: the head's brief on top, then each seat's say, then the argument
+   PICTURE "how the room leans": every seat placed on one stress-to-calm scale, the head's call marked
+   COLOUR desk family theme: masthead #0b3b41, lens #7fd6cf, desk teal, claret = stress, green = calming, amber flags
+   TYPE Libre Franklin throughout (matches HQ, Daily, Ledger, CFA card)
+   LAYOUT laptop: brief left, lean chart right inside the masthead; seats in a 3x2 grid; phone stacks brief, chart, seats */
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#0d1416);--ink:light-dark(#14181b,#e8eff0);--mute:light-dark(#4d5a5e,#9fb3b5);--sky:light-dark(#0b3b41,#08262a);--skyink:#ffffff;--skymute:#b9d6d6;--lens:#7fd6cf;--rule:light-dark(#dbe3e4,#22343a);--panel:light-dark(#f3f7f7,#13201f);--org:light-dark(#9a5b00,#f0b429);--good:light-dark(#16794a,#4cc38a);--bad:light-dark(#b3123f,#ff6f8e);--blue:light-dark(#0d7680,#4fc3c9);--skybad:#ff8fa8;--skygood:#6fdca6}
+:root[data-theme=light]{color-scheme:light}
+:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 "Libre Franklin",system-ui,sans-serif;overflow-x:clip;margin:0}
+h1,h2,h3{letter-spacing:-.02em;line-height:1.08;margin:0}
+h1{font-size:clamp(30px,4.4vw,46px);font-weight:700;max-width:22ch}
+h2{font-size:clamp(24px,3vw,32px);font-weight:600;margin-bottom:6px}
+h3{font-size:18px;font-weight:600;line-height:1.25}
+p{margin:6px 0 0;max-width:68ch}
+.band{padding-block:clamp(28px,4vw,56px);padding-left:max(5vw,16px,env(safe-area-inset-left,0px));padding-right:max(5vw,16px,env(safe-area-inset-right,0px));border-top:1px solid var(--rule)}
+.in{max-width:1240px;margin:0 auto}
+.hero{background:var(--sky);color:var(--skyink);border:0;margin-top:calc(-1*env(safe-area-inset-top,0px));padding-top:calc(env(safe-area-inset-top,0px) + 2.5rem)}
+.nav{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:15px;margin-bottom:18px}
+.nav a,.nav b{color:var(--skyink);text-decoration:none;padding:6px 0;border-bottom:2px solid transparent}
+.nav b{border-color:var(--lens)}
+.nav a:hover{border-color:color-mix(in srgb,var(--lens) 60%,transparent)}
+.who{color:var(--lens);font-weight:600;font-size:15px;margin-bottom:8px}
+.top{display:grid;gap:28px;margin-top:4px}
+@media(min-width:900px){.top{grid-template-columns:minmax(0,6fr) minmax(0,5fr)}}
+.brief{list-style:none;padding:0;margin:18px 0 0;display:grid;gap:10px}
+.brief li{font-size:17px;line-height:1.45;padding-left:14px;border-left:2px solid color-mix(in srgb,var(--lens) 55%,transparent);max-width:64ch}
+.brief li b{color:var(--lens);font-weight:600}
+.meta{font-size:14px;color:var(--skymute);margin-top:16px}
+.lean{background:color-mix(in srgb,#ffffff 6%,transparent);border:1px solid color-mix(in srgb,#ffffff 16%,transparent);border-radius:12px;padding:16px 18px}
+.lean h3{color:var(--skyink)}
+.scale{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:12px 14px;align-items:center;margin-top:14px}
+.scale .nm{font-size:14px;white-space:nowrap}
+.track{position:relative;height:26px}
+.track::before{content:"";position:absolute;left:0;right:0;top:12px;height:2px;background:color-mix(in srgb,#ffffff 22%,transparent)}
+.track::after{content:"";position:absolute;left:50%;top:4px;width:1px;height:18px;background:color-mix(in srgb,#ffffff 35%,transparent)}
+.dot{position:absolute;top:5px;width:16px;height:16px;border-radius:50%;transform:translateX(-50%);border:2px solid var(--sky)}
+.head .nm{font-weight:700;color:var(--lens)}
+.head .dot{width:20px;height:20px;top:3px;border-color:var(--lens);background:var(--sky)!important;box-shadow:inset 0 0 0 4px var(--lens)}
+.ends{display:flex;justify-content:space-between;font-size:13px;color:var(--skymute);margin-top:6px;padding-left:calc(var(--nmw,90px) + 14px)}
+.seats{display:grid;gap:14px;margin-top:18px;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr))}
+.seat{border:1px solid var(--rule);border-radius:12px;padding:16px;background:var(--panel);display:flex;flex-direction:column;gap:8px}
+.seat .row{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
+.seat .t{font-weight:700;font-size:15px}
+.chip{display:inline-block;font:600 13px "Libre Franklin",sans-serif;padding:2px 10px;border-radius:99px;white-space:nowrap}
+.c-2,.c-1{background:color-mix(in srgb,var(--bad) 15%,transparent);color:var(--bad)}
+.c0{background:color-mix(in srgb,var(--org) 18%,transparent);color:var(--org)}
+.c1,.c2{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good)}
+.seat p{font-size:15px;margin:0}
+.nums{display:flex;flex-wrap:wrap;gap:6px}
+.nums span{font-size:13px;border:1px solid var(--rule);border-radius:6px;padding:3px 8px;background:var(--bg)}
+.nums b{font-weight:600}
+.seat .wm{font-size:14px;color:var(--mute);border-top:1px solid var(--rule);padding-top:8px;margin-top:auto}
+.seat .wm b{color:var(--ink);font-weight:600}
+.talk{display:grid;gap:10px;margin-top:16px;max-width:860px}
+.say{display:grid;grid-template-columns:minmax(0,11em) minmax(0,1fr);gap:4px 16px;padding:10px 0;border-bottom:1px solid var(--rule)}
+.say .from{font-weight:600;font-size:15px}
+.say .from span{display:block;font-weight:400;color:var(--mute);font-size:13px}
+.say p{margin:0;font-size:15px}
+@media(max-width:600px){.say{grid-template-columns:1fr}}
+.two{display:grid;gap:28px}
+@media(min-width:860px){.two{grid-template-columns:minmax(0,5fr) minmax(0,7fr)}}
+.panel{border:1px solid var(--rule);border-radius:12px;padding:16px;background:var(--panel)}
+.prog{list-style:none;padding:0;margin:12px 0 0;display:grid;gap:6px}
+.prog li{display:flex;gap:10px;align-items:center;font-size:15px}
+.prog i{width:12px;height:12px;border-radius:50%;border:2px solid var(--mute);flex:none}
+.prog .run i{border-color:var(--org);background:var(--org);animation:pulse 1s infinite alternate}
+.prog .ok i{border-color:var(--good);background:var(--good)}
+.prog .bad i{border-color:var(--bad);background:var(--bad)}
+.prog span{color:var(--mute);font-size:13px}
+@keyframes pulse{to{opacity:.35}}
+@media(prefers-reduced-motion:reduce){.prog .run i{animation:none}}
+.ctl{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px}
+button{font:600 15px "Libre Franklin",sans-serif;border-radius:8px;border:1px solid var(--ink);background:var(--ink);color:var(--bg);padding:10px 16px;min-height:44px;cursor:pointer}
+button.ghost{background:transparent;color:var(--ink)}
+button:disabled{opacity:.5;cursor:default}
+button:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--org);outline-offset:2px}
+select{font:15px "Libre Franklin",sans-serif;padding:9px 10px;border-radius:8px;border:1px solid var(--mute);background:var(--bg);color:var(--ink);min-height:44px;max-width:100%}
+.ask{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.ask textarea{flex:1 1 280px;font:16px "Libre Franklin",sans-serif;padding:10px 12px;border-radius:8px;border:1px solid var(--mute);background:var(--bg);color:var(--ink);min-height:48px;resize:vertical}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.chips button{font-weight:500;font-size:14px;background:transparent;color:var(--ink);border-color:var(--rule)}
+.ans{white-space:pre-wrap;font-size:15px;margin-top:12px;padding:12px 14px;border:1px solid var(--rule);border-radius:10px;background:var(--bg)}
+.note{font-size:14px;color:var(--mute);margin-top:10px}
+.err{color:var(--bad)}
+footer{font-size:14px;color:var(--mute)}
+</style>
+
+<section class="band hero">
+ <div class="in">
+  <nav class="nav"><a href="https://claude.ai/artifact/R7i5cJx8SC6fpW9oQm7ZcM">HQ</a><b>Desk Room</b><a href="https://claude.ai/artifact/TcxbaSnEiAddmETVgBKL8q">Daily</a><a href="https://claude.ai/artifact/7jU3VUdjX9x22fNqXoYbCL">Ledger</a><a href="https://claude.ai/artifact/M2T7uHbVzqydb38BcrRi8F">Scorecard</a><a href="https://claude.ai/artifact/7L9ApUMePWy4aWrt4ZY5kW">CFA card</a></nav>
+  <div class="top">
+   <div>
+    <div class="who">Head of desk's brief</div>
+    <h1 id="headline">Loading tonight's meeting...</h1>
+    <ul class="brief" id="brief"></ul>
+    <div class="meta" id="meta"></div>
+   </div>
+   <div class="lean">
+    <h3>How the room leans</h3>
+    <div class="scale" id="scale"></div>
+    <div class="ends" id="ends"><span>Stress building</span><span>Mixed</span><span>Calming</span></div>
+   </div>
+  </div>
+ </div>
+</section>
+
+<section class="band">
+ <div class="in">
+  <h2>What each seat said</h2>
+  <p class="note" style="margin-top:0">Six specialists, each a separate Claude that sees only its own slice of the desk's data. The Head reads their posts, never the raw data.</p>
+  <div class="seats" id="seats"></div>
+ </div>
+</section>
+
+<section class="band">
+ <div class="in">
+  <h2>Where they argued</h2>
+  <p class="note" style="margin-top:0">After the first round each seat reads the others and pushes back on one.</p>
+  <div class="talk" id="talk"></div>
+ </div>
+</section>
+
+<section class="band">
+ <div class="in two">
+  <div>
+   <h2>Run a fresh meeting</h2>
+   <p>Starts six specialist calls on tonight's data, then a round of cross-talk, then the Head's brief. It takes a minute or two and is saved here for next time.</p>
+   <div class="ctl"><button id="runB" type="button">Run a fresh meeting</button><select id="pick" aria-label="Past meetings"></select></div>
+   <p class="note" id="runNote"></p>
+  </div>
+  <div class="panel">
+   <h3>Meeting progress</h3>
+   <ul class="prog" id="prog"></ul>
+  </div>
+ </div>
+</section>
+
+<section class="band">
+ <div class="in">
+  <h2>Ask the Head of desk</h2>
+  <p>Follow-up questions about this meeting. The Head answers from the posts and the seats' data packets.</p>
+  <form class="ask" id="askF"><textarea id="askQ" rows="2" placeholder="Why does Red team disagree with History?"></textarea><button id="askB" type="submit">Ask</button></form>
+  <div class="chips" id="chips"></div>
+  <div class="ans" id="ans" hidden></div>
+  <p class="note" id="askNote"></p>
+ </div>
+</section>
+
+<section class="band"><footer class="in" id="foot">Analysis only. Not investment advice. Data from FRED via the Eye View nightly backbone.</footer></section>
+
+<script>
+{
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const SEATS=[['vol','Volatility'],['rates','Rates'],['credit','Credit & funding'],['cross','Cross-asset'],['history','History'],['skeptic','Red team']];
+const NAME=Object.fromEntries(SEATS);NAME.room='Everyone';NAME.ceo='Head of desk';
+const LEAN={'-2':'Stress building','-1':'Leaning stormy','0':'Mixed','1':'Leaning calm','2':'Calming'};
+let P=null,M=null,meetings=[],seed=null,db=null,sample=null,busy=false;
+const clampLean=x=>Math.max(-2,Math.min(2,Math.round(Number(x)||0)));
+const leanCol=l=>l<0?'var(--skybad)':l>0?'var(--skygood)':'var(--org)';
+const fmtDate=s=>{try{return new Date(s).toLocaleString('en-CA',{dateStyle:'medium',timeStyle:'short'})}catch(e){return s}};
+const withTimeout=(p,ms)=>Promise.race([p,new Promise(r=>setTimeout(()=>r(null),ms))]);
+
+function headLean(m){const ls=m.posts.map(p=>clampLean(p.lean));return ls.reduce((a,b)=>a+b,0)/ls.length;}
+function render(m){
+ M=m;
+ $('headline').textContent=m.ceo?.headline||'No brief yet';
+ $('brief').innerHTML=(m.ceo?.lines||[]).map(l=>{const k=l.indexOf(':');return k>0&&k<28?`<li><b>${esc(l.slice(0,k+1))}</b>${esc(l.slice(k+1))}</li>`:`<li>${esc(l)}</li>`}).join('');
+ $('meta').textContent=`Meeting ${fmtDate(m.created_at)} · data as of ${m.asof||'n/a'} · confidence ${m.ceo?.confidence||'n/a'}${m.mode==='seeded'?' · first meeting, written from the packets by the desk Claude':' · live: one Claude per seat'}`;
+ const rows=m.posts.map(p=>({nm:NAME[p.seat]||p.seat,l:clampLean(p.lean),head:false}));
+ rows.push({nm:'Head (average)',l:headLean(m),head:true});
+ $('scale').innerHTML=rows.map(r=>`<div class="nm${r.head?' head':''}">${esc(r.nm)}</div><div class="track${r.head?' head':''}"><span class="dot" style="left:${(r.l+2)/4*100}%;background:${leanCol(r.l)}" title="${esc(LEAN[String(Math.round(r.l))])}"></span></div>`).join('');
+ const nm=$('scale').querySelector('.nm');if(nm){const w=Math.max(...[...$('scale').querySelectorAll('.nm')].map(e=>e.offsetWidth));$('ends').style.setProperty('--nmw',w+'px');}
+ $('seats').innerHTML=m.posts.map(p=>{const l=clampLean(p.lean);return `<article class="seat"><div class="row"><span class="t">${esc(NAME[p.seat]||p.seat)}</span><span class="chip c${l}">${esc(LEAN[String(l)])}</span></div><h3>${esc(p.headline)}</h3><p>${esc(p.body)}</p><div class="nums">${(p.numbers||[]).slice(0,3).map(n=>`<span>${esc(n.label)}: <b>${esc(n.value)}</b></span>`).join('')}</div><div class="wm"><b>Watching:</b> ${esc(p.watch)}<br><b>Would change my mind:</b> ${esc(p.change_mind)} <span class="chip c0" style="margin-left:4px">${esc(p.confidence||'')} confidence</span></div></article>`}).join('');
+ $('talk').innerHTML=(m.debate||[]).map(d=>`<div class="say"><div class="from">${esc(NAME[d.seat]||d.seat)}<span>to ${esc(NAME[d.to]||d.to||'everyone')}</span></div><p>${esc(d.text)}</p></div>`).join('')||'<p class="note">No cross-talk in this meeting.</p>';
+ progIdle();
+}
+function fillPick(){
+ const list=meetings.length?meetings:(seed?[seed]:[]);
+ $('pick').innerHTML=list.map((m,i)=>`<option value="${i}">${esc(fmtDate(m.created_at))}${m.mode==='seeded'?' (first)':''}</option>`).join('');
+ $('pick').hidden=list.length<2;
+}
+$('pick').addEventListener('change',e=>{const list=meetings.length?meetings:[seed];const m=list[Number(e.target.value)];if(m)render(m);});
+function progIdle(){if(busy)return;$('prog').innerHTML=[...SEATS.map(([k,n])=>n),'Cross-talk','Head of desk brief'].map(n=>`<li><i></i>${esc(n)}</li>`).join('');}
+function prog(steps){$('prog').innerHTML=steps.map(s=>`<li class="${s.st||''}"><i></i>${esc(s.n)} <span>${esc(s.msg||'')}</span></li>`).join('');}
+
+// ---------- load ----------
+(async()=>{
+ try{seed=await (await fetch('seed.json')).json();}catch(e){seed=null}
+ try{P=await (await fetch('packets.json')).json();}catch(e){P=null}
+ if(seed)render(seed);fillPick();
+ db=await withTimeout(window.claude?.use?.('db'),8000);
+ if(db){
+  try{const s=await withTimeout(db.doc('packets/latest').get(),6000);if(s&&s.exists){const x=s.data();const np=JSON.parse(x.json);if(np&&np.seats)P=np;}}catch(e){}
+  db.collection('meetings').orderBy('created_at','desc').limit(10).onSnapshot(snap=>{
+   meetings=snap.docs.map(d=>d.data()).filter(m=>m&&Array.isArray(m.posts)&&m.ceo);
+   fillPick();if(meetings.length&&!busy)render(meetings[0]);
+  },()=>{});
+ }
+ $('foot').textContent=`Analysis only. Not investment advice. Packets built ${P?fmtDate(P.built_at):'n/a'} from FRED data as of ${P?.asof||'n/a'} via the Eye View nightly backbone.`;
+ sample=await withTimeout(window.claude?.use?.('sample'),8000);
+ if(!sample){$('runB').disabled=true;$('askB').disabled=true;$('runNote').textContent='Running a meeting needs Claude, which isn\'t available in this view.';$('askNote').textContent='Asking isn\'t available in this view.';}
+ else if(!db){$('runNote').textContent='You can run a meeting, but it won\'t be saved in this view.';}
+})();
+
+// ---------- live meeting ----------
+const RULES='Rules: plain English that a smart non-expert follows; every number must come from the data you were given (round sensibly); call interpretation "my reading"; this desk does analysis only, so never give advice, targets or buy/sell language.';
+function seatPrompt(s){return `You are the ${s.title} at Eye View Market, a small market research desk run by Rk in Toronto. Your beat: ${s.beat}\nBelow is your briefing packet, the only data you may use. Changes: chg_1/chg_5/chg_20 are the change over 1/5/20 observations; pctile_1y is where the latest value sits in its past-year range (100 = highest).\nData as of ${P.asof}.\n\nPACKET:\n${JSON.stringify(s).slice(0,14000)}\n\nWrite your post for tonight's desk meeting. ${RULES}\nReturn JSON only, no prose around it: {"headline": one sentence under 16 words, "body": 3 or 4 sentences under 90 words, "lean": integer from -2 to 2 (-2 stress clearly building, 0 mixed, 2 clearly calming), "confidence": "low"|"medium"|"high", "numbers": up to 3 objects {"label","value"}, "watch": one short sentence, "change_mind": one short sentence}`;}
+function talkPrompt(s,posts){const others=posts.filter(p=>p.seat!==s.key).map(p=>`[${p.seat}] ${NAME[p.seat]}: ${p.headline} ${p.body}`).join('\n');const mine=posts.find(p=>p.seat===s.key);
+ return `You are the ${s.title} at the Eye View Market desk meeting. Your own post was: "${mine?mine.headline+' '+mine.body:''}"\nThe other seats said:\n${others}\n\nPick the one post you most disagree with or want to sharpen (or speak to the whole room) and reply in under 45 words. Be specific and civil. ${RULES}\nReturn JSON only: {"to": one of ${JSON.stringify(posts.map(p=>p.seat).filter(k=>k!==s.key).concat('room'))}, "text": your reply}`;}
+function ceoPrompt(posts,debate){return `You are the Head of desk at Eye View Market. You read only your specialists' posts and their cross-talk below, not the raw data. Rk, who runs the desk, finds long data reports tiring: give him a brief he can read in 30 seconds.\n\nPOSTS:\n${posts.map(p=>`[${NAME[p.seat]}] lean ${p.lean}, ${p.confidence} confidence. ${p.headline} ${p.body} Watching: ${p.watch}`).join('\n')}\n\nCROSS-TALK:\n${debate.map(d=>`${NAME[d.seat]} to ${NAME[d.to]||d.to}: ${d.text}`).join('\n')}\n\n${RULES} Say where the room disagreed and whose side you take, and why.\nReturn JSON only: {"headline": the finding in under 16 words, "lines": exactly 5 strings starting "Bottom line:", "Why:", "Where the room split:", "One thing to watch:", "Housekeeping:" (a data caveat or range), each under 40 words, "confidence": "low"|"medium"|"high", "watch": under 8 words, "stance": under 5 words}`;}
+async function pool(items,n,fn){const out=new Array(items.length);let i=0;await Promise.all(Array.from({length:Math.min(n,items.length)},async()=>{while(i<items.length){const k=i++;out[k]=await fn(items[k],k);}}));return out;}
+const errMsg=e=>e?.code==='not_granted'?'Claude was not allowed for this page.':e?.code==='rate_limited'?'Usage limit reached. Try again later.':'Something went wrong.';
+
+$('runB').addEventListener('click',async()=>{
+ if(busy||!sample||!P)return;busy=true;$('runB').disabled=true;$('runNote').textContent='Meeting in progress...';
+ const seats=P.seats;const st=[...seats.map(s=>({n:NAME[s.key]||s.title,st:''})),{n:'Cross-talk',st:''},{n:'Head of desk brief',st:''}];prog(st);
+ try{
+  const posts=(await pool(seats,3,async(s,k)=>{st[k].st='run';st[k].msg='reading its packet';prog(st);
+   try{const r=await sample.json(seatPrompt(s),{cache:false});const p={seat:s.key,headline:String(r.headline||''),body:String(r.body||''),lean:clampLean(r.lean),confidence:String(r.confidence||'medium'),numbers:(Array.isArray(r.numbers)?r.numbers:[]).slice(0,3).map(n=>({label:String(n.label||''),value:String(n.value??'')})),watch:String(r.watch||''),change_mind:String(r.change_mind||'')};st[k].st='ok';st[k].msg=LEAN[String(p.lean)];prog(st);return p;}
+   catch(e){st[k].st='bad';st[k].msg=errMsg(e);prog(st);if(e?.code==='not_granted'||e?.code==='rate_limited')throw e;return null;}
+  })).filter(Boolean);
+  if(posts.length<3)throw {code:'too_few'};
+  const ti=seats.length;st[ti].st='run';st[ti].msg='each seat replies to one';prog(st);
+  const debate=(await pool(seats.filter(s=>posts.some(p=>p.seat===s.key)),3,async s=>{try{const r=await sample.json(talkPrompt(s,posts),{modelTier:'quick',cache:false});return {seat:s.key,to:String(r.to||'room'),text:String(r.text||'')};}catch(e){return null}})).filter(d=>d&&d.text);
+  st[ti].st='ok';st[ti].msg=debate.length+' replies';st[ti+1].st='run';st[ti+1].msg='reading the posts';prog(st);
+  const c=await sample.json(ceoPrompt(posts,debate),{cache:false});
+  const ceo={headline:String(c.headline||''),lines:(Array.isArray(c.lines)?c.lines:[]).slice(0,5).map(String),confidence:String(c.confidence||'medium'),watch:String(c.watch||''),stance:String(c.stance||'')};
+  st[ti+1].st='ok';st[ti+1].msg='done';prog(st);
+  const now=new Date().toISOString();const m={id:now.replace(/[:.]/g,'-'),created_at:now,asof:P.asof,mode:'live',posts,debate,ceo,disclaimer:'Analysis only. Not investment advice.'};
+  busy=false;render(m);prog(st);
+  if(db){try{await db.doc('meetings/'+m.id).set(m);$('runNote').textContent='Saved. Everyone who opens this page now sees this meeting.';}catch(e){$('runNote').textContent='Meeting finished but could not be saved ('+(e?.code||'error')+').';}}
+  else $('runNote').textContent='Meeting finished (not saved in this view).';
+ }catch(e){$('runNote').textContent=e?.code==='too_few'?'Too few seats answered to hold the meeting. Try again in a minute.':errMsg(e);$('runNote').classList.add('err');}
+ busy=false;$('runB').disabled=false;
+});
+
+// ---------- ask the head ----------
+const chips=['Why does Red team disagree with History?','What would make this storm end?','Explain the inverted VIX curve like I\'m new.','Which seat has the weakest evidence?'];
+$('chips').innerHTML=chips.map((c,i)=>`<button type="button" data-i="${i}">${esc(c)}</button>`).join('');
+$('chips').addEventListener('click',e=>{const b=e.target.closest('button');if(b){$('askQ').value=chips[b.dataset.i];ask();}});
+$('askF').addEventListener('submit',e=>{e.preventDefault();ask();});
+async function ask(){
+ const q=$('askQ').value.trim();if(!q||!sample||!M)return;$('askB').disabled=true;const a=$('ans');a.hidden=false;a.classList.remove('err');a.textContent='Thinking...';
+ const prompt=`You are the Head of desk at Eye View Market answering Rk's follow-up question about tonight's meeting. Use only the meeting and the seats' data packets below. Answer in plain English under 150 words, separate facts from your reading, and end with "Not investment advice." This desk does analysis only.\n\nMEETING:\n${JSON.stringify({posts:M.posts,debate:M.debate,ceo:M.ceo})}\n\nPACKETS (data as of ${P?.asof}):\n${JSON.stringify(P?.seats||[]).slice(0,30000)}\n\nQuestion: ${q}`;
+ try{const r=await sample(prompt,{cache:false,onText:({text})=>{a.textContent=text||'Thinking...'}});a.textContent=r.text;}
+ catch(e){a.textContent=errMsg(e);a.classList.add('err');}
+ $('askB').disabled=false;
+}
+}
+</script>

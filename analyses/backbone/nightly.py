@@ -16,6 +16,7 @@ sys.path.insert(0, str(ROOT))
 from analyses.backbone import pull  # noqa: E402
 from analyses.backbone.history import manifest  # noqa: E402
 from analyses.lab import lab, analysts, multiasset, playbook, research, ranges  # noqa: E402
+from analyses.deskroom import packets  # noqa: E402
 
 HUB = ROOT / "analyses" / "output" / "hub" / "hub_data.json"
 
@@ -50,6 +51,7 @@ def main(argv=None):
     HUB.parent.mkdir(parents=True, exist_ok=True)
     HUB.write_text(json.dumps(build_hub(res), separators=(",", ":")) + "\n")
     print("hub data:", HUB, HUB.stat().st_size, "bytes")
+    print("desk room packets:", packets.run())
     return 0
 
 
