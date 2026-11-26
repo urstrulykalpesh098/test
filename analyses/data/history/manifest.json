@@ -1,0 +1,282 @@
+{
+ "BAMLC0A0CM": {
+  "fetched_at": "2026-11-26T11:11:59Z",
+  "first": "2023-11-27",
+  "group": "credit",
+  "last": "2026-11-24",
+  "name": "US investment-grade OAS",
+  "rows": 784,
+  "source": "FRED",
+  "status": "ok"
+ },
+ "BAMLH0A0HYM2": {
+  "fetched_at": "2026-11-26T11:11:59Z",
+  "first": "2023-11-27",
+  "group": "credit",
+  "last": "2026-11-24",
+  "name": "US high-yield OAS",
+  "rows": 785,
+  "source": "FRED",
+  "status": "ok"
+ },
+ "DCOILBRENTEU": {
+  "fetched_at": "2026-11-26T11:11:59Z",
+  "first": "1987-05-20",
+  "group": "commodity",
+  "last": "2026-11-24",
+  "name": "Brent crude oil spot",
+  "rows": 9137,
+  "source": "FRED",
+  "status": "ok"
+ },
+ "DCOILWTICO": {
+  "fetched_at": "2026-11-26T11:11:59Z",
+  "first": "1986-01-02",
+  "group": "commodity",
+  "last": "2026-11-24",
+  "name": "WTI crude oil spot",
+  "rows": 9552,
+  "source": "FRED",
+  "status": "ok"
+ },
+ "DEXCAUS": {
+  "fetched_at": "2026-11-26T11:11:59Z",
+  "first": "1971-01-04",
+  "group": "fx",
+  "last": "2026-11-20",
+  "name": "CAD per USD",
+  "rows": 14020,
+  "source": "FRED",
+  "status": "ok"
+ },
+ "DEXJPUS": {
+  "fetched_at": "2026-11-26T11:11:59Z",
+  "first": "1971-01-04",
+  "group": "fx",
+  "last": "2026-11-20",
+  "name": "JPY per USD",
+  "rows": 14008,
+  "source": "FRED",
+  "status": "ok"
+ },
+ "DEXUSEU": {
+  "fetched_at": "2026-11-26T11:11:59Z",
+  "first": "1999-01-04",
+  "group": "fx",
+  "last": "2026-11-20",
+  "name": "USD per EUR",
+  "rows": 6993,
+  "source": "FRED",
+  "status": "ok"
+ },
+ "DFEDTARU": {
+  "fetched_at": "2026-11-26T11:12:44Z",
+  "first": "2008-12-16",
+  "group": "funding",
+  "last": "2026-11-25",
+  "name": "Fed funds target, upper bound (changes mark rate decisions)",
+  "rows": 6554,
+  "source": "FRED",
+  "status": "ok"
+ },
+ "DFF": {
+  "fetched_at": "2026-11-26T11:11:59Z",
+  "first": "1954-07-01",
+  "group": "funding",
+  "last": "2026-11-24",
+  "name": "Effective fed funds rate",
+  "rows": 26445,
+  "source": "FRED",
+  "status": "ok"
+ },
+ "DFII10": {
+  "fetched_at": "2026-11-26T11:11:59Z",
+  "first": "2003-01-02",
+  "group": "rates",
+  "last": "2026-11-24",
+  "name": "10-year real yield (TIPS)",
+  "rows": 5978,
+  "source": "FRED",
+  "status": "ok"
+ },
+ "DGS10": {
+  "fetched_at": "2026-11-26T11:11:59Z",
+  "first": "1962-01-02",
+  "group": "rates",
+  "last": "2026-11-24",
+  "name": "10-year Treasury yield",
+  "rows": 16209,
+  "source": "FRED",
+  "status": "ok"
+ },
+ "DGS2": {
+  "fetched_at": "2026-11-26T11:11:59Z",
+  "first": "1976-06-01",
+  "group": "rates",
+  "last": "2026-11-24",
+  "name": "2-year Treasury yield",
+  "rows": 12617,
+  "source": "FRED",
+  "status": "ok"
+ },
+ "DGS30": {
+  "fetched_at": "2026-11-26T11:11:59Z",
+  "first": "1977-02-15",
+  "group": "rates",
+  "last": "2026-11-24",
+  "name": "30-year Treasury yield",
+  "rows": 12439,
+  "source": "FRED",
+  "status": "ok"
+ },
+ "DGS3MO": {
+  "fetched_at": "2026-11-26T11:11:59Z",
+  "first": "1981-09-01",
+  "group": "rates",
+  "last": "2026-11-24",
+  "name": "3-month Treasury yield",
+  "rows": 11307,
+  "source": "FRED",
+  "status": "ok"
+ },
+ "DHHNGSP": {
+  "fetched_at": "2026-11-26T11:11:59Z",
+  "first": "1997-01-07",
+  "group": "commodity",
+  "last": "2026-11-24",
+  "name": "Henry Hub natural gas spot",
+  "rows": 5737,
+  "source": "FRED",
+  "status": "ok"
+ },
+ "DJIA": {
+  "fetched_at": "2026-11-26T11:11:59Z",
+  "first": "2016-11-28",
+  "group": "equity",
+  "last": "2026-11-25",
+  "name": "Dow Jones Industrial Average close",
+  "rows": 2513,
+  "source": "FRED",
+  "status": "ok"
+ },
+ "DTWEXBGS": {
+  "fetched_at": "2026-11-26T11:11:59Z",
+  "first": "2006-01-02",
+  "group": "fx",
+  "last": "2026-11-20",
+  "name": "Broad trade-weighted US dollar",
+  "rows": 5236,
+  "source": "FRED",
+  "status": "ok"
+ },
+ "NASDAQCOM": {
+  "fetched_at": "2026-11-26T11:11:59Z",
+  "first": "1971-02-05",
+  "group": "equity",
+  "last": "2026-11-25",
+  "name": "Nasdaq Composite close",
+  "rows": 14071,
+  "source": "FRED",
+  "status": "ok"
+ },
+ "NFCI": {
+  "fetched_at": "2026-11-26T11:11:59Z",
+  "first": "1971-01-08",
+  "group": "credit",
+  "last": "2026-11-20",
+  "name": "Chicago Fed financial conditions (weekly)",
+  "rows": 2916,
+  "source": "FRED",
+  "status": "ok"
+ },
+ "RRPONTSYD": {
+  "fetched_at": "2026-11-26T11:11:59Z",
+  "first": "2003-02-07",
+  "group": "funding",
+  "last": "2026-11-25",
+  "name": "Fed overnight reverse repo usage ($bn)",
+  "rows": 3375,
+  "source": "FRED",
+  "status": "ok"
+ },
+ "SOFR": {
+  "fetched_at": "2026-11-26T11:11:59Z",
+  "first": "2018-04-03",
+  "group": "funding",
+  "last": "2026-11-24",
+  "name": "SOFR overnight rate",
+  "rows": 2159,
+  "source": "FRED",
+  "status": "ok"
+ },
+ "SP500": {
+  "fetched_at": "2026-11-26T11:11:59Z",
+  "first": "2016-11-28",
+  "group": "equity",
+  "last": "2026-11-24",
+  "name": "S&P 500 index close",
+  "rows": 2512,
+  "source": "FRED",
+  "status": "ok"
+ },
+ "STLFSI4": {
+  "fetched_at": "2026-11-26T11:11:59Z",
+  "first": "1993-12-31",
+  "group": "credit",
+  "last": "2026-11-20",
+  "name": "St. Louis Fed financial stress (weekly)",
+  "rows": 1717,
+  "source": "FRED",
+  "status": "ok"
+ },
+ "T10Y2Y": {
+  "fetched_at": "2026-11-26T11:11:59Z",
+  "first": "1976-06-01",
+  "group": "rates",
+  "last": "2026-11-25",
+  "name": "10y minus 2y spread",
+  "rows": 12618,
+  "source": "FRED",
+  "status": "ok"
+ },
+ "T10YIE": {
+  "fetched_at": "2026-11-26T11:11:59Z",
+  "first": "2003-01-02",
+  "group": "rates",
+  "last": "2026-11-25",
+  "name": "10-year breakeven inflation",
+  "rows": 5979,
+  "source": "FRED",
+  "status": "ok"
+ },
+ "VIXCLS": {
+  "fetched_at": "2026-11-26T11:11:59Z",
+  "first": "1990-01-02",
+  "group": "vol",
+  "last": "2026-11-24",
+  "name": "VIX close (30-day implied vol)",
+  "rows": 9324,
+  "source": "FRED",
+  "status": "ok"
+ },
+ "VXVCLS": {
+  "fetched_at": "2026-11-26T11:11:59Z",
+  "first": "2007-12-04",
+  "group": "vol",
+  "last": "2026-11-24",
+  "name": "VIX 3-month close",
+  "rows": 4774,
+  "source": "FRED",
+  "status": "ok"
+ },
+ "WALCL": {
+  "fetched_at": "2026-11-26T11:11:59Z",
+  "first": "2002-12-18",
+  "group": "funding",
+  "last": "2026-11-18",
+  "name": "Fed balance sheet total assets ($mn, weekly)",
+  "rows": 1249,
+  "source": "FRED",
+  "status": "ok"
+ }
+}
