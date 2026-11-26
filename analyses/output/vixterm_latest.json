@@ -1,0 +1,27 @@
+{
+ "date": "2026-11-25",
+ "vix9d": 29.61,
+ "vix": 28.29,
+ "vix3m": 26.29,
+ "ratio_vix_vix3m": 1.076,
+ "ratio_vix9d_vix": 1.047,
+ "state": "backwardation",
+ "tone": "stress",
+ "shape": "inverted",
+ "sessions_in_state": 7,
+ "pctile_ratio_since_2011": 98,
+ "pctile_front_since_2011": 87,
+ "ratio_5d_change": 0.065,
+ "last_backwardation_date": "2026-11-25",
+ "backwardation_share_since_2011": 0.077,
+ "next_week_vol": {
+  "with_curve": 24.9,
+  "without_curve": 23.8,
+  "vix": 28.29,
+  "realized_20d": 31.5,
+  "note": "median-type estimate (log model); actual weeks scatter widely around it"
+ },
+ "finding": "Backtest 2011-2026 (fit 2011-18, scored 2019 on): adding the curve to VIX level and recent realized vol improved next-5-day realized vol forecasts (R2 0.44 to 0.52, 95% interval clear of zero). Next-day move size: small gain, not significant. Rule 5 ranges already widen in backwardation and missed 20% there (on target); flat-curve and hot-front days missed about 28%. Context only.",
+ "use": "context only; never moves a probability",
+ "source": "Cboe daily index history (cdn.cboe.com), VIX9D/VIX/VIX3M closes"
+}
