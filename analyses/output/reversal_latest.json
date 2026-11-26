@@ -1,0 +1,96 @@
+{
+ "from": "2025-11-03",
+ "to": "2026-11-25",
+ "sessions": 267,
+ "base_up_rate": 0.511,
+ "rows": [
+  {
+   "condition": "Any day",
+   "n": 266,
+   "next_up": 136,
+   "next_up_rate": 0.511,
+   "ci_lo": 0.451,
+   "ci_hi": 0.571,
+   "followed": 144,
+   "avg_next_move_pct": 0.027,
+   "small_sample": false
+  },
+  {
+   "condition": "After an up day",
+   "n": 136,
+   "next_up": 75,
+   "next_up_rate": 0.551,
+   "ci_lo": 0.468,
+   "ci_hi": 0.633,
+   "followed": 75,
+   "avg_next_move_pct": 0.062,
+   "small_sample": false
+  },
+  {
+   "condition": "After a down day",
+   "n": 130,
+   "next_up": 61,
+   "next_up_rate": 0.469,
+   "ci_lo": 0.386,
+   "ci_hi": 0.555,
+   "followed": 69,
+   "avg_next_move_pct": -0.01,
+   "small_sample": false
+  },
+  {
+   "condition": "After a drop of 1% or more",
+   "n": 33,
+   "next_up": 19,
+   "next_up_rate": 0.576,
+   "ci_lo": 0.408,
+   "ci_hi": 0.728,
+   "followed": 14,
+   "avg_next_move_pct": 0.282,
+   "small_sample": false
+  },
+  {
+   "condition": "After a drop of 2% or more",
+   "n": 5,
+   "next_up": 4,
+   "next_up_rate": 0.8,
+   "ci_lo": 0.376,
+   "ci_hi": 0.964,
+   "followed": 1,
+   "avg_next_move_pct": 0.56,
+   "small_sample": true
+  },
+  {
+   "condition": "After a gain of 1% or more",
+   "n": 29,
+   "next_up": 16,
+   "next_up_rate": 0.552,
+   "ci_lo": 0.375,
+   "ci_hi": 0.716,
+   "followed": 16,
+   "avg_next_move_pct": 0.056,
+   "small_sample": false
+  },
+  {
+   "condition": "After 2 down days in a row",
+   "n": 68,
+   "next_up": 36,
+   "next_up_rate": 0.529,
+   "ci_lo": 0.412,
+   "ci_hi": 0.643,
+   "followed": 32,
+   "avg_next_move_pct": 0.086,
+   "small_sample": false
+  },
+  {
+   "condition": "After 3 down days in a row",
+   "n": 32,
+   "next_up": 21,
+   "next_up_rate": 0.656,
+   "ci_lo": 0.483,
+   "ci_hi": 0.796,
+   "followed": 11,
+   "avg_next_move_pct": 0.312,
+   "small_sample": false
+  }
+ ]
+}
