@@ -1,0 +1,199 @@
+<title>Desk Daily</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: 860px column. 30-second card first, then tiles, then three instruments (S&P vs the desk's range, implied vs realized, calibration), then the day viewer with history. Briefing-series palette; violet marks the desk's own calls. */
+:root{
+  --bg:#0b0e13;--p1:#141922;--p2:#1b212c;--line:#262e3b;--l2:#1c222c;
+  --tx:#e9eff7;--dim:#8d9aab;--d2:#66738a;
+  --red:#f0565e;--grn:#3fb950;--amb:#e3a008;--blu:#6ea8fe;--vio:#a371f7;
+  --viobg:rgba(163,113,247,.16);--redbg:rgba(240,86,94,.13);--grnbg:rgba(63,185,80,.13);--ambbg:rgba(227,160,8,.13);
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;--mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  color-scheme:dark}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){
+  --bg:#f5f7fa;--p1:#fff;--p2:#eef1f6;--line:#d8dee8;--l2:#e6eaf1;--tx:#121a26;--dim:#526077;--d2:#76839a;
+  --red:#c8323a;--grn:#1f8a37;--amb:#a86f00;--blu:#2f6fdc;--vio:#7a4fd0;
+  --viobg:rgba(122,79,208,.12);--redbg:rgba(200,50,58,.09);--grnbg:rgba(31,138,55,.09);--ambbg:rgba(168,111,0,.10);color-scheme:light}}
+:root[data-theme="light"]{
+  --bg:#f5f7fa;--p1:#fff;--p2:#eef1f6;--line:#d8dee8;--l2:#e6eaf1;--tx:#121a26;--dim:#526077;--d2:#76839a;
+  --red:#c8323a;--grn:#1f8a37;--amb:#a86f00;--blu:#2f6fdc;--vio:#7a4fd0;
+  --viobg:rgba(122,79,208,.12);--redbg:rgba(200,50,58,.09);--grnbg:rgba(31,138,55,.09);--ambbg:rgba(168,111,0,.10);color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.6 var(--sans);-webkit-text-size-adjust:100%}
+main{max-width:860px;margin:0 auto;padding-block:20px 72px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.kick{font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--vio)}
+h1{font-size:25px;margin:5px 0 4px;letter-spacing:-.025em;line-height:1.18}
+.stamp{color:var(--d2);font-size:12px;margin-bottom:16px}
+h2{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:30px 0 10px;padding-bottom:7px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
+h2 .n{font-size:11.5px;letter-spacing:0;text-transform:none;color:var(--d2)}
+.card{background:var(--p1);border:1px solid var(--line);border-radius:11px;padding:14px 15px;margin-bottom:12px;min-width:0}
+.now{border-left:3px solid var(--vio)}
+.now .phase{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:20px;background:var(--viobg);color:var(--vio);margin-right:6px}
+.now .sum{font-size:16px;line-height:1.5;margin:8px 0 6px}
+.now ul{margin:6px 0 0;padding-left:18px;font-size:13.5px;color:var(--dim)}.now li{margin-bottom:4px}
+.alert{border:1px solid var(--red);background:var(--redbg);border-radius:8px;padding:8px 11px;font-size:13.5px;margin-top:10px}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:12px}
+@media (max-width:640px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.tile{background:var(--p1);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-width:0}
+.tile .k{font-size:9.8px;text-transform:uppercase;letter-spacing:.08em;color:var(--d2)}
+.tile .v{font-size:21px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:2px;line-height:1.2}
+.tile .s{font-size:11.5px;color:var(--dim)}
+.up{color:var(--grn)}.dn{color:var(--red)}.am{color:var(--amb)}.mut{color:var(--dim)}
+svg{display:block;width:100%;height:auto}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--dim);margin-top:6px}
+.legend i{display:inline-block;width:12px;height:8px;border-radius:2px;margin-right:5px;vertical-align:middle}
+.note{font-size:12.5px;color:var(--dim);margin:8px 0 0}
+.days{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:10px}
+.days button{font:inherit;font-size:12px;cursor:pointer;background:var(--p2);color:var(--dim);border:1px solid var(--line);border-radius:7px;padding:5px 9px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.days button[aria-pressed="true"]{color:var(--tx);border-color:var(--vio);box-shadow:0 0 0 1px var(--vio) inset;background:var(--p1)}
+.days button:focus-visible{outline:2px solid var(--vio);outline-offset:2px}
+.dv h3{font-size:14px;margin:12px 0 4px}.dv h3:first-child{margin-top:0}
+.dv ul{margin:0;padding-left:18px;font-size:13.5px}.dv li{margin-bottom:5px}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px;margin-bottom:8px}
+.kv div{background:var(--p2);border-radius:7px;padding:7px 9px;font-size:12px;color:var(--dim)}
+.kv b{display:block;color:var(--tx);font-size:14px;font-variant-numeric:tabular-nums}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12.8px}
+th{text-align:left;font-size:9.8px;text-transform:uppercase;letter-spacing:.08em;color:var(--d2);font-weight:600;padding:0 8px 6px 0;border-bottom:1px solid var(--line)}
+td{padding:6px 8px 6px 0;border-bottom:1px solid var(--l2);font-variant-numeric:tabular-nums}
+.empty{color:var(--d2);font-size:13px}
+.status{font-size:12px;color:var(--d2);margin:-8px 0 12px}
+footer{margin-top:34px;padding-top:14px;border-top:1px solid var(--line);color:var(--d2);font-size:11.5px;line-height:1.65}
+footer a,.card a{color:var(--blu)}
+</style>
+
+<main>
+<div class="kick">The desk · live</div>
+<h1>Desk Daily</h1>
+<div class="stamp">Updated by scheduled runs before the open (~08:47 ET), at midday if something breaks (~12:47 ET) and after the close (~16:47 ET). Calls and grades live in the <a href="https://claude.ai/artifact/7jU3VUdjX9x22fNqXoYbCL" target="_blank" rel="noopener" style="color:var(--blu)">Desk Ledger</a>.</div>
+<div class="status" id="status">Loading…</div>
+
+<div class="card now" id="now"><span class="phase">Waiting</span><div class="sum mut">The latest desk read appears here.</div></div>
+
+<div class="tiles" id="tiles">
+  <div class="tile"><div class="k">S&amp;P 500</div><div class="v">–</div><div class="s">last close</div></div>
+  <div class="tile"><div class="k">VIX</div><div class="v">–</div><div class="s">last close</div></div>
+  <div class="tile"><div class="k">Desk vs formula</div><div class="v">–</div><div class="s">Brier, lower is better</div></div>
+  <div class="tile"><div class="k">Moves vs VIX promise</div><div class="v">–</div><div class="s">realized ÷ implied vol</div></div>
+</div>
+
+<h2>The S&amp;P against the desk's range <span class="n">daily high–low, close, and the desk's 80% band for that day</span></h2>
+<div class="card"><div id="chart1"></div>
+<div class="legend"><span><i style="background:var(--viobg);border:1px solid var(--vio)"></i>Desk 80% band</span><span><i style="background:var(--d2)"></i>High–low</span><span><i style="background:var(--blu)"></i>Close inside band</span><span><i style="background:var(--red)"></i>Close outside band</span></div>
+<p class="note" id="bandnote"></p></div>
+
+<h2>Options lens <span class="n">did the S&amp;P move more than the VIX priced?</span></h2>
+<div class="card"><div id="chart2"></div>
+<div class="legend"><span><i style="background:var(--d2)"></i>Move the VIX priced (1 day, ±1σ)</span><span><i style="background:var(--amb)"></i>Actual move, bigger</span><span><i style="background:var(--blu)"></i>Actual move, smaller</span></div>
+<p class="note" id="optnote"></p></div>
+
+<h2>Calibration <span class="n">when the desk said X%, how often it happened</span></h2>
+<div class="card"><div id="chart3"></div><p class="note" id="calnote"></p></div>
+
+<h2>Day by day <span class="n">pick a session</span></h2>
+<div class="days" id="days" role="group" aria-label="Pick a trading day"></div>
+<div class="card dv" id="day"><div class="empty">No sessions yet.</div></div>
+
+<footer>Formula = a no-judgment forecaster: zero drift, with the daily spread the VIX implies (VIX ÷ √252). The desk has to beat it to earn its keep. Brier score = average of (probability − outcome)²; a flat 50% guess scores 0.25. Prices: FMP daily data where available, otherwise web sources noted on each day. Analysis only. <b>Not investment advice</b>, and nothing here recommends any position or trade.</footer>
+</main>
+
+<script>
+(function(){
+var $=function(id){return document.getElementById(id)};
+var esc=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
+var f0=function(x){return x==null?'–':Number(x).toLocaleString('en-US',{maximumFractionDigits:0})};
+var f2=function(x){return x==null?'–':Number(x).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})};
+var pc=function(x,d){return x==null?'–':(x>=0?'+':'−')+Math.abs(x).toFixed(d==null?2:d)+'%'};
+var S={days:[],meta:{}},sel=null;
+function css(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()}
+function list(a){return (a&&a.length)?'<ul>'+a.map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul>':'<div class="empty">Nothing recorded.</div>'}
+
+function renderNow(){
+  var L=S.meta.latest;if(!L){return}
+  var h='<span class="phase">'+esc(L.phase||'')+'</span><span class="mut" style="font-size:12px">'+esc(L.date||'')+(L.at?' · '+esc(L.at):'')+'</span>';
+  h+='<div class="sum">'+esc(L.summary||'')+'</div>';
+  if(L.call)h+='<div style="font-size:13.5px"><b>Call:</b> '+esc(L.call)+'</div>';
+  if(L.branch)h+='<div style="font-size:13.5px"><b>Branch:</b> '+esc(L.branch)+'</div>';
+  if(L.changed&&L.changed.length)h+='<div style="font-size:12px;color:var(--d2);margin-top:8px;text-transform:uppercase;letter-spacing:.08em">What changed</div>'+list(L.changed);
+  (L.alerts||[]).forEach(function(a){h+='<div class="alert">'+esc(a)+'</div>'});
+  $('now').innerHTML=h;
+}
+function renderTiles(){
+  var d=S.days[S.days.length-1],sb=S.meta.scoreboard||{},t=$('tiles').children;
+  if(d&&d.sp){t[0].querySelector('.v').textContent=f2(d.sp.close);var ch=d.sp.prev?(d.sp.close/d.sp.prev-1)*100:null;t[0].querySelector('.s').innerHTML='<span class="'+(ch>=0?'up':'dn')+'">'+pc(ch)+'</span> · '+esc(d.date)}
+  if(d&&d.vix){t[1].querySelector('.v').textContent=f2(d.vix.close);t[1].querySelector('.s').textContent=(d.vix.prev?pc((d.vix.close/d.vix.prev-1)*100,1)+' · ':'')+'implies ±'+(d.vix.close/Math.sqrt(252)).toFixed(2)+'%/day'}
+  if(sb.desk_brier!=null){t[2].querySelector('.v').innerHTML=sb.desk_brier.toFixed(3)+' <span class="mut" style="font-size:14px">vs '+(sb.base_brier!=null?sb.base_brier.toFixed(3):'–')+'</span>';t[2].querySelector('.s').textContent='S&P calls, n='+(sb.n_matched||0)+' · '+(sb.desk_brier<sb.base_brier?'desk ahead':'formula ahead or tied')}
+  var iv=sb.implied_vs_realized;if(iv){t[3].querySelector('.v').textContent=(iv.rv/iv.avg_vix).toFixed(2)+'×';t[3].querySelector('.s').textContent='realized '+iv.rv.toFixed(1)+'% vs VIX '+iv.avg_vix.toFixed(1)}
+}
+function svg(w,h,body){return '<svg viewBox="0 0 '+w+' '+h+'" role="img">'+body+'</svg>'}
+function chart1(){
+  var D=S.days.filter(function(d){return d.sp});if(!D.length){$('chart1').innerHTML='<div class="empty">No sessions yet.</div>';return}
+  var W=820,H=260,L=52,R=10,T=10,B=26,vals=[];
+  D.forEach(function(d){vals.push(d.sp.high||d.sp.close,d.sp.low||d.sp.close);if(d.band){vals.push(d.band.lo,d.band.hi)}});
+  var lo=Math.min.apply(null,vals),hi=Math.max.apply(null,vals),pad=(hi-lo)*.06;lo-=pad;hi+=pad;
+  var n=D.length,bw=(W-L-R)/n,X=function(i){return L+bw*i+bw/2},Y=function(v){return T+(H-T-B)*(1-(v-lo)/(hi-lo))};
+  var g='',step=[50,100,200,250,500].find(function(s){return (hi-lo)/s<=6})||1000;
+  for(var v=Math.ceil(lo/step)*step;v<=hi;v+=step){g+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+Y(v)+'" y2="'+Y(v)+'" stroke="'+css('--l2')+'"/><text x="'+(L-6)+'" y="'+(Y(v)+4)+'" text-anchor="end" font-size="11" fill="'+css('--d2')+'">'+f0(v)+'</text>'}
+  var inside=0,withBand=0;
+  D.forEach(function(d,i){var x=X(i);
+    if(d.band){withBand++;var ok=d.sp.close>=d.band.lo&&d.sp.close<=d.band.hi;if(ok)inside++;
+      g+='<rect x="'+(x-bw*.38)+'" y="'+Y(d.band.hi)+'" width="'+(bw*.76)+'" height="'+Math.max(1,Y(d.band.lo)-Y(d.band.hi))+'" rx="3" fill="'+css('--viobg')+'" stroke="'+css('--vio')+'" stroke-width="1"/>'}
+    if(d.sp.high&&d.sp.low)g+='<line x1="'+x+'" x2="'+x+'" y1="'+Y(d.sp.high)+'" y2="'+Y(d.sp.low)+'" stroke="'+css('--d2')+'" stroke-width="2"/>';
+    var c=d.band?((d.sp.close>=d.band.lo&&d.sp.close<=d.band.hi)?css('--blu'):css('--red')):css('--blu');
+    g+='<circle cx="'+x+'" cy="'+Y(d.sp.close)+'" r="4" fill="'+c+'"><title>'+esc(d.date)+' close '+f2(d.sp.close)+(d.band?' · band '+f0(d.band.lo)+'–'+f0(d.band.hi):'')+'</title></circle>';
+    if(n<=16||i%2===0)g+='<text x="'+x+'" y="'+(H-8)+'" text-anchor="middle" font-size="10.5" fill="'+css('--d2')+'">'+esc(d.date.slice(5))+'</text>'});
+  $('chart1').innerHTML=svg(W,H,g);
+  $('bandnote').textContent=withBand?('The close landed inside the desk\'s 80% band on '+inside+' of '+withBand+' days ('+Math.round(inside/withBand*100)+'%). A well-sized 80% band holds about 8 days in 10.'):'';
+}
+function chart2(){
+  var D=S.days.filter(function(d){return d.implied_pct!=null&&d.realized_pct!=null});if(!D.length){$('chart2').innerHTML='<div class="empty">No sessions yet.</div>';return}
+  var W=820,H=200,L=40,R=10,T=10,B=26,mx=Math.max.apply(null,D.map(function(d){return Math.max(d.implied_pct,d.realized_pct)}))*1.1;
+  var n=D.length,bw=(W-L-R)/n,Y=function(v){return T+(H-T-B)*(1-v/mx)},g='';
+  [1,2,3,4,5].forEach(function(v){if(v<mx)g+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+Y(v)+'" y2="'+Y(v)+'" stroke="'+css('--l2')+'"/><text x="'+(L-6)+'" y="'+(Y(v)+4)+'" text-anchor="end" font-size="11" fill="'+css('--d2')+'">'+v+'%</text>'});
+  var big=0;
+  D.forEach(function(d,i){var x=L+bw*i,w=bw*.36;var over=d.realized_pct>d.implied_pct;if(over)big++;
+    g+='<rect x="'+(x+bw*.12)+'" y="'+Y(d.implied_pct)+'" width="'+w+'" height="'+(Y(0)-Y(d.implied_pct))+'" rx="2" fill="'+css('--d2')+'"><title>'+esc(d.date)+' VIX priced ±'+d.implied_pct.toFixed(2)+'%</title></rect>';
+    g+='<rect x="'+(x+bw*.52)+'" y="'+Y(d.realized_pct)+'" width="'+w+'" height="'+(Y(0)-Y(d.realized_pct))+'" rx="2" fill="'+(over?css('--amb'):css('--blu'))+'"><title>'+esc(d.date)+' actual '+d.realized_pct.toFixed(2)+'%</title></rect>';
+    if(n<=16||i%2===0)g+='<text x="'+(x+bw/2)+'" y="'+(H-8)+'" text-anchor="middle" font-size="10.5" fill="'+css('--d2')+'">'+esc(d.date.slice(5))+'</text>'});
+  $('chart2').innerHTML=svg(W,H,g);
+  var iv=(S.meta.scoreboard||{}).implied_vs_realized;
+  $('optnote').textContent='The actual move beat the VIX\'s one-day promise on '+big+' of '+n+' days.'+(iv?' Over the stretch, realized volatility ran '+iv.rv.toFixed(1)+'% against an average VIX of '+iv.avg_vix.toFixed(1)+': most days were quieter than priced, and a few were twice as big.':'');
+}
+function chart3(){
+  var C=(S.meta.scoreboard||{}).calibration;if(!C||!C.length){$('chart3').innerHTML='<div class="empty">Calibration appears once calls are graded.</div>';return}
+  var W=820,H=220,L=44,R=14,T=10,B=30,X=function(v){return L+(W-L-R)*v},Y=function(v){return T+(H-T-B)*(1-v)},g='';
+  [0,.25,.5,.75,1].forEach(function(v){g+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+Y(v)+'" y2="'+Y(v)+'" stroke="'+css('--l2')+'"/><text x="'+(L-6)+'" y="'+(Y(v)+4)+'" text-anchor="end" font-size="11" fill="'+css('--d2')+'">'+Math.round(v*100)+'%</text><text x="'+X(v)+'" y="'+(H-10)+'" text-anchor="middle" font-size="11" fill="'+css('--d2')+'">'+Math.round(v*100)+'%</text>'});
+  g+='<line x1="'+X(0)+'" y1="'+Y(0)+'" x2="'+X(1)+'" y2="'+Y(1)+'" stroke="'+css('--d2')+'" stroke-dasharray="4 4"/>';
+  C.forEach(function(c){var r=4+Math.sqrt(c.n)*1.6;g+='<circle cx="'+X(c.said)+'" cy="'+Y(c.happened)+'" r="'+r+'" fill="'+css('--viobg')+'" stroke="'+css('--vio')+'" stroke-width="1.5"><title>Said '+Math.round(c.said*100)+'%, happened '+Math.round(c.happened*100)+'%, n='+c.n+'</title></circle><text x="'+X(c.said)+'" y="'+(Y(c.happened)-r-4)+'" text-anchor="middle" font-size="10.5" fill="'+css('--dim')+'">n='+c.n+'</text>'});
+  $('chart3').innerHTML=svg(W,H,g);
+  $('calnote').textContent='Dashed line = perfect calibration. Points below it are overconfident: the desk said it more often than it happened. Each run now corrects new calls toward this record before publishing them.';
+}
+function renderDays(){
+  var D=S.days.slice().reverse();
+  $('days').innerHTML=D.map(function(d){return '<button type="button" data-d="'+esc(d.date)+'" aria-pressed="'+(d.date===sel)+'">'+esc(d.date.slice(5))+'</button>'}).join('');
+  var d=S.days.find(function(x){return x.date===sel});if(!d){$('day').innerHTML='<div class="empty">No sessions yet.</div>';return}
+  var ch=d.sp&&d.sp.prev?(d.sp.close/d.sp.prev-1)*100:null,h='';
+  h+='<div class="kv">'+(d.sp?'<div>S&amp;P close<b>'+f2(d.sp.close)+' <span class="'+(ch>=0?'up':'dn')+'" style="font-size:12px">'+pc(ch)+'</span></b></div><div>High–low<b>'+f0(d.sp.high)+'–'+f0(d.sp.low)+'</b></div>':'')+(d.vix?'<div>VIX<b>'+f2(d.vix.close)+'</b></div>':'')+(d.band?'<div>Desk 80% band<b>'+f0(d.band.lo)+'–'+f0(d.band.hi)+'</b></div>':'')+(d.grades?'<div>Graded that day<b>'+d.grades.hits+' of '+d.grades.n+(d.grades.brier!=null?' · '+d.grades.brier.toFixed(3):'')+'</b></div>':'')+'</div>';
+  if(d.headline)h+='<p style="margin:0 0 8px">'+esc(d.headline)+'</p>';
+  if(d.happened)h+='<h3>What happened</h3>'+list(d.happened);
+  if(d.regime)h+='<h3>Cross-asset</h3>'+list(d.regime);
+  if(d.lessons)h+='<h3>Lessons applied</h3>'+list(d.lessons);
+  if(d.watch)h+='<h3>What to watch next</h3>'+list(d.watch);
+  if(d.watchlist&&d.watchlist.length)h+='<h3>Watchlist</h3><div class="tw"><table><thead><tr><th>Ticker</th><th>Day</th><th>Note</th></tr></thead><tbody>'+d.watchlist.map(function(w){return '<tr><td>'+esc(w.t)+'</td><td class="'+(w.chg>=0?'up':'dn')+'">'+pc(w.chg)+'</td><td class="mut">'+esc(w.note||'')+'</td></tr>'}).join('')+'</tbody></table></div>';
+  if(d.data_quality)h+='<p class="note">Data: '+esc(d.data_quality)+'</p>';
+  $('day').innerHTML=h;
+}
+function renderAll(){renderNow();renderTiles();chart1();chart2();chart3();renderDays()}
+$('days').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;sel=b.dataset.d;renderDays()});
+renderAll();
+var timer=setTimeout(function(){$('status').textContent='The desk store did not answer. Reload to try again.'},10000),got={};
+function ready(k){got[k]=1;if(got.days&&got.meta){clearTimeout(timer);$('status').textContent='Live · '+S.days.length+' sessions on file'}}
+(window.claude?claude.use('db'):Promise.resolve(null)).then(function(db){
+  if(!db){clearTimeout(timer);$('status').textContent='Sign in to claude.ai to see the desk data.';return}
+  db.collection('days').onSnapshot(function(s){S.days=s.docs.map(function(d){var x=d.data()||{};x.date=x.date||d.id;return x}).sort(function(a,b){return a.date.localeCompare(b.date)});
+    if(!sel&&S.days.length)sel=S.days[S.days.length-1].date;ready('days');renderAll()},function(e){clearTimeout(timer);$('status').textContent='Could not read the desk ('+(e&&e.code||'error')+').'});
+  db.collection('meta').onSnapshot(function(s){S.meta={};s.docs.forEach(function(d){S.meta[d.id]=d.data()||{}});ready('meta');renderAll()},function(){});
+}).catch(function(){clearTimeout(timer);$('status').textContent='The desk store is unavailable in this view.'});
+var mq;try{mq=window.matchMedia('(prefers-color-scheme: dark)');mq.addEventListener('change',renderAll)}catch(e){}
+new MutationObserver(renderAll).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+})();
+</script>

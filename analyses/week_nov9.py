@@ -215,6 +215,8 @@ def main():
         rep = min(rs, key=lambda r: abs(r["closes"][-1] - med))
         out["paths"][k] = {
             "cpi": c, "crwv": w, "forced": f, "p": prob[k], "stats": st, "bands": bands(rs),
+            "run_closes": [[round(x, 2) for x in r["closes"]] for r in rs],
+            "run_lows": [[round(x, 2) for x in r["lows"]] for r in rs],
             "replay": {kk: rep[kk] for kk in ("seed", "bars", "fair", "bar_flows", "bar_vol", "events", "closes")},
         }
     # factor effects: median Friday close in each level of a factor, pooled over the others (probability-weighted by allocation)

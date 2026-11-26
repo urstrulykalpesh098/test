@@ -1,0 +1,243 @@
+<title>Monday Guess, 9 Nov</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: one 820px column. Call first, then where the series left off, the four sentiment channels, the Monday clock, the decision tree, risks, red-team log and sources. Same visual family as the user's briefing series, with a violet accent marking this as the new sentiment-desk format. */
+:root{
+  --bg:#0b0e13;--p1:#141922;--p2:#1b212c;--line:#262e3b;--l2:#1c222c;
+  --tx:#e9eff7;--dim:#8d9aab;--d2:#66738a;
+  --red:#f0565e;--grn:#3fb950;--amb:#e3a008;--blu:#6ea8fe;--vio:#a371f7;
+  --redbg:rgba(240,86,94,.13);--grnbg:rgba(63,185,80,.13);--viobg:rgba(163,113,247,.13);
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;--mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  color-scheme:dark}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){
+  --bg:#f5f7fa;--p1:#fff;--p2:#eef1f6;--line:#d8dee8;--l2:#e6eaf1;--tx:#121a26;--dim:#526077;--d2:#76839a;
+  --red:#cf2f38;--grn:#1f8a3a;--amb:#a86f00;--blu:#2f6fdc;--vio:#7a4fd0;
+  --redbg:rgba(207,47,56,.09);--grnbg:rgba(31,138,58,.09);--viobg:rgba(122,79,208,.09);color-scheme:light}}
+:root[data-theme="light"]{
+  --bg:#f5f7fa;--p1:#fff;--p2:#eef1f6;--line:#d8dee8;--l2:#e6eaf1;--tx:#121a26;--dim:#526077;--d2:#76839a;
+  --red:#cf2f38;--grn:#1f8a3a;--amb:#a86f00;--blu:#2f6fdc;--vio:#7a4fd0;
+  --redbg:rgba(207,47,56,.09);--grnbg:rgba(31,138,58,.09);--viobg:rgba(122,79,208,.09);color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.62 var(--sans);-webkit-text-size-adjust:100%}
+main{max-width:820px;margin:0 auto;padding-block:20px 72px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.kick{font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--vio)}
+h1{font-size:25px;margin:5px 0 4px;letter-spacing:-.025em;line-height:1.18;text-wrap:balance}
+.stamp{color:var(--d2);font-size:12px;margin-bottom:18px}
+h2{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:36px 0 12px;padding-bottom:7px;border-bottom:1px solid var(--line)}
+p{margin:0 0 12px}b{font-weight:640}.mut{color:var(--dim)}.sm{font-size:13.2px}
+.card{background:var(--p1);border:1px solid var(--line);border-radius:11px;padding:14px 15px;margin-bottom:12px}
+.call{border-left:3px solid var(--vio)}.warn{border-left:3px solid var(--amb)}.bad{border-left:3px solid var(--red)}.good{border-left:3px solid var(--grn)}
+.up{color:var(--grn)}.dn{color:var(--red)}.am{color:var(--amb)}
+.num{font-variant-numeric:tabular-nums}
+.big{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0 4px}
+@media (max-width:560px){.big{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.big>div{background:var(--p2);border:1px solid var(--line);border-radius:9px;padding:10px 11px}
+.big .k{font-size:9.8px;text-transform:uppercase;letter-spacing:.08em;color:var(--d2)}
+.big .v{font-size:21px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:2px;line-height:1.2}
+.big .s{font-size:11.5px;color:var(--dim)}
+.range{position:relative;height:56px;margin:16px 4px 4px}
+.range .axis{position:absolute;left:0;right:0;top:26px;height:2px;background:var(--line)}
+.range .band{position:absolute;top:20px;height:14px;background:var(--viobg);border:1px solid var(--vio);border-radius:4px}
+.range .mk{position:absolute;top:12px;width:2px;height:30px}
+.range .lab{position:absolute;font-size:10.5px;white-space:nowrap;transform:translateX(-50%);font-variant-numeric:tabular-nums}
+.range .lab.t{top:-4px}.range .lab.b{top:44px}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--d2);font-weight:600;padding:0 8px 7px 0;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:8px 8px 8px 0;border-bottom:1px solid var(--l2);vertical-align:top}
+tr:last-child td{border-bottom:none}
+th.r,td.r{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.pill{display:inline-block;font-size:9.5px;font-weight:700;letter-spacing:.05em;padding:2px 7px;border-radius:20px;white-space:nowrap}
+.p-ok{background:var(--grnbg);color:var(--grn)}.p-bad{background:var(--redbg);color:var(--red)}.p-mid{background:var(--viobg);color:var(--vio)}.p-amb{background:rgba(227,160,8,.14);color:var(--amb)}
+.chan{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+.ch{background:var(--p1);border:1px solid var(--line);border-radius:11px;padding:13px 14px;min-width:0}
+.ch h3{margin:0;font-size:14px}
+.ch .who{font-size:11.5px;color:var(--d2);margin-bottom:9px}
+.gauge{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;margin:6px 0 4px}
+.gauge i{height:8px;border-radius:2px;background:var(--p2)}
+.gauge i.on{background:var(--vio)}
+.gl{display:flex;justify-content:space-between;font-size:10px;color:var(--d2);margin-bottom:9px}
+.ch ul{margin:0;padding-left:17px;font-size:12.8px;color:var(--dim)}
+.ch li{margin-bottom:5px}.ch li b{color:var(--tx)}
+.clock{display:grid;gap:0}
+.tick{display:grid;grid-template-columns:96px 1fr;gap:12px;padding:10px 0;border-bottom:1px solid var(--l2)}
+.tick:last-child{border-bottom:none}
+.tick .t{font-family:var(--mono);font-size:11.5px;color:var(--vio);padding-top:2px}
+.tick .w{font-size:13.6px}.tick .w span{display:block;font-size:12.4px;color:var(--dim);margin-top:2px}
+.tree{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.br{background:var(--p1);border:1px solid var(--line);border-radius:11px;padding:12px 13px}
+.br .if{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--d2)}
+.br .c{font-size:16px;font-weight:680;margin:3px 0 6px}
+.br p{font-size:12.8px;color:var(--dim);margin:0}
+ul.plain{margin:0;padding-left:18px}ul.plain li{margin-bottom:7px}
+.src{font-size:12px;color:var(--dim);columns:2 300px;column-gap:24px}
+.src a{color:var(--dim);word-break:break-word}
+.src div{break-inside:avoid;margin-bottom:6px}
+footer{margin-top:36px;padding-top:14px;border-top:1px solid var(--line);color:var(--d2);font-size:11.5px;line-height:1.65}
+</style>
+
+<main>
+<div class="kick">Sentiment desk · new format · four research agents and one red team</div>
+<h1>Monday guess: a choppy wait for CPI, slightly lower, with a wide range</h1>
+<div class="stamp">Built Saturday 7 Nov 2026, late evening ET (refreshed edition due Sunday ~19:30 ET after futures reopen) · for Monday 9 Nov 9:30–16:00 ET · picks up from your briefing series, the week simulation and the options lab</div>
+
+<div class="card call">
+  <b>The call</b>
+  <div class="big">
+    <div><div class="k">S&amp;P close, best guess</div><div class="v">7,370</div><div class="s dn">−0.1% vs Friday 7,376.86</div></div>
+    <div><div class="k">80% close range</div><div class="v">7,240–7,500</div><div class="s">about ±1.8%</div></div>
+    <div><div class="k">Closes up</div><div class="v">47%</div><div class="s">a coin flip, leaning down</div></div>
+    <div><div class="k">Closes below 200-day</div><div class="v">35%</div><div class="s">average ≈ 7,327 on Monday</div></div>
+    <div><div class="k">High-to-low range</div><div class="v">≈ 2.0%</div><div class="s">about 145 points</div></div>
+    <div><div class="k">VIX close</div><div class="v">21–31</div><div class="s">Friday 25.64</div></div>
+  </div>
+  <div class="range" aria-label="Monday close range on the S&amp;P 500, 7,125 to 7,625 scale">
+    <div class="axis"></div>
+    <div class="band" style="left:23%;width:52%"></div>
+    <div class="mk" style="left:40.4%;background:var(--red)"></div><div class="lab t dn" style="left:35%">200-day 7,327</div>
+    <div class="mk" style="left:49%;width:3px;background:var(--vio)"></div><div class="lab t" style="left:57%;color:var(--vio)">guess 7,370</div>
+    <div class="mk" style="left:50.4%;background:var(--dim)"></div><div class="lab b mut" style="left:50.4%">Fri 7,377</div>
+    <div class="lab b mut" style="left:23%">7,240</div><div class="lab b mut" style="left:75%">7,500</div>
+    <div class="lab b mut" style="left:4%">7,125</div><div class="lab b mut" style="left:95%">7,625</div>
+  </div>
+  <p class="sm" style="margin-top:14px">Monday is a waiting day before Tuesday's CPI (8:30am) and CoreWeave's results (after the close). The likeliest shape is a flat open, a chip-led attempt to bounce off Asia's new support measures, and a drift back as nobody adds risk before CPI. <b>Hold that shape loosely.</b> It rests on one anecdotal source. VIX at 25.6 says a 2% day either way is ordinary.</p>
+</div>
+
+<div class="card warn sm"><b>The one number to check before the bell.</b> The December S&amp;P future around 9:00 ET, <b>minus about 22 points of carry</b> (futures normally trade above the index because of interest rates net of dividends: 3.9% − 1.2% over 40 days). Friday's 7,405 future was really the index flat at about 7,383. If that adjusted price is below <b>7,325</b>, Monday opens under the 200-day and the call moves to 7,290. Above <b>7,420</b>, the selling is washing out and the call moves to 7,430. Sunday-night oil, Korea and Taiwan feed into it, so watch those first.</div>
+
+<h2>Where the series left off</h2>
+<div class="card tw"><table>
+<thead><tr><th>Earlier claim</th><th>What this weekend's evidence says</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>Friday's bounce was a forced-selling unwind <span class="mut">(Week report, revised 7 Nov)</span></td><td>Barclays' model has vol-control funds cutting about 30 points of equity exposure on Thursday, the most since the pandemic, and a record leveraged-ETF rebalance. Retail kept buying 3× ETFs into the crash.</td><td><span class="pill p-ok">Supported</span></td></tr>
+<tr><td>Vol-target selling still ahead, 1–10 sessions <span class="mut">(6 Nov briefing)</span></td><td>That ~30-point cut on Thursday leans toward the red team's view that much of it is done. This is a secondary source relaying a Barclays model.</td><td><span class="pill p-amb">Leans "mostly done"</span></td></tr>
+<tr><td>December hike ~77% priced <span class="mut">(Weekend Update)</span></td><td>CME FedWatch 76.8%; other outlets 74–80%. Daly says more hikes may be needed.</td><td><span class="pill p-ok">Confirmed</span></td></tr>
+<tr><td>CoreWeave stock near a $50 record low <span class="mut">(Weekend Update)</span></td><td>Closed $43.66 on 5 Nov and about $46.40 on 6 Nov. Bonds above 16%, CDS about 1,155bp. Options price a ±21% move on results.</td><td><span class="pill p-bad">Corrected: lower</span></td></tr>
+<tr><td>Korean retail bought $4.28bn of SOXL <span class="mut">(Week report)</span></td><td>That figure is cumulative from 1 October. Last week alone: about $2.2bn of US stocks in five days, over 70% of it SOXL.</td><td><span class="pill p-amb">Window clarified</span></td></tr>
+<tr><td>Simulated Monday median 7,344, up-day 43% <span class="mut">(Week simulation)</span></td><td>Sentiment and the red team push the guess up to 7,370. Investors have already cut risk hard and the historical base rates lean slightly positive. The simulation's Monday spread (7,147–7,540) matches the red team's width.</td><td><span class="pill p-mid">Adjusted</span></td></tr>
+<tr><td>Options lab top pick: 730/720 put spread, Monday open <span class="mut">(Option Trade Lab)</span></td><td>Its case was the 200-day break. Monday's odds of a close below it are 35% here, against 48% in the simulation. That case is now weaker, and its estimated 9% margin under the price ceiling was already thin.</td><td><span class="pill p-bad">Weaker</span></td></tr>
+</tbody></table></div>
+
+<h2>Four channels of sentiment</h2>
+<div class="chan">
+  <div class="ch">
+    <h3>Retail, United States</h3><div class="who">Reddit, StockTwits, AAII, Fear &amp; Greed, flow trackers</div>
+    <div class="gauge"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="gl"><span>Extreme fear</span><span>3 / 10</span><span>Greed</span></div>
+    <ul>
+      <li><b>Thursday was one of retail's biggest single-stock sell days since March 2020.</b> Vanda: "that bid has effectively disappeared." Sources disagree between largest and fifth-largest.</li>
+      <li><b>Friday's dip buying was "cautious"</b> (Bloomberg). One outlet called it a "buyers' strike".</li>
+      <li><b>AAII bears were 48.4%</b> before the crash (average 31.5%). CNN Fear &amp; Greed hit 20 on Thursday.</li>
+      <li><b>But leveraged-ETF buying never stopped:</b> TQQQ and SOXL inflows during the crash, and StockTwits still bullish on SOXX and NVDA. Bruised, not capitulated.</li>
+    </ul>
+  </div>
+  <div class="ch">
+    <h3>Professionals and FinTwit</h3><div class="who">Sell-side notes, strategist quotes, Reuters and Bloomberg framing</div>
+    <div class="gauge"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i></div>
+    <div class="gl"><span>Extreme fear</span><span>6 / 10</span><span>Greed</span></div>
+    <ul>
+      <li><b>The sell-side says buy the dip.</b> Morgan Stanley's Wilson: "adding risk over the next two to three weeks." JPMorgan and Wedbush agree. Average year-end target about 7,973.</li>
+      <li><b>The press frames it as fragile:</b> "a buyers' strike in tech" (Truist) and "a fragile momentum trade" (State Street).</li>
+      <li><b>CPI consensus:</b> headline +0.3% m/m, core 0.2% (FactSet) against 0.3% at some banks. The gap between those two is the whole Tuesday trade.</li>
+      <li>Attributed to Morgan Stanley: a 200-day break exposes 7,100–7,200.</li>
+    </ul>
+  </div>
+  <div class="ch">
+    <h3>News tone, measured</h3><div class="who">Bigdata.com sentiment scores, 90-day window</div>
+    <div class="gauge"><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="gl"><span>Very negative</span><span>2 / 10, worsening</span><span>Positive</span></div>
+    <ul>
+      <li><b>Nvidia −0.40</b> against a −0.16 baseline, 1-quarter z-score −3.59. Weekend stories averaged −0.67, with no positive ones. Topics: Chinese shell-company buyers and a CEO controversy.</li>
+      <li><b>CoreWeave −0.58</b>, with Microsoft reported to be reassessing compute deals and bond yields above 16%.</li>
+      <li><b>Micron −0.37</b>, z-score −1.89 over the quarter.</li>
+      <li>Media attention fell about 40% for all three. The story is getting quieter, but not kinder.</li>
+    </ul>
+  </div>
+  <div class="ch">
+    <h3>Global and around the clock</h3><div class="who">Korea, Japan, Taiwan, crypto, oil</div>
+    <div class="gauge"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="gl"><span>Extreme fear</span><span>4 / 10, mixed</span><span>Greed</span></div>
+    <ul>
+      <li><b>Asia's authorities stepped in.</b> Korea suspends its margin rule; Taiwan cuts the short-sale cap to 3% with a NT$500bn fund on standby. Korean brokers call it the "final phase".</li>
+      <li><b>The gap in Korea's fix:</b> loans against foreign shares such as SOXL stay at the old 140% rule. Korean retail are still exposed.</li>
+      <li><b>Crypto did not bounce.</b> Bitcoin is flat near $75.8k, its Fear &amp; Greed hit 25 (extreme fear) on Saturday, and spot bitcoin ETFs saw −$412M on Friday.</li>
+      <li><b>Hormuz heated up again:</b> Iran says a tanker hit a mine, the US struck near Qeshm Island, and Qatar's reopening plan has not been accepted. Brent is about $98 after −12% on the week.</li>
+    </ul>
+  </div>
+</div>
+<div class="card sm" style="margin-top:12px"><b>The read across the channels.</b> The pros say buy while retail, the news tone and crypto all say fear. That split is the classic setup for a contrarian bounce. Two things are missing for it: retail has not capitulated (it is still buying 3× ETFs), and nothing that caused the drop has been resolved. Fear without capitulation usually means chop, not a turn. The turn needs a catalyst, and the first candidate arrives Tuesday at 8:30.</div>
+
+<h2>Monday by the clock (ET)</h2>
+<div class="card clock">
+  <div class="tick"><div class="t">Sun 18:00</div><div class="w">US futures and Brent reopen<span>An oil jump on the Hormuz mine reports would raise yields and hurt a market already pricing a December hike. A Qatar reopening headline is the mirror-image upside.</span></div></div>
+  <div class="tick"><div class="t">Sun 19:00</div><div class="w">Korea and Japan open; Korea's margin waiver takes effect<span>A rebound in Samsung and SK Hynix supports US chips. If the KOSPI fails again, Korean selling of US 3× ETFs shows up during US hours.</span></div></div>
+  <div class="tick"><div class="t">Sun 20:00</div><div class="w">Taiwan opens with the 3% short cap<span>TSMC's US shares rose about 7.5% on Friday. Watch whether Taiwan catches up or stalls.</span></div></div>
+  <div class="tick"><div class="t">Mon 09:00</div><div class="w">The key check: futures minus about 22 points<span>Below 7,325 → bearish branch. Above 7,420 → washout branch. In between → the base call.</span></div></div>
+  <div class="tick"><div class="t">09:30–10:30</div><div class="w">Chips try first<span>A bounce attempt in semis is plausible on Asia's measures. But Nvidia's news tone is at −3.6 standard deviations, so they may lag from the bell. Low conviction either way.</span></div></div>
+  <div class="tick"><div class="t">Midday</div><div class="w">AI-credit headlines<span>Credit does not wait for earnings. A CoreWeave downgrade or contract story before Tuesday hits the whole AI-capex complex.</span></div></div>
+  <div class="tick"><div class="t">15:40–16:00</div><div class="w">Leveraged ETFs rebalance<span>They trade in the direction of the day: they buy into the close on an up day and sell on a down day. That makes the last 20 minutes amplify the day's move rather than calm it.</span></div></div>
+  <div class="tick"><div class="t">23:59</div><div class="w">178 China tariff exclusions lapse<span>Known for weeks and after the close. An extension headline during the day is the bigger surprise, and it would be upside.</span></div></div>
+</div>
+
+<h2>Three ways the open can land</h2>
+<div class="tree">
+  <div class="br"><div class="if">If adjusted futures &lt; 7,325</div><div class="c dn">Close ≈ 7,290</div><p>The open is already under the 200-day. A close below it becomes more likely than not (above 55%), and trend followers' selling starts lining up for Tuesday. Most likely cause: an oil spike or a failed Korean session.</p></div>
+  <div class="br"><div class="if">If 7,325 to 7,420</div><div class="c" style="color:var(--vio)">Close ≈ 7,370</div><p>The base call. The market chops and waits for CPI, with a range of about 2% and a slight fade. This is where most of the probability sits.</p></div>
+  <div class="br"><div class="if">If adjusted futures &gt; 7,420</div><div class="c up">Close ≈ 7,430</div><p>The selling has washed out and short covering takes over. Vol-control funds have already cut, and AAII bears are at 48%. Odds of an up day rise to about 60%.</p></div>
+</div>
+
+<h2>Risks this call underweights</h2>
+<div class="card sm"><ul class="plain">
+  <li><b>An overnight gap from Hormuz, in either direction.</b> Brent's −12% week priced in de-escalation. A mine or a strike that reverses that can open the S&amp;P down 1.5%. A deal can do the opposite.</li>
+  <li><b>Korea feeding into US leveraged ETFs.</b> The margin waiver skips foreign-share collateral. A weak KOSPI means forced selling of SOXL and TQQQ during US hours, and the close-of-day rebalance amplifies it.</li>
+  <li><b>A washed-out short squeeze.</b> Investors cut the most risk since 2020, AAII bears were at 48% and Fear &amp; Greed hit 20. A +1.5–2% day is not a tail here. It sits inside the 80% range, at its upper end.</li>
+</ul></div>
+
+<h2>What the red team changed</h2>
+<div class="card tw"><table>
+<thead><tr><th></th><th class="r">My draft</th><th class="r">After red team</th><th>Why</th></tr></thead>
+<tbody>
+<tr><td>Best guess</td><td class="r">7,365</td><td class="r">7,370</td><td class="sm mut">Base rates after −4% days and VIX spikes lean slightly positive. Nothing supports a bigger fade.</td></tr>
+<tr><td>80% close range</td><td class="r">7,330–7,420</td><td class="r">7,240–7,500</td><td class="sm mut">VIX 25.6 implies about 1.6% a day. My range was three times too narrow.</td></tr>
+<tr><td>Up close</td><td class="r">45%</td><td class="r">47%</td><td class="sm mut">Same reason as the best guess.</td></tr>
+<tr><td>Below 200-day</td><td class="r">30%</td><td class="r">35%</td><td class="sm mut">My 30% contradicted my own range. The 200-day also rises to about 7,327 by Monday.</td></tr>
+<tr><td>High–low range</td><td class="r">1.2%</td><td class="r">≈ 2.0%</td><td class="sm mut">1.2% is a calm-market day. Thursday moved 4.4%.</td></tr>
+<tr><td>"Firm open"</td><td class="r">+0.3–0.6%</td><td class="r">≈ flat</td><td class="sm mut">Futures at 7,405 include about 22 points of carry, so the index itself was about 7,383.</td></tr>
+<tr><td>Tariff lapse drives the fade</td><td class="r">Yes</td><td class="r">No</td><td class="sm mut">It lands after the close and has been known for weeks.</td></tr>
+</tbody></table></div>
+
+<h2>What we could not verify</h2>
+<div class="card sm"><ul class="plain">
+  <li><b>No full article could be opened.</b> CNBC, AAII, Seoul Economic Daily and others are outside this environment's network, so every agent worked from search-result summaries. Figures are reported, not confirmed.</li>
+  <li><b>Not available:</b> Sunday-night futures, the Asia Monday open and Sunday bitcoin. The report was built before they existed.</li>
+  <li><b>No direct reads</b> of Reddit or Naver boards for this weekend, and no named FinTwit posts. The retail read leans on flow trackers and press coverage of them.</li>
+  <li><b>Single-sourced:</b> the Barclays vol-control estimate (via a Substack) and the Morgan Stanley 7,100–7,200 level. Neither is a primary note.</li>
+  <li><b>Unresolved:</b> whether Tuesday's CPI carries a year-on-year rate (sources conflict after the 2025 data gap), and the exact size of Thursday's retail selling.</li>
+  <li><b>Paid or rate-limited:</b> Alpha Vantage's news-sentiment and options endpoints.</li>
+</ul></div>
+
+<h2>Sources the agents used</h2>
+<div class="card src">
+  <div>Retail flows: <a href="https://www.cnbc.com/2026/11/05/retail-traders-dump-the-most-stocks-in-single-day-since-covid-sell-off.html" target="_blank" rel="noopener">CNBC, 5 Nov</a> · <a href="https://finance.yahoo.com/markets/article/retail-traders-dump-257-million-in-stocks-in-5th-biggest-selling-day-since-2020-025640023.html" target="_blank" rel="noopener">Yahoo</a> · <a href="https://www.bloomberg.com/news/articles/2026-11-06/retail-traders-cautiously-buy-stocks-after-worst-rout-since-2025" target="_blank" rel="noopener">Bloomberg, 6 Nov</a></div>
+  <div>Fear &amp; Greed: <a href="https://www.benzinga.com/markets/market-summary/26/11/62967148/nasdaq-tumbles-5-5-as-ai-stocks-crater-investor-sentiment-weakens-fear-greed-index-moves-to-extreme-fear-zone" target="_blank" rel="noopener">Benzinga, 5 Nov</a></div>
+  <div>Reddit: <a href="https://247wallst.com/cards/reddit-pulse-01m6st4j6c675h00jzmjbdd9kv" target="_blank" rel="noopener">24/7 Wall St Reddit pulse</a></div>
+  <div>StockTwits: <a href="https://stocktwits.com/news-articles/markets/equity/soxx-etf-semiconductor-is-set-for-its-worst-week-in-over-18-months/cNG1sEhR94Z" target="_blank" rel="noopener">SOXX</a> · <a href="https://stocktwits.com/news-articles/markets/equity/cathie-wood-ark-invest-buys-goog-amd-nvda-biotech-stocks-sell-crwv-avgo-lly/cNGVV2wR9Ii" target="_blank" rel="noopener">ARK trades</a></div>
+  <div>Strategists: <a href="https://finance.yahoo.com/markets/stocks/articles/tech-swoon-roils-market-us-110622966.html" target="_blank" rel="noopener">Reuters preview</a> · <a href="https://www.bloomberg.com/news/articles/2026-11-01/mike-wilson-says-buy-stock-dip-regardless-of-who-wins-midterms" target="_blank" rel="noopener">Bloomberg on Wilson</a> · <a href="https://app.bigdata.com/documents/FB7BC7C8CB9FF4541C6CFB9F4DD3443E?cnum=1" target="_blank" rel="noopener">"Fresh reason to buy" (via Bigdata.com)</a></div>
+  <div>Fed odds: <a href="https://247wallst.com/investing/2026/11/07/odds-of-a-december-rate-hike-jump-to-77-after-a-blowout-jobs-report/" target="_blank" rel="noopener">24/7 Wall St, 7 Nov</a> · <a href="https://invezz.com/news/2026/11/06/fed-rate-hike-odds-jump-after-october-jobs-report-as-officials-signal-more-tightening/" target="_blank" rel="noopener">Invezz</a></div>
+  <div>CPI: <a href="https://www.morningstar.com/economy/october-cpi-forecasts-show-inflation-softening-december-rate-hike-still-looks-likely" target="_blank" rel="noopener">Morningstar</a> · <a href="https://squawkflow.com/calendar/cpi-november-2026" target="_blank" rel="noopener">Squawkflow implied move</a> · <a href="https://www.home.saxo/en-sg/content/articles/options/eight-times-the-priced-move---options-brief---6-november-2026-06112026" target="_blank" rel="noopener">Saxo options brief</a></div>
+  <div>CoreWeave: <a href="https://www.tipranks.com/news/coreweave-q3-earnings-heres-what-analysts-and-options-traders-expect-from-crwv-stock" target="_blank" rel="noopener">TipRanks</a> · <a href="https://www.cnbc.com/2026/11/06/coreweave-bond-yield-tops-16percent-as-ai-credit-stress-rises.html" target="_blank" rel="noopener">CNBC bonds</a> · <a href="https://www.benzinga.com/node/63018357" target="_blank" rel="noopener">Benzinga on Microsoft</a></div>
+  <div>Systematic flows: <a href="https://moneysafe.substack.com/p/sp500-index-daily-report-november" target="_blank" rel="noopener">Substack (Barclays relay)</a> · <a href="https://finzdata.com/research/ai-unwind-selloff-november-2026" target="_blank" rel="noopener">Finzdata</a></div>
+  <div>Korea: <a href="https://www.fnnews.com/news/202611080800306344" target="_blank" rel="noopener">Financial News, 8 Nov</a> · <a href="https://en.fnnews.com/news/202611071101376017" target="_blank" rel="noopener">FN English</a> · <a href="https://www.mt.co.kr/en/stock/2026/11/06/2026110614220822255" target="_blank" rel="noopener">MoneyToday, margin waiver</a> · <a href="https://en.sedaily.com/finance/2026/11/07/korean-retail-investors-pile-into-soxl-as-chip-stocks-crash" target="_blank" rel="noopener">Seoul Economic Daily</a></div>
+  <div>Taiwan and Japan: <a href="https://focustaiwan.tw/business/202611060020" target="_blank" rel="noopener">Focus Taiwan</a> · <a href="https://aa.com.tr/en/economy/asian-tech-stocks-plunge-on-ai-spending-fears-japans-nikkei-enters-bear-market/4113600" target="_blank" rel="noopener">Anadolu</a></div>
+  <div>Crypto: <a href="https://www.cryptotimes.io/2026/11/07/bitcoin-price-today-btc-holds-near-76000-as-spot-etfs-shed-411-9-million/" target="_blank" rel="noopener">Cryptotimes</a> · <a href="https://finance.yahoo.com/markets/crypto/articles/bitcoin-falls-below-76-000-092021228.html" target="_blank" rel="noopener">Yahoo liquidations</a></div>
+  <div>Hormuz: <a href="https://www.aljazeera.com/news/2026/11/7/qeshm-island-and-hormuz-hit-as-mediators-try-to-prevent-us-iran-escalation" target="_blank" rel="noopener">Al Jazeera, 7 Nov</a> · <a href="https://straits.live/briefs/2026-11-08" target="_blank" rel="noopener">straits.live, 8 Nov</a> · <a href="https://invezz.com/news/2026/11/06/oil-prices-today-brent-weekly-slump/" target="_blank" rel="noopener">Invezz oil</a></div>
+  <div>China: <a href="https://tax.thomsonreuters.com/blog/section-301-exclusions-expiration/" target="_blank" rel="noopener">Thomson Reuters, tariffs</a> · <a href="https://www.datacenterdynamics.com/en/news/almost-600000-nvidia-h200s-stranded-in-hong-kong-as-chinese-govt-stalls-on-import-approvals-report/" target="_blank" rel="noopener">DCD, H200</a></div>
+  <div>Base rates: <a href="https://www.bespokepremium.com/author/jgordonbespokeinvest-com/page/290/" target="_blank" rel="noopener">Bespoke, CPI days</a> · <a href="https://tastylive.com/news-insights/sp500-drops-vix-hits-panic-levels" target="_blank" rel="noopener">tastylive, VIX 25–30</a></div>
+  <div>News sentiment scores: <a href="https://bigdata.com" target="_blank" rel="noopener">Bigdata.com</a>. Prices: FMP.</div>
+</div>
+
+<footer>
+Sentiment desk, first edition. Four research agents worked separately: US retail, professionals and FinTwit, global and around-the-clock markets, and measured news tone. A fifth agent attacked the draft call, and its corrections are adopted above. Figures come from search summaries and data tools as of Sunday 8 Nov and several are single-sourced. The simulation referenced is the week-of-9-Nov model and is uncalibrated.
+Information and analysis only. <b>Not investment advice</b>, and nothing here recommends any position or trade.
+</footer>
+</main>

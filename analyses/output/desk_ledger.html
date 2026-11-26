@@ -1,0 +1,198 @@
+<title>Desk Ledger</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: one 900px column — scoreboard tiles, due-next strip, predictions table with filters, calibration bars, thesis tracker, event calendar, run log and report library. Briefing-series palette; violet marks the desk's own instruments. */
+:root{
+  --bg:#0b0e13;--p1:#141922;--p2:#1b212c;--line:#262e3b;--l2:#1c222c;
+  --tx:#e9eff7;--dim:#8d9aab;--d2:#66738a;
+  --red:#f0565e;--grn:#3fb950;--amb:#e3a008;--blu:#6ea8fe;--vio:#a371f7;
+  --redbg:rgba(240,86,94,.13);--grnbg:rgba(63,185,80,.13);--viobg:rgba(163,113,247,.13);--ambbg:rgba(227,160,8,.13);
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;--mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  color-scheme:dark}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){
+  --bg:#f5f7fa;--p1:#fff;--p2:#eef1f6;--line:#d8dee8;--l2:#e6eaf1;--tx:#121a26;--dim:#526077;--d2:#76839a;
+  --red:#cf2f38;--grn:#1f8a3a;--amb:#a86f00;--blu:#2f6fdc;--vio:#7a4fd0;
+  --redbg:rgba(207,47,56,.09);--grnbg:rgba(31,138,58,.09);--viobg:rgba(122,79,208,.09);--ambbg:rgba(168,111,0,.10);color-scheme:light}}
+:root[data-theme="light"]{
+  --bg:#f5f7fa;--p1:#fff;--p2:#eef1f6;--line:#d8dee8;--l2:#e6eaf1;--tx:#121a26;--dim:#526077;--d2:#76839a;
+  --red:#cf2f38;--grn:#1f8a3a;--amb:#a86f00;--blu:#2f6fdc;--vio:#7a4fd0;
+  --redbg:rgba(207,47,56,.09);--grnbg:rgba(31,138,58,.09);--viobg:rgba(122,79,208,.09);--ambbg:rgba(168,111,0,.10);color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.6 var(--sans);-webkit-text-size-adjust:100%}
+main{max-width:900px;margin:0 auto;padding-block:20px 72px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.kick{font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--vio)}
+h1{font-size:25px;margin:5px 0 4px;letter-spacing:-.025em;line-height:1.18}
+.stamp{color:var(--d2);font-size:12px;margin-bottom:18px}
+h2{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:34px 0 12px;padding-bottom:7px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+h2 .n{font-size:11px;letter-spacing:0;text-transform:none;color:var(--d2)}
+p{margin:0 0 12px}b{font-weight:640}.mut{color:var(--dim)}.sm{font-size:13px}
+.card{background:var(--p1);border:1px solid var(--line);border-radius:11px;padding:14px 15px;margin-bottom:12px}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+@media (max-width:620px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.tile{background:var(--p1);border:1px solid var(--line);border-radius:10px;padding:11px 12px}
+.tile .k{font-size:9.8px;text-transform:uppercase;letter-spacing:.08em;color:var(--d2)}
+.tile .v{font-size:23px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:2px;line-height:1.2}
+.tile .s{font-size:11.5px;color:var(--dim)}
+.status{font-size:12px;color:var(--d2);margin:-6px 0 14px}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.filters button{font:inherit;font-size:12.5px;cursor:pointer;background:var(--p2);color:var(--dim);border:1px solid var(--line);border-radius:7px;padding:6px 10px}
+.filters button[aria-pressed="true"]{background:var(--p1);color:var(--tx);border-color:var(--vio);box-shadow:0 0 0 1px var(--vio) inset}
+.filters button:focus-visible{outline:2px solid var(--vio);outline-offset:2px}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-size:9.8px;text-transform:uppercase;letter-spacing:.08em;color:var(--d2);font-weight:600;padding:0 8px 7px 0;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:8px 8px 8px 0;border-bottom:1px solid var(--l2);vertical-align:top}
+tr:last-child td{border-bottom:none}
+th.r,td.r{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+td .sub{display:block;font-size:11.5px;color:var(--d2);line-height:1.4;margin-top:2px}
+.pill{display:inline-block;font-size:9.5px;font-weight:700;letter-spacing:.05em;padding:2px 7px;border-radius:20px;white-space:nowrap;text-transform:uppercase}
+.st-open{background:var(--viobg);color:var(--vio)}.st-hit{background:var(--grnbg);color:var(--grn)}.st-miss{background:var(--redbg);color:var(--red)}.st-void{background:var(--p2);color:var(--d2)}
+.th-alive{background:var(--grnbg);color:var(--grn)}.th-weakened{background:var(--ambbg);color:var(--amb)}.th-dead{background:var(--redbg);color:var(--red)}.th-confirmed{background:var(--viobg);color:var(--vio)}
+.cal{display:grid;gap:8px}
+.calrow{display:grid;grid-template-columns:150px 1fr 70px;gap:10px;align-items:center;font-size:12.5px}
+.calbar{position:relative;height:14px;background:var(--p2);border-radius:3px}
+.calbar .exp{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--d2)}
+.calbar .act{position:absolute;top:2px;bottom:2px;left:0;border-radius:2px;background:var(--vio)}
+@media (max-width:560px){.calrow{grid-template-columns:110px 1fr 56px}}
+.ev{display:grid;grid-template-columns:96px 1fr;gap:3px 12px;padding:9px 0;border-bottom:1px solid var(--l2)}
+.ev:last-child{border-bottom:none}
+.ev .d{font-family:var(--mono);font-size:11.5px;color:var(--vio);padding-top:2px}
+.ev .d.past{color:var(--d2)}
+.ev .n{font-size:13.6px}.ev .w{grid-column:2;font-size:12.3px;color:var(--dim)}
+.empty{color:var(--d2);font-size:13px;padding:6px 0}
+.lib{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:6px 18px;font-size:12.8px}
+.lib a{color:var(--blu);text-decoration:none}.lib a:hover{text-decoration:underline}
+.lib span{color:var(--d2);font-size:11.5px}
+footer{margin-top:36px;padding-top:14px;border-top:1px solid var(--line);color:var(--d2);font-size:11.5px;line-height:1.65}
+</style>
+
+<main>
+<div class="kick">The desk · scorecard, thesis tracker, calendar</div>
+<h1>Desk Ledger</h1>
+<div class="stamp">Every call from every report, graded when it resolves. Updated by scheduled desk runs after each US close.</div>
+<div class="status" id="status">Loading the ledger…</div>
+
+<div class="tiles" id="tiles">
+  <div class="tile"><div class="k">Open calls</div><div class="v">–</div><div class="s">waiting to resolve</div></div>
+  <div class="tile"><div class="k">Resolved</div><div class="v">–</div><div class="s">hits and misses</div></div>
+  <div class="tile"><div class="k">Brier score</div><div class="v">–</div><div class="s">lower is better · coin flip 0.25</div></div>
+  <div class="tile"><div class="k">Theses alive</div><div class="v">–</div><div class="s">of those tracked</div></div>
+</div>
+
+<h2>Due next <span class="n" id="duecount"></span></h2>
+<div class="card tw"><table id="due"></table></div>
+
+<h2>All calls <span class="n">probability is what the report said would happen</span></h2>
+<div class="filters" id="filters" role="group" aria-label="Filter calls by status">
+  <button type="button" data-f="all" aria-pressed="true">All</button>
+  <button type="button" data-f="open" aria-pressed="false">Open</button>
+  <button type="button" data-f="hit" aria-pressed="false">Hit</button>
+  <button type="button" data-f="miss" aria-pressed="false">Missed</button>
+</div>
+<div class="card tw"><table id="preds"></table></div>
+
+<h2>Calibration <span class="n">when we said X%, how often did it happen?</span></h2>
+<div class="card"><div class="cal" id="cal"></div>
+<p class="sm" id="vsbase" style="margin:10px 0 0"></p>
+<p class="sm mut" style="margin:10px 0 0">Grey tick: what was promised (the bucket's average probability). Violet bar: what actually happened. Well-calibrated reports put the bar on the tick. Needs about 30 resolved calls before it means much.</p></div>
+
+<h2>Thesis tracker <span class="n">alive until its kill condition shows up</span></h2>
+<div class="card tw"><table id="theses"></table></div>
+
+<h2>Lessons memory <span class="n">rules the desk has learned, kept only while they keep working</span></h2>
+<div class="card tw"><table id="lessons"></table></div>
+
+<h2>Method notes <span class="n">rewritten each Sunday by the desk's self-review</span></h2>
+<div class="card" id="method"><div class="empty">The first self-review runs Sunday 29 Nov.</div></div>
+
+<h2>Calendar <span class="n">dated catalysts from all reports</span></h2>
+<div class="card" id="events"></div>
+
+<h2>Desk runs <span class="n">what each scheduled run did</span></h2>
+<div class="card tw"><table id="runs"></table></div>
+
+<h2>Report library</h2>
+<div class="card lib" id="lib"></div>
+
+<footer>Scoring: each call is a yes/no event with the probability its report gave. Brier score = average of (probability − outcome)², where outcome is 1 if it happened and 0 if not. 0 is perfect, 0.25 is what always saying 50% earns. Calls without a probability are not scored. Data lives in this page's own store and is written by Claude's scheduled desk runs; it is analysis only, not investment advice.</footer>
+</main>
+
+<script>
+(function(){
+var $=function(id){return document.getElementById(id)};
+var esc=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
+var pct=function(x){return Math.round(x*100)+'%'};
+var S={predictions:[],theses:[],events:[],runs:[],reports:[],lessons:[],method:[]},filter='all',loaded={};
+var today=new Date().toISOString().slice(0,10);
+
+function setStatus(t){$('status').textContent=t}
+
+function render(){
+  var P=S.predictions,open=P.filter(function(p){return p.status==='open'}),res=P.filter(function(p){return p.status==='hit'||p.status==='miss'});
+  var scored=res.filter(function(p){return typeof p.prob==='number'});
+  var brier=scored.length?scored.reduce(function(a,p){var y=p.status==='hit'?1:0;return a+Math.pow(p.prob-y,2)},0)/scored.length:null;
+  var hits=res.filter(function(p){return p.status==='hit'}).length;
+  var alive=S.theses.filter(function(t){return t.status==='alive'||t.status==='weakened'}).length;
+  var t=$('tiles').children;
+  t[0].querySelector('.v').textContent=open.length;
+  t[1].querySelector('.v').textContent=res.length;t[1].querySelector('.s').textContent=res.length?hits+' hit · '+(res.length-hits)+' missed':'nothing resolved yet';
+  t[2].querySelector('.v').textContent=brier==null?'–':brier.toFixed(3);t[2].querySelector('.s').textContent=brier==null?'scores after the first close':(brier<0.25?'better than a coin flip':'no better than a coin flip')+' · n='+scored.length;
+  t[3].querySelector('.v').textContent=alive;t[3].querySelector('.s').textContent='of '+S.theses.length+' tracked';
+
+  var due=open.slice().sort(function(a,b){return (a.resolves||'').localeCompare(b.resolves||'')}).slice(0,8);
+  $('duecount').textContent=open.length?open.length+' open':'';
+  $('due').innerHTML=due.length?'<thead><tr><th>Resolves</th><th>Call</th><th class="r">Said</th></tr></thead><tbody>'+due.map(function(p){
+    return '<tr><td class="r" style="text-align:left">'+esc(p.resolves)+(p.resolves<today?' <span class="pill st-miss">overdue</span>':'')+'</td><td>'+esc(p.claim)+'<span class="sub">'+esc(p.source)+'</span></td><td class="r">'+(typeof p.prob==='number'?pct(p.prob):'–')+'</td></tr>'}).join('')+'</tbody>':'<tbody><tr><td class="empty">No open calls. New ones arrive with each report.</td></tr></tbody>';
+
+  var rows=P.filter(function(p){return filter==='all'||p.status===filter}).sort(function(a,b){return (b.made||'').localeCompare(a.made||'')||(a.resolves||'').localeCompare(b.resolves||'')});
+  $('preds').innerHTML=rows.length?'<thead><tr><th>Call</th><th class="r">Said</th><th class="r">Resolves</th><th>Status</th><th>Outcome</th></tr></thead><tbody>'+rows.map(function(p){
+    return '<tr><td>'+esc(p.claim)+'<span class="sub">'+esc(p.source)+' · made '+esc(p.made)+'</span></td><td class="r">'+(typeof p.prob==='number'?pct(p.prob):'–')+'</td><td class="r">'+esc(p.resolves)+'</td><td><span class="pill st-'+esc(p.status)+'">'+esc(p.status)+'</span></td><td class="sm">'+esc(p.outcome||'')+'</td></tr>'}).join('')+'</tbody>':'<tbody><tr><td class="empty">No calls in this view.</td></tr></tbody>';
+
+  var withBase=scored.filter(function(p){return typeof p.prob_base==='number'});
+  var bb=withBase.length?withBase.reduce(function(a,p){var y=p.status==='hit'?1:0;return a+Math.pow(p.prob_base-y,2)},0)/withBase.length:null;
+  var bd=withBase.length?withBase.reduce(function(a,p){var y=p.status==='hit'?1:0;return a+Math.pow(p.prob-y,2)},0)/withBase.length:null;
+  $('vsbase').textContent=withBase.length?('Desk vs the plain VIX formula on the same '+withBase.length+' calls: desk '+bd.toFixed(3)+', formula '+bb.toFixed(3)+' ('+(bd<bb?'desk ahead':'formula ahead or tied')+'). Backtest of 63 earlier S&P calls: desk 0.229, formula 0.236.'):'Desk vs the plain VIX formula: new calls carry the formula\'s probability from 27 Nov. Backtest of 63 earlier S&P calls: desk 0.229, formula 0.236, coin 0.250.';
+  var LS=S.lessons.slice().sort(function(a,b){return (b.uses||0)-(a.uses||0)});
+  $('lessons').innerHTML=LS.length?'<thead><tr><th>Lesson</th><th class="r">Worked</th><th>Status</th></tr></thead><tbody>'+LS.map(function(l){
+    return '<tr><td><b>'+esc(l.rule)+'</b><span class="sub">'+esc(l.evidence||'')+(l.updated?' · '+esc(l.updated):'')+'</span></td><td class="r">'+(l.uses?esc(l.worked||0)+' of '+esc(l.uses):'–')+'</td><td><span class="pill '+(l.status==='retired'?'st-miss':l.status==='trial'?'st-open':'st-hit')+'">'+esc(l.status||'')+'</span></td></tr>'}).join('')+'</tbody>':'<tbody><tr><td class="empty">No lessons yet.</td></tr></tbody>';
+  var M=S.method.find(function(m){return m.id==='notes'});
+  if(M)$('method').innerHTML='<div class="sm mut" style="margin-bottom:6px">Last review '+esc(M.updated||'')+'</div>'+((M.rules||[]).length?'<ol style="margin:0;padding-left:20px;font-size:13.5px">'+M.rules.map(function(r){return '<li style="margin-bottom:5px">'+esc(r)+'</li>'}).join('')+'</ol>':'');
+
+  var buckets=[[0,.2],[.2,.4],[.4,.6],[.6,.8],[.8,1.01]];
+  $('cal').innerHTML=buckets.map(function(b){var xs=scored.filter(function(p){return p.prob>=b[0]&&p.prob<b[1]});
+    var exp=xs.length?xs.reduce(function(a,p){return a+p.prob},0)/xs.length:(b[0]+Math.min(b[1],1))/2;
+    var act=xs.length?xs.filter(function(p){return p.status==='hit'}).length/xs.length:null;
+    return '<div class="calrow"><span>Said '+Math.round(b[0]*100)+'–'+Math.min(100,Math.round(b[1]*100))+'%</span><span class="calbar"><span class="act" style="width:'+(act==null?0:act*100)+'%"></span><span class="exp" style="left:'+(exp*100)+'%"></span></span><span class="r mut">'+(act==null?'n=0':pct(act)+' · n='+xs.length)+'</span></div>'}).join('');
+
+  $('theses').innerHTML=S.theses.length?'<thead><tr><th>Thesis</th><th>Kill condition</th><th>Status</th></tr></thead><tbody>'+S.theses.slice().sort(function(a,b){return (a.order||0)-(b.order||0)}).map(function(x){
+    return '<tr><td><b>'+esc(x.thesis)+'</b><span class="sub">'+esc(x.source)+'</span></td><td class="sm">'+esc(x.kill)+(x.evidence?'<span class="sub">Latest: '+esc(x.evidence)+(x.updated?' ('+esc(x.updated)+')':'')+'</span>':'')+'</td><td><span class="pill th-'+esc(x.status)+'">'+esc(x.status)+'</span></td></tr>'}).join('')+'</tbody>':'<tbody><tr><td class="empty">No theses yet.</td></tr></tbody>';
+
+  var ev=S.events.slice().sort(function(a,b){return (a.date+(a.time||'')).localeCompare(b.date+(b.time||''))});
+  $('events').innerHTML=ev.length?ev.map(function(e){var past=e.date<today;
+    return '<div class="ev"><div class="d'+(past?' past':'')+'">'+esc(e.date)+(e.time?'<br>'+esc(e.time):'')+'</div><div class="n">'+esc(e.event)+(e.result?' <span class="pill st-hit">done</span>':'')+'</div><div class="w">'+esc(e.result||e.watch||'')+'</div></div>'}).join(''):'<div class="empty">No events yet.</div>';
+
+  var runs=S.runs.slice().sort(function(a,b){return (b.at||'').localeCompare(a.at||'')});
+  $('runs').innerHTML=runs.length?'<thead><tr><th>When</th><th>Run</th><th>What it did</th></tr></thead><tbody>'+runs.map(function(r){
+    return '<tr><td class="r" style="text-align:left">'+esc(r.at)+'</td><td>'+(r.url?'<a href="'+esc(r.url)+'" target="_blank" rel="noopener" style="color:var(--blu)">'+esc(r.name)+'</a>':esc(r.name))+'</td><td class="sm">'+esc(r.summary)+'</td></tr>'}).join('')+'</tbody>':'<tbody><tr><td class="empty">The first scheduled run is Monday 9 Nov before the open.</td></tr></tbody>';
+
+  var lib=S.reports.slice().sort(function(a,b){return (b.date||'').localeCompare(a.date||'')});
+  $('lib').innerHTML=lib.length?lib.map(function(r){return '<div><a href="'+esc(r.url)+'" target="_blank" rel="noopener">'+esc(r.title)+'</a> <span>'+esc(r.date)+' · '+esc(r.kind)+'</span></div>'}).join(''):'<div class="empty">No reports listed yet.</div>';
+}
+
+$('filters').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;filter=b.dataset.f;
+  Array.prototype.forEach.call(this.querySelectorAll('button'),function(x){x.setAttribute('aria-pressed',String(x===b))});render()});
+
+render();
+var timer=setTimeout(function(){setStatus('The ledger store did not answer. Showing an empty ledger; reload to try again.')},10000);
+(window.claude?claude.use('db'):Promise.resolve(null)).then(function(db){
+  if(!db){clearTimeout(timer);setStatus('Sign in to claude.ai to see the ledger data.');return}
+  ['predictions','theses','events','runs','reports','lessons','method'].forEach(function(name){
+    db.collection(name).onSnapshot(function(snap){
+      S[name]=snap.docs.map(function(d){var x=d.data()||{};x.id=d.id;return x});loaded[name]=true;
+      if(Object.keys(loaded).length===7){clearTimeout(timer);setStatus('Live · '+S.predictions.length+' calls, '+S.theses.length+' theses, '+S.events.length+' dated events')}
+      render();
+    },function(err){clearTimeout(timer);setStatus('Could not read the ledger ('+(err&&err.code||'error')+').')});
+  });
+}).catch(function(){clearTimeout(timer);setStatus('The ledger store is unavailable in this view.')});
+})();
+</script>

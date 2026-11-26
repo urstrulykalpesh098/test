@@ -1,0 +1,150 @@
+<title>Tuesday Double Event</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: one 860px column — the two events side by side as a 3x2 outcome grid first, then CPI, then CoreWeave, then the Tuesday clock and corrections. Briefing-series palette; amber = CPI, violet = CoreWeave. */
+:root{
+  --bg:#0b0e13;--p1:#141922;--p2:#1b212c;--line:#262e3b;--l2:#1c222c;
+  --tx:#e9eff7;--dim:#8d9aab;--d2:#66738a;
+  --red:#f0565e;--grn:#3fb950;--amb:#e3a008;--blu:#6ea8fe;--vio:#a371f7;
+  --redbg:rgba(240,86,94,.14);--grnbg:rgba(63,185,80,.14);
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;--mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  color-scheme:dark}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){
+  --bg:#f5f7fa;--p1:#fff;--p2:#eef1f6;--line:#d8dee8;--l2:#e6eaf1;--tx:#121a26;--dim:#526077;--d2:#76839a;
+  --red:#cf2f38;--grn:#1f8a3a;--amb:#a86f00;--blu:#2f6fdc;--vio:#7a4fd0;--redbg:rgba(207,47,56,.10);--grnbg:rgba(31,138,58,.10);color-scheme:light}}
+:root[data-theme="light"]{
+  --bg:#f5f7fa;--p1:#fff;--p2:#eef1f6;--line:#d8dee8;--l2:#e6eaf1;--tx:#121a26;--dim:#526077;--d2:#76839a;
+  --red:#cf2f38;--grn:#1f8a3a;--amb:#a86f00;--blu:#2f6fdc;--vio:#7a4fd0;--redbg:rgba(207,47,56,.10);--grnbg:rgba(31,138,58,.10);color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.6 var(--sans);-webkit-text-size-adjust:100%}
+main{max-width:860px;margin:0 auto;padding-block:20px 72px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.kick{font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--amb)}
+h1{font-size:25px;margin:5px 0 4px;letter-spacing:-.025em;line-height:1.18;text-wrap:balance}
+.stamp{color:var(--d2);font-size:12px;margin-bottom:18px}
+h2{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:34px 0 12px;padding-bottom:7px;border-bottom:1px solid var(--line)}
+p{margin:0 0 12px}b{font-weight:640}.mut{color:var(--dim)}.sm{font-size:13px}
+.card{background:var(--p1);border:1px solid var(--line);border-radius:11px;padding:14px 15px;margin-bottom:12px}
+.cpi{border-left:3px solid var(--amb)}.cw{border-left:3px solid var(--vio)}
+.up{color:var(--grn)}.dn{color:var(--red)}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--d2);font-weight:600;padding:0 8px 7px 0;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:8px 8px 8px 0;border-bottom:1px solid var(--l2);vertical-align:top}
+tr:last-child td{border-bottom:none}
+th.r,td.r{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.grid{display:grid;grid-template-columns:110px repeat(2,minmax(0,1fr));gap:6px;font-variant-numeric:tabular-nums}
+.grid .h{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--d2);align-self:end;padding-bottom:2px}
+.grid .rl{font-size:12.5px;align-self:center}
+.cell{border-radius:8px;padding:9px 10px;border:1px solid var(--line)}
+.cell .m{font-size:18px;font-weight:700}
+.cell .s{font-size:11.5px;color:var(--dim)}
+.kpi{display:grid;grid-template-columns:28px 1fr;gap:4px 10px;padding:9px 0;border-bottom:1px solid var(--l2)}
+.kpi:last-child{border-bottom:none}
+.kpi .n{font-size:12px;font-weight:700;color:var(--vio);font-variant-numeric:tabular-nums}
+.kpi .t{font-size:13.8px}.kpi .w{grid-column:2;font-size:12.4px;color:var(--dim)}
+.tick{display:grid;grid-template-columns:88px 1fr;gap:12px;padding:9px 0;border-bottom:1px solid var(--l2)}
+.tick:last-child{border-bottom:none}
+.tick .t{font-family:var(--mono);font-size:11.5px;color:var(--amb);padding-top:2px}
+.tick .w span{display:block;font-size:12.4px;color:var(--dim)}
+ul.plain{margin:0;padding-left:18px}ul.plain li{margin-bottom:7px}
+footer{margin-top:36px;padding-top:14px;border-top:1px solid var(--line);color:var(--d2);font-size:11.5px;line-height:1.65}
+footer a{color:var(--dim)}
+</style>
+
+<main>
+<div class="kick">Event preview · Tuesday 10 November 2026</div>
+<h1>Tuesday's two events: CPI decides the week, then CoreWeave decides AI credit</h1>
+<div class="stamp">Built Sun 8 Nov from two research agents and the week-of-9-Nov simulation · scored in the Desk Ledger after the close</div>
+
+<h2>The six ways Tuesday can land</h2>
+<div class="card">
+  <p class="sm" style="margin-bottom:10px">Simulated S&amp;P 500 close on <b>Friday 13 Nov</b> for each combination (median, with 10th–90th percentile). Friday 6 Nov close: 7,377. The odds shown are the simulation's assumptions.</p>
+  <div class="grid">
+    <div></div><div class="h">CoreWeave disappoints (50%)</div><div class="h">CoreWeave reassures (50%)</div>
+    <div class="rl"><b>Hot CPI</b><br><span class="mut sm">core ≥0.3% · 30%</span></div>
+    <div class="cell" style="background:var(--redbg)"><div class="m dn">7,110</div><div class="s">−3.6% · 6,835–7,384</div></div>
+    <div class="cell" style="background:var(--redbg)"><div class="m dn">7,234</div><div class="s">−1.9% · 6,939–7,515</div></div>
+    <div class="rl"><b>In line</b><br><span class="mut sm">core 0.2% · 45%</span></div>
+    <div class="cell"><div class="m dn">7,290</div><div class="s">−1.2% · 7,009–7,490</div></div>
+    <div class="cell"><div class="m up">7,412</div><div class="s">+0.5% · 7,113–7,618</div></div>
+    <div class="rl"><b>Cool CPI</b><br><span class="mut sm">core ≤0.1% · 25%</span></div>
+    <div class="cell"><div class="m up">7,419</div><div class="s">+0.6% · 7,103–7,601</div></div>
+    <div class="cell" style="background:var(--grnbg)"><div class="m up">7,547</div><div class="s">+2.3% · 7,216–7,721</div></div>
+  </div>
+  <p class="sm mut" style="margin:10px 0 0">The CPI rows differ by about 300 points; the CoreWeave columns by about 120. A hot CPI hurts more than a good CoreWeave helps. The forecasters' spread (Citi 0.19% to ING 0.3% core) says a hot print is a real possibility, not a fringe case.</p>
+</div>
+
+<h2>CPI · 8:30 ET</h2>
+<div class="card cpi">
+  <p class="sm"><b>Only the month-on-month change counts this time.</b> October 2025 prices were never collected during the shutdown, so the BLS will not publish a year-on-year rate. Any "3.7% y/y consensus" circulating is a number nobody will print.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Forecast</th><th class="r">Headline m/m</th><th class="r">Core m/m</th></tr></thead>
+    <tbody>
+      <tr><td>Bloomberg survey median</td><td class="r">0.3%</td><td class="r">0.2%</td></tr>
+      <tr><td>Cleveland Fed nowcast</td><td class="r">0.24%</td><td class="r">0.21%</td></tr>
+      <tr><td>Bloomberg Economics</td><td class="r">0.25%</td><td class="r">0.24%</td></tr>
+      <tr><td>Barclays</td><td class="r">0.2%</td><td class="r">0.2%</td></tr>
+      <tr><td>Citi (low end)</td><td class="r">0.16%</td><td class="r">0.19%</td></tr>
+      <tr><td>ING (high end)</td><td class="r">0.3%</td><td class="r">0.3%</td></tr>
+      <tr><td class="mut">September actual</td><td class="r mut">0.6%</td><td class="r mut">0.3%</td></tr>
+    </tbody>
+  </table></div>
+  <p class="sm" style="margin-top:12px"><b>What drives it:</b> housing costs (owners' equivalent rent) are expected to cool from 0.35% to about 0.27%. Gasoline fell about 1% in October. Airfares should give back September's +1.2%. Core goods are roughly flat, with little tariff pass-through so far. Oil's 13% fall last week lands in November's numbers, not October's.</p>
+  <p class="sm" style="margin:0"><b>How each print reads:</b> 0.3%+ core matches ING's outlier and pushes the December hike toward fully priced. 0.2% is "no change", per Citi, and attention moves to Friday's PPI. 0.1% or less is the "significant downside" one strategist says could stop full pricing. December hike odds are about 77% going in. No source gave an implied S&amp;P move for CPI day itself.</p>
+</div>
+
+<h2>CoreWeave · after the close, call 5pm ET</h2>
+<div class="card cw">
+  <div class="tw"><table>
+    <thead><tr><th>Item</th><th class="r">Guide / consensus</th></tr></thead>
+    <tbody>
+      <tr><td>Q3 revenue</td><td class="r">guide $3.45–3.60bn · consensus ~$3.54bn</td></tr>
+      <tr><td>Q3 EPS</td><td class="r">loss of $1.16–1.27</td></tr>
+      <tr><td>Q3 adjusted operating income</td><td class="r">guide $200–260m (Q2: $128m)</td></tr>
+      <tr><td>Q3 interest expense</td><td class="r">guide $860–940m (Q2: $640m)</td></tr>
+      <tr><td>Q3 capex</td><td class="r">guide $11.5–13.5bn · FY $35–39bn</td></tr>
+      <tr><td>Backlog</td><td class="r">$104.2bn at 30 Jun, plus $25bn+ signed early Q3</td></tr>
+    </tbody>
+  </table></div>
+  <h3 style="font-size:13.5px;margin:16px 0 4px">The five numbers that move it</h3>
+  <div class="kpi"><div class="n">1</div><div class="t">Interest expense against the $860–940m guide</div><div class="w">Above $940m feeds the credit fear. Bank of America calls the funding discussion "critical".</div></div>
+  <div class="kpi"><div class="n">2</div><div class="t">The financing plan</div><div class="w">Bernstein estimates about $85bn is needed to fund the backlog. A capex cut would hurt the stock but help the bonds: S&amp;P says a slowdown "wouldn't necessarily be a bad thing".</div></div>
+  <div class="kpi"><div class="n">3</div><div class="t">Backlog of at least $129bn</div><div class="w">$104.2bn plus the $25bn+ already announced. Anything less means cancellations or slippage.</div></div>
+  <div class="kpi"><div class="n">4</div><div class="t">Active power and Texas timing</div><div class="w">About 4.2GW contracted, more than 1.5GW active. Any comment on permitted Texas sites after the letter to Hinojosa.</div></div>
+  <div class="kpi"><div class="n">5</div><div class="t">Microsoft</div><div class="w">About 67% of 2025 revenue. Bloomberg reports Microsoft is reassessing neocloud deals.</div></div>
+  <h3 style="font-size:13.5px;margin:16px 0 4px">How the stock has reacted</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Report</th><th class="r">Next day</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>Q3 2025</td><td class="r dn">−16.3%</td><td class="sm">Full-year guide cut</td></tr>
+      <tr><td>Q4 2025</td><td class="r dn">about −17.9% intraday</td><td class="sm">Weak Q1 guide</td></tr>
+      <tr><td>Q1 2026</td><td class="r dn">about −11%</td><td class="sm">EPS miss, soft guide</td></tr>
+      <tr><td>Q2 2026</td><td class="r up">about +18%</td><td class="sm">Beat and raise</td></tr>
+    </tbody>
+  </table></div>
+  <p class="sm" style="margin-top:10px">Revenue beat every time; the guide decided the move. Options now price about <b>±21%</b>, more than any of the last four moves. Short interest is above <b>78% of the float</b>, so a clean report could squeeze hard. Neoclouds move as a group: on 5 Nov CoreWeave fell about 10%, Nebius 15% and Nvidia 9%. Nebius reports Thursday morning.</p>
+  <p class="sm" style="margin:0"><b>Bulls:</b> Citi ($128) sees "continued insatiable demand"; Piper calls the financing fears "most overblown". <b>Bears:</b> HSBC ($39) says the return on invested capital of 8.9% is below the cost of debt; Bernstein ($51) is underperform.</p>
+</div>
+
+<h2>Tuesday by the clock (ET)</h2>
+<div class="card">
+  <div class="tick"><div class="t">08:30</div><div class="w">CPI<span>Read core m/m first, then housing costs. 0.3%+ moves the week into the top row of the grid.</span></div></div>
+  <div class="tick"><div class="t">08:35–09:30</div><div class="w">Futures and the 2-year yield react<span>A rates-driven drop after a hot print is a discount-rate move (Mechanism School, lesson 6): bonds and stocks fall together.</span></div></div>
+  <div class="tick"><div class="t">09:30–16:00</div><div class="w">Positioning into CoreWeave<span>Neocloud names and Nvidia trade the event before it lands. Expect the leveraged-ETF rebalance in the last 20 minutes to follow the day's direction.</span></div></div>
+  <div class="tick"><div class="t">~16:05</div><div class="w">CoreWeave results<span>Interest line first, then backlog and the financing plan.</span></div></div>
+  <div class="tick"><div class="t">17:00</div><div class="w">CoreWeave call<span>Listen for Microsoft, Texas and any capex trim. Bonds react before the stock settles.</span></div></div>
+  <div class="tick"><div class="t">~18:30</div><div class="w">Desk run<span>A scheduled run grades the CPI and CoreWeave calls in the Desk Ledger and posts the after-hours read.</span></div></div>
+</div>
+
+<h2>Corrections to earlier reports</h2>
+<div class="card sm"><ul class="plain">
+  <li><b>CoreWeave's backlog is $104.2bn</b> (30 Jun 2026), not $55.6bn. $55.6bn was the Q3 2025 figure.</li>
+  <li><b>CoreWeave's debt</b> is $35.6bn per the June 10-Q. The $50bn+ figures use a wider definition.</li>
+  <li><b>"Most of the 2.7GW is in Texas" is not supported.</b> The letter names six Texas sites but gives no split.</li>
+  <li><b>No year-on-year CPI</b> will be published this month.</li>
+  <li><b>Nvidia reports Tuesday 17 Nov.</b> The Weekend Update listed it as Monday.</li>
+</ul></div>
+
+<footer>Sources: CPI forecasts from Bloomberg, Citi, Barclays, ING, TD, Trading Economics and the Cleveland Fed nowcast; CoreWeave expectations from Zacks, TipRanks, Benzinga, Business Insider, CNBC, the 12 Aug 10-Q and analyst notes, gathered through <a href="https://bigdata.com" target="_blank" rel="noopener">Bigdata.com</a> and web search on 8 Nov. Several figures are single-sourced; bls.gov itself was not reachable from this environment. Simulation figures are from the uncalibrated week-of-9-Nov model.
+Information and analysis only. <b>Not investment advice</b>, and nothing here recommends any position or trade.</footer>
+</main>

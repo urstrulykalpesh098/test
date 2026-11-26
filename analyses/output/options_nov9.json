@@ -1,0 +1,452 @@
+{
+ "meta": {
+  "spy_friday": 736.37,
+  "spy_ma200": 731.2,
+  "vix": 25.64,
+  "put_skew": 0.9,
+  "call_skew": 0.3,
+  "slippage_per_leg": 0.03,
+  "budget": 2000.0,
+  "runs": 604,
+  "expiry": "2026-11-13"
+ },
+ "trades": [
+  {
+   "id": "T1",
+   "name": "200-day break, put spread",
+   "when": "mon_open",
+   "rule": "Monday at the open, no condition",
+   "thesis": "A close below the rising 200-day (S&P ~7,325, SPY ~731) is likely in 81% of simulated weeks; trend followers then sell Tue-Fri (6 Nov briefing).",
+   "trigger_rate": 1.0,
+   "n": 604,
+   "p_beyond_long_strike_options": 0.409361583312489,
+   "p_beyond_long_strike_sim": 0.47019867549668876,
+   "legs": [
+    [
+     1,
+     "P",
+     730
+    ],
+    [
+     -1,
+     "P",
+     720
+    ]
+   ],
+   "spot_at_entry": 736.37,
+   "debit": 3.04,
+   "max_gain": 6.96,
+   "max_loss": 3.04,
+   "reward_risk": 2.29,
+   "max_debit_for_1to2": 3.33,
+   "contracts_for_budget": 6,
+   "cash_at_risk": 1822.0,
+   "cash_max_gain": 4178.0,
+   "p_profit": 0.4271523178807947,
+   "p_max_gain": 0.31125827814569534,
+   "p_lose_all": 0.5298013245033113,
+   "ev_per_dollar_risked": 0.2828628094106702,
+   "ev_p05": -1.0,
+   "ev_median": -1.0,
+   "ev_if_25pct_richer": 0.026290247528536183,
+   "ev_if_15pct_cheaper": 0.5092503640125534,
+   "passes_1to2": true
+  },
+  {
+   "id": "T2",
+   "name": "Confirmed 200-day break, put spread",
+   "when": "mon_close",
+   "rule": "Monday at the close, only if the S&P closes below 7,325",
+   "thesis": "Wait for the trigger itself, then own the trend followers' selling into Friday.",
+   "trigger_rate": 0.48013245033112584,
+   "n": 290,
+   "p_beyond_long_strike_options": 0.43330420068907377,
+   "p_beyond_long_strike_sim": 0.2896551724137931,
+   "legs": [
+    [
+     1,
+     "P",
+     718.0
+    ],
+    [
+     -1,
+     "P",
+     708.0
+    ]
+   ],
+   "spot_at_entry": 722.82,
+   "debit": 3.32,
+   "max_gain": 6.68,
+   "max_loss": 3.32,
+   "reward_risk": 2.02,
+   "max_debit_for_1to2": 3.33,
+   "contracts_for_budget": 6,
+   "cash_at_risk": 1990.0,
+   "cash_max_gain": 4010.0,
+   "p_profit": 0.2482758620689655,
+   "p_max_gain": 0.1896551724137931,
+   "p_lose_all": 0.7103448275862069,
+   "ev_per_dollar_risked": -0.2720577238033393,
+   "ev_p05": -1.0,
+   "ev_median": -1.0,
+   "ev_if_25pct_richer": -0.41764617904267143,
+   "ev_if_15pct_cheaper": -0.14359732212157558,
+   "passes_1to2": true
+  },
+  {
+   "id": "T3",
+   "name": "Bad-path landing, put butterfly",
+   "when": "mon_open",
+   "rule": "Monday at the open, no condition",
+   "thesis": "The hot-CPI / CoreWeave-bad paths cluster around S&P 7,110-7,230 by Friday (SPY 710-722).",
+   "trigger_rate": 1.0,
+   "n": 604,
+   "p_beyond_long_strike_options": 0.3432802613325807,
+   "p_beyond_long_strike_sim": 0.39072847682119205,
+   "legs": [
+    [
+     1,
+     "P",
+     725
+    ],
+    [
+     -2,
+     "P",
+     715
+    ],
+    [
+     1,
+     "P",
+     705
+    ]
+   ],
+   "spot_at_entry": 736.37,
+   "debit": 1.0,
+   "max_gain": 9.0,
+   "max_loss": 1.0,
+   "reward_risk": 9.01,
+   "max_debit_for_1to2": 3.33,
+   "contracts_for_budget": 20,
+   "cash_at_risk": 1997.0,
+   "cash_max_gain": 18003.0,
+   "p_profit": 0.2052980132450331,
+   "p_max_gain": 0.0033112582781456954,
+   "p_lose_all": 0.7731788079470199,
+   "ev_per_dollar_risked": 0.06315196788244196,
+   "ev_p05": -1.0,
+   "ev_median": -1.0,
+   "ev_if_25pct_richer": -0.14947842569404643,
+   "ev_if_15pct_cheaper": 0.250767021038167,
+   "passes_1to2": true
+  },
+  {
+   "id": "T4",
+   "name": "Hot-CPI follow-through, put spread",
+   "when": "tue_close",
+   "rule": "Tuesday at the close, only after a hot CPI",
+   "thesis": "Hot CPI is the largest single input: median Friday 7,170. Trend followers and vol funds keep selling after it.",
+   "trigger_rate": 0.2980132450331126,
+   "n": 180,
+   "p_beyond_long_strike_options": 0.4089844078477623,
+   "p_beyond_long_strike_sim": 0.49444444444444446,
+   "legs": [
+    [
+     1,
+     "P",
+     715.0
+    ],
+    [
+     -1,
+     "P",
+     705.0
+    ]
+   ],
+   "spot_at_entry": 721.27,
+   "debit": 3.14,
+   "max_gain": 6.86,
+   "max_loss": 3.14,
+   "reward_risk": 2.18,
+   "max_debit_for_1to2": 3.33,
+   "contracts_for_budget": 6,
+   "cash_at_risk": 1885.0,
+   "cash_max_gain": 4115.0,
+   "p_profit": 0.46111111111111114,
+   "p_max_gain": 0.2722222222222222,
+   "p_lose_all": 0.5166666666666667,
+   "ev_per_dollar_risked": 0.4142495095517851,
+   "ev_p05": -1.0,
+   "ev_median": -1.0,
+   "ev_if_25pct_richer": 0.13139960764142808,
+   "ev_if_15pct_cheaper": 0.6638229524138649,
+   "passes_1to2": true
+  },
+  {
+   "id": "T5",
+   "name": "Cool-CPI follow-through, call spread",
+   "when": "tue_close",
+   "rule": "Tuesday at the close, only after a cool CPI",
+   "thesis": "Cool CPI takes the December hike out of the price; median Friday 7,475 and value buyers keep lifting it.",
+   "trigger_rate": 0.25165562913907286,
+   "n": 152,
+   "p_beyond_long_strike_options": 0.3652367782590963,
+   "p_beyond_long_strike_sim": 0.39473684210526316,
+   "legs": [
+    [
+     1,
+     "C",
+     748.0
+    ],
+    [
+     -1,
+     "C",
+     756.0
+    ]
+   ],
+   "spot_at_entry": 742.74,
+   "debit": 2.3,
+   "max_gain": 5.7,
+   "max_loss": 2.3,
+   "reward_risk": 2.47,
+   "max_debit_for_1to2": 2.67,
+   "contracts_for_budget": 8,
+   "cash_at_risk": 1842.0,
+   "cash_max_gain": 4558.0,
+   "p_profit": 0.3618421052631579,
+   "p_max_gain": 0.03289473684210526,
+   "p_lose_all": 0.6052631578947368,
+   "ev_per_dollar_risked": 0.046178658526704996,
+   "ev_p05": -1.0,
+   "ev_median": -1.0,
+   "ev_if_25pct_richer": -0.163057073178636,
+   "ev_if_15pct_cheaper": 0.23079842179612362,
+   "passes_1to2": true
+  },
+  {
+   "id": "T6",
+   "name": "Relief rally, call spread",
+   "when": "mon_open",
+   "rule": "Monday at the open, no condition",
+   "thesis": "Cheap upside to the cool-CPI + CoreWeave-good paths (median 7,556) and the Iran de-escalation tail the Proactive Report calls most underweighted.",
+   "trigger_rate": 1.0,
+   "n": 604,
+   "p_beyond_long_strike_options": 0.37074246575579284,
+   "p_beyond_long_strike_sim": 0.271523178807947,
+   "legs": [
+    [
+     1,
+     "C",
+     745
+    ],
+    [
+     -1,
+     "C",
+     755
+    ]
+   ],
+   "spot_at_entry": 736.37,
+   "debit": 3.22,
+   "max_gain": 6.78,
+   "max_loss": 3.22,
+   "reward_risk": 2.1,
+   "max_debit_for_1to2": 3.33,
+   "contracts_for_budget": 6,
+   "cash_at_risk": 1935.0,
+   "cash_max_gain": 4065.0,
+   "p_profit": 0.22185430463576158,
+   "p_max_gain": 0.14735099337748345,
+   "p_lose_all": 0.7284768211920529,
+   "ev_per_dollar_risked": -0.38099157421303986,
+   "ev_p05": -1.0,
+   "ev_median": -1.0,
+   "ev_if_25pct_richer": -0.5047932593704318,
+   "ev_if_15pct_cheaper": -0.2717547931918115,
+   "passes_1to2": true
+  },
+  {
+   "id": "T7",
+   "name": "Good-path landing, call butterfly",
+   "when": "mon_open",
+   "rule": "Monday at the open, no condition",
+   "thesis": "Targets the best paths' Friday cluster around SPY 750-756.",
+   "trigger_rate": 1.0,
+   "n": 604,
+   "p_beyond_long_strike_options": 0.37074246575579284,
+   "p_beyond_long_strike_sim": 0.271523178807947,
+   "legs": [
+    [
+     1,
+     "C",
+     745
+    ],
+    [
+     -2,
+     "C",
+     755
+    ],
+    [
+     1,
+     "C",
+     765
+    ]
+   ],
+   "spot_at_entry": 736.37,
+   "debit": 1.35,
+   "max_gain": 8.65,
+   "max_loss": 1.35,
+   "reward_risk": 6.43,
+   "max_debit_for_1to2": 3.33,
+   "contracts_for_budget": 14,
+   "cash_at_risk": 1885.0,
+   "cash_max_gain": 12115.0,
+   "p_profit": 0.17880794701986755,
+   "p_max_gain": 0.0016556291390728477,
+   "p_lose_all": 0.7880794701986755,
+   "ev_per_dollar_risked": -0.1798503873780029,
+   "ev_p05": -1.0,
+   "ev_median": -1.0,
+   "ev_if_25pct_richer": -0.3438803099024023,
+   "ev_if_15pct_cheaper": -0.03511810279765049,
+   "passes_1to2": true
+  },
+  {
+   "id": "T8",
+   "name": "CoreWeave contagion, put spread",
+   "when": "wed_close",
+   "rule": "Wednesday at the close, only if CoreWeave disappointed",
+   "thesis": "A bad CoreWeave print spreads AI-credit fear while trend followers are already selling.",
+   "trigger_rate": 0.5,
+   "n": 302,
+   "p_beyond_long_strike_options": 0.39002424841912026,
+   "p_beyond_long_strike_sim": 0.31788079470198677,
+   "legs": [
+    [
+     1,
+     "P",
+     719.0
+    ],
+    [
+     -1,
+     "P",
+     711.0
+    ]
+   ],
+   "spot_at_entry": 724.14,
+   "debit": 2.38,
+   "max_gain": 5.62,
+   "max_loss": 2.38,
+   "reward_risk": 2.36,
+   "max_debit_for_1to2": 2.67,
+   "contracts_for_budget": 8,
+   "cash_at_risk": 1904.0,
+   "cash_max_gain": 4496.0,
+   "p_profit": 0.2781456953642384,
+   "p_max_gain": 0.13245033112582782,
+   "p_lose_all": 0.6821192052980133,
+   "ev_per_dollar_risked": -0.033835748079787474,
+   "ev_p05": -1.0,
+   "ev_median": -1.0,
+   "ev_if_25pct_richer": -0.22706859846382998,
+   "ev_if_15pct_cheaper": 0.1366638257884854,
+   "passes_1to2": true
+  },
+  {
+   "id": "T9",
+   "name": "Broken-wing put butterfly",
+   "when": "mon_open",
+   "rule": "Monday at the open, no condition",
+   "thesis": "Pays most if SPY drifts to ~720 (S&P ~7,215); the skipped strike keeps the cost low.",
+   "trigger_rate": 1.0,
+   "n": 604,
+   "p_beyond_long_strike_options": 0.4374304538733911,
+   "p_beyond_long_strike_sim": 0.4900662251655629,
+   "legs": [
+    [
+     1,
+     "P",
+     732
+    ],
+    [
+     -2,
+     "P",
+     720
+    ],
+    [
+     1,
+     "P",
+     705
+    ]
+   ],
+   "spot_at_entry": 736.37,
+   "debit": 1.22,
+   "max_gain": 10.78,
+   "max_loss": 4.22,
+   "reward_risk": 2.55,
+   "max_debit_for_1to2": 4.0,
+   "contracts_for_budget": 4,
+   "cash_at_risk": 1688.0,
+   "cash_max_gain": 4312.0,
+   "p_profit": 0.2814569536423841,
+   "p_max_gain": 0.009933774834437087,
+   "p_lose_all": 0.16556291390728478,
+   "ev_per_dollar_risked": 0.019711062858320305,
+   "ev_p05": -1.0,
+   "ev_median": -0.289109173086151,
+   "ev_if_25pct_richer": -0.04902298196843924,
+   "ev_if_15pct_cheaper": 0.06593688245563721,
+   "passes_1to2": true
+  },
+  {
+   "id": "T10",
+   "name": "Failed-break reversal, call spread",
+   "when": "mon_close",
+   "rule": "Monday at the close, only if the S&P held above 7,325 all day and closed up",
+   "thesis": "If the 200-day holds and Monday rallies, dealers' short gamma helps the bounce and the forced sellers look done.",
+   "trigger_rate": 0.39403973509933776,
+   "n": 238,
+   "p_beyond_long_strike_options": 0.36614772513583715,
+   "p_beyond_long_strike_sim": 0.16806722689075632,
+   "legs": [
+    [
+     1,
+     "C",
+     754.0
+    ],
+    [
+     -1,
+     "C",
+     762.0
+    ]
+   ],
+   "spot_at_entry": 747.41,
+   "debit": 2.53,
+   "max_gain": 5.47,
+   "max_loss": 2.53,
+   "reward_risk": 2.16,
+   "max_debit_for_1to2": 2.67,
+   "contracts_for_budget": 7,
+   "cash_at_risk": 1771.0,
+   "cash_max_gain": 3829.0,
+   "p_profit": 0.1638655462184874,
+   "p_max_gain": 0.04201680672268908,
+   "p_lose_all": 0.8319327731092437,
+   "ev_per_dollar_risked": -0.5497002298890901,
+   "ev_p05": -1.0,
+   "ev_median": -1.0,
+   "ev_if_25pct_richer": -0.639760183911272,
+   "ev_if_15pct_cheaper": -0.4702355645754,
+   "passes_1to2": true
+  }
+ ],
+ "ranking": [
+  "T4",
+  "T1",
+  "T3",
+  "T5",
+  "T9",
+  "T8",
+  "T7",
+  "T2",
+  "T6",
+  "T10"
+ ]
+}
