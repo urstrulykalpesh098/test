@@ -1,20 +1,20 @@
 <title>Eye View HQ</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 /* VOICE work: a research desk's control room, read by one analyst
    IDEA the departures board of a data railway: sources in, verdicts out
    PICTURE the pipeline route from free sources to the verdicts, with live counts at each station
-   COLOUR sky #4fb3e8 band, white ground, ink #10223a, orange #ff7a1a for what matters; night #0b1726
-   TYPE Outfit 600/700 display + Inter text
+   COLOUR desk family theme: masthead #0b3b41, lens #7fd6cf, desk teal #0d7680, amber flags, claret/green
+   TYPE Libre Franklin throughout (matches Desk Daily, Ledger, CFA card)
    LAYOUT sky band: finding + figures, then full-width route; below, bands with chart beside its text; phone stacks */
-:root{color-scheme:light dark;--bg:light-dark(#ffffff,#0b1726);--ink:light-dark(#10223a,#e8f0f8);--mute:light-dark(#4a5d75,#9fb2c8);--sky:light-dark(#4fb3e8,#123a5c);--skyink:light-dark(#0b2340,#e8f4ff);--rule:light-dark(#d9e3ee,#22364f);--panel:light-dark(#f2f7fb,#11223a);--org:#ff7a1a;--orgink:light-dark(#b34a00,#ffa060);--good:light-dark(#137a4a,#4fd08f);--bad:light-dark(#b3261e,#ff8a80);--blue:light-dark(#1d6fb8,#6cc3f2)}
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#0d1416);--ink:light-dark(#14181b,#e8eff0);--mute:light-dark(#4d5a5e,#9fb3b5);--sky:light-dark(#0b3b41,#08262a);--skyink:#ffffff;--lens:#7fd6cf;--rule:light-dark(#dbe3e4,#22343a);--panel:light-dark(#f3f7f7,#13201f);--org:light-dark(#9a5b00,#f0b429);--orgink:light-dark(#9a5b00,#f0b429);--good:light-dark(#16794a,#4cc38a);--bad:light-dark(#b3123f,#ff6f8e);--blue:light-dark(#0d7680,#4fc3c9)}
 :root[data-theme=light]{color-scheme:light}
 :root[data-theme=dark]{color-scheme:dark}
 *{box-sizing:border-box;min-width:0}
-body{background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,sans-serif;overflow-x:clip;margin:0}
-h1,h2,h3{font-family:Outfit,Inter,sans-serif;letter-spacing:-.02em;line-height:1.08;margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 "Libre Franklin",system-ui,sans-serif;overflow-x:clip;margin:0}
+h1,h2,h3{font-family:"Libre Franklin",system-ui,sans-serif;letter-spacing:-.02em;line-height:1.08;margin:0}
 h1{font-size:clamp(34px,5vw,52px);font-weight:700}
 h2{font-size:clamp(24px,3vw,32px);font-weight:600;margin-bottom:6px}
 h3{font-size:18px;font-weight:600}
@@ -24,11 +24,11 @@ p{margin:6px 0 0;max-width:68ch}
 .hero{background:var(--sky);color:var(--skyink);border:0;margin-top:calc(-1*env(safe-area-inset-top,0px));padding-top:calc(env(safe-area-inset-top,0px) + 2.5rem)}
 .hero .lede{font-size:18px;max-width:62ch;margin-top:10px}
 .figs{display:grid;grid-template-columns:repeat(auto-fit,minmax(9em,1fr));gap:12px 24px;margin-top:22px}
-.fig1 b{display:block;font:700 clamp(28px,3.4vw,40px)/1 Outfit,sans-serif;white-space:nowrap}
+.fig1 b{display:block;font:700 clamp(28px,3.4vw,40px)/1 "Libre Franklin",sans-serif;white-space:nowrap}
 .fig1 span{font-size:14px}
 .route{position:relative;height:250px;margin-top:26px}
 .route svg{position:absolute;inset:0;width:100%;height:100%}
-.route text{font-family:Inter,sans-serif}
+.route text{font-family:"Libre Franklin",sans-serif}
 .sub{color:var(--mute);font-size:14px}
 .two{display:grid;gap:28px}
 @media(min-width:860px){.two{grid-template-columns:minmax(0,5fr) minmax(0,7fr)}}
@@ -37,7 +37,7 @@ p{margin:6px 0 0;max-width:68ch}
 svg text{paint-order:stroke;stroke:var(--bg);stroke-width:4px;fill:var(--ink);font-size:13px}
 .verdicts{display:grid;gap:12px;margin-top:18px;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr))}
 .v{border:1px solid var(--rule);border-radius:10px;padding:14px 16px;background:var(--panel)}
-.v .tag{display:inline-block;font:600 13px Inter,sans-serif;padding:2px 10px;border-radius:99px;margin-bottom:8px}
+.v .tag{display:inline-block;font:600 13px "Libre Franklin",sans-serif;padding:2px 10px;border-radius:99px;margin-bottom:8px}
 .tag.adopt{background:color-mix(in srgb,var(--good) 18%,transparent);color:var(--good)}
 .tag.reject{background:color-mix(in srgb,var(--bad) 16%,transparent);color:var(--bad)}
 .tag.keep{background:color-mix(in srgb,var(--org) 20%,transparent);color:var(--orgink)}
@@ -57,7 +57,7 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .q label{display:block;font-weight:600}
 .q input[type=range]{width:100%;accent-color:var(--org);height:44px}
 .q .row{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:14px}
-button{font:600 15px Inter,sans-serif;border-radius:8px;border:1px solid var(--ink);background:var(--ink);color:var(--bg);padding:10px 16px;min-height:44px;cursor:pointer}
+button{font:600 15px "Libre Franklin",sans-serif;border-radius:8px;border:1px solid var(--ink);background:var(--ink);color:var(--bg);padding:10px 16px;min-height:44px;cursor:pointer}
 button.ghost{background:transparent;color:var(--ink)}
 button:disabled{opacity:.5;cursor:default}
 button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--org);outline-offset:2px}
@@ -66,7 +66,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px soli
 .msg.me{align-self:flex-end;background:var(--ink);color:var(--bg)}
 .msg.ai{background:var(--bg);border:1px solid var(--rule)}
 .ask{display:flex;gap:8px;flex-wrap:wrap}
-.ask textarea{flex:1 1 280px;font:16px Inter,sans-serif;padding:10px 12px;border-radius:8px;border:1px solid var(--mute);background:var(--bg);color:var(--ink);min-height:48px;resize:vertical}
+.ask textarea{flex:1 1 280px;font:16px "Libre Franklin",sans-serif;padding:10px 12px;border-radius:8px;border:1px solid var(--mute);background:var(--bg);color:var(--ink);min-height:48px;resize:vertical}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .chips button{font-weight:500;font-size:14px;background:transparent;color:var(--ink);border-color:var(--rule)}
 .legend{display:flex;gap:16px;flex-wrap:wrap;font-size:14px;color:var(--mute);margin-top:6px}
@@ -260,11 +260,11 @@ function drawRoute(){
  const pts=st.map((_,i)=>vert?[26,20+i*(Hh-40)/(st.length-1)]:[30+i*(W-60)/(st.length-1),70]);
  out+=`<path d="M${pts.map(p=>p.join(',')).join(' L')}" fill="none" stroke="${sky}" stroke-width="6" stroke-linecap="round" opacity=".9"/>`;
  pts.forEach((p,i)=>{const last=i===st.length-1;
-  out+=`<circle cx="${p[0]}" cy="${p[1]}" r="${last?13:11}" fill="${last?'#ff7a1a':css('--sky')}" stroke="${sky}" stroke-width="4"/>`;
+  out+=`<circle cx="${p[0]}" cy="${p[1]}" r="${last?13:11}" fill="${last?css('--lens'):css('--sky')}" stroke="${sky}" stroke-width="4"/>`;
   const [a,b,c]=st[i];
-  if(vert){out+=`<text x="${p[0]+24}" y="${p[1]-4}" style="font:600 16px Outfit,sans-serif;fill:${sky};stroke:none">${esc(a)}</text><text x="${p[0]+24}" y="${p[1]+14}" style="font-size:13px;fill:${sky};stroke:none">${esc(b)} · <tspan font-weight="700">${esc(c)}</tspan></text>`;}
+  if(vert){out+=`<text x="${p[0]+24}" y="${p[1]-4}" style="font:600 16px 'Libre Franklin',sans-serif;fill:${sky};stroke:none">${esc(a)}</text><text x="${p[0]+24}" y="${p[1]+14}" style="font-size:13px;fill:${sky};stroke:none">${esc(b)} · <tspan font-weight="700">${esc(c)}</tspan></text>`;}
   else{const anchor=i===0?'start':last?'end':'middle';const x=i===0?p[0]-10:last?p[0]+10:p[0];
-   out+=`<text x="${x}" y="${p[1]+40}" text-anchor="${anchor}" style="font:600 17px Outfit,sans-serif;fill:${sky};stroke:none">${esc(a)}</text><text x="${x}" y="${p[1]+60}" text-anchor="${anchor}" style="font-size:13px;fill:${sky};stroke:none">${esc(b)}</text><text x="${x}" y="${p[1]-24}" text-anchor="${anchor}" style="font:700 15px Inter,sans-serif;fill:${sky};stroke:none">${esc(c)}</text>`;}
+   out+=`<text x="${x}" y="${p[1]+40}" text-anchor="${anchor}" style="font:600 17px 'Libre Franklin',sans-serif;fill:${sky};stroke:none">${esc(a)}</text><text x="${x}" y="${p[1]+60}" text-anchor="${anchor}" style="font-size:13px;fill:${sky};stroke:none">${esc(b)}</text><text x="${x}" y="${p[1]-24}" text-anchor="${anchor}" style="font:700 15px 'Libre Franklin',sans-serif;fill:${sky};stroke:none">${esc(c)}</text>`;}
  });
  if(!vert){const y=200;out+=`<text x="${W/2}" y="${y}" text-anchor="middle" style="font-size:14px;fill:${sky};stroke:none">Weeknights 18:15 ET the backbone refreshes, grades yesterday's calls and makes new ones. Sundays the research loop re-tests every belief.</text>`;}
  s.innerHTML=out+'</svg>';
@@ -281,10 +281,10 @@ function drawBands(){
  let o=`<svg viewBox="0 0 ${W} ${Hh}">`;
  [0.7,0.8,0.9,1.0].forEach(v=>{o+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="${css('--rule')}"/><text x="${m.l-8}" y="${Y(v)+4}" text-anchor="end">${v*100}%</text>`});
  [0.8,1.0,1.2,1.4,1.6,1.8,2.0].forEach((k,i)=>{if(W<520&&i%2)return;o+=`<text x="${X(k)}" y="${Hh-m.b+20}" text-anchor="middle">${k.toFixed(1)}x</text>`});
- o+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(.8)}" y2="${Y(.8)}" stroke="#ff7a1a" stroke-width="2"/>`;
+ o+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(.8)}" y2="${Y(.8)}" stroke="${css('--org')}" stroke-width="2"/>`;
  o+=`<path d="M${pts.map(p=>X(p[0])+','+Y(p[1])).join(' L')}" fill="none" stroke="${css('--blue')}" stroke-width="3"/>`;
  pts.forEach(p=>o+=`<circle cx="${X(p[0])}" cy="${Y(p[1])}" r="4" fill="${css('--blue')}"/>`);
- const h16=by['1.6'].hit;o+=`<circle cx="${X(1.6)}" cy="${Y(h16)}" r="7" fill="none" stroke="#ff7a1a" stroke-width="2"/><text x="${X(1.6)}" y="${Y(h16)+24}" text-anchor="middle" font-weight="600">rule 5: 1.6x holds ${pct(h16)}</text>`;
+ const h16=by['1.6'].hit;o+=`<circle cx="${X(1.6)}" cy="${Y(h16)}" r="7" fill="none" stroke="${css('--org')}" stroke-width="2"/><text x="${X(1.6)}" y="${Y(h16)+24}" text-anchor="middle" font-weight="600">rule 5: 1.6x holds ${pct(h16)}</text>`;
  const k8=D.lab.spx_bands.h1.k_for_80;o+=`<text x="${X(k8)+8}" y="${Y(.8)-10}">${k8.toFixed(2)}x is enough for 80%</text>`;
  o+=`<text x="${(m.l+W-m.r)/2}" y="${Hh-4}" text-anchor="middle" fill="${css('--mute')}">range width, multiple of the VIX-implied move</text>`;
  s.innerHTML=o+'</svg>';
@@ -302,7 +302,7 @@ function drawFan(){
  keys.forEach((k,i)=>{const q=hz[k].spx_ret_q,cx=m.l+bw*i+bw/2,w=Math.min(90,bw*.55);
   o+=`<rect x="${cx-w/2}" y="${Y(q['0.9'])}" width="${w}" height="${Y(q['0.1'])-Y(q['0.9'])}" fill="${css('--blue')}" opacity=".25" rx="4"/>`;
   o+=`<rect x="${cx-w/2}" y="${Y(q['0.75'])}" width="${w}" height="${Y(q['0.25'])-Y(q['0.75'])}" fill="${css('--blue')}" opacity=".55" rx="4"/>`;
-  o+=`<line x1="${cx-w/2}" x2="${cx+w/2}" y1="${Y(q['0.5'])}" y2="${Y(q['0.5'])}" stroke="#ff7a1a" stroke-width="3"/>`;
+  o+=`<line x1="${cx-w/2}" x2="${cx+w/2}" y1="${Y(q['0.5'])}" y2="${Y(q['0.5'])}" stroke="${css('--org')}" stroke-width="3"/>`;
   o+=`<text x="${cx}" y="${Hh-m.b+20}" text-anchor="middle" font-weight="600">${lab[k]}</text><text x="${cx}" y="${Y(q['0.9'])-8}" text-anchor="middle">up ${pct(hz[k].p_up)}</text>`;});
  s.innerHTML=o+'</svg>';
 }
