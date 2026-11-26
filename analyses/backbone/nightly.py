@@ -22,6 +22,7 @@ from analyses.backbone import pull  # noqa: E402
 from analyses.backbone.history import manifest  # noqa: E402
 from analyses.lab import lab, analysts, multiasset, playbook, research, ranges  # noqa: E402
 from analyses.deskroom import packets  # noqa: E402
+from analyses.godseye import godseye  # noqa: E402
 
 HUB = ROOT / "analyses" / "output" / "hub" / "hub_data.json"
 
@@ -73,6 +74,14 @@ def main(argv=None):
     HUB.write_text(json.dumps(build_hub(res), separators=(",", ":")) + "\n")
     print("hub data:", HUB, HUB.stat().st_size, "bytes")
     print("desk room packets:", packets.run())
+    try:
+        gd = godseye.build()
+        gp = ROOT / "analyses" / "output" / "godseye" / "godseye.json"
+        gp.parent.mkdir(parents=True, exist_ok=True)
+        gp.write_text(json.dumps(gd, separators=(",", ":")))
+        print("god's eye view:", gp, gp.stat().st_size, "bytes")
+    except Exception as e:  # the map is context only; never fail the nightly run over it
+        print("god's eye view skipped:", e)
     return 0
 
 
