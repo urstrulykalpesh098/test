@@ -1,6 +1,7 @@
 """Eye View Treasury auction tracker: how well the government's note and bond sales went, from Treasury's own data.
 
-Source (free, no key): Treasury Fiscal Data API, api.fiscaldata.treasury.gov
+Sources (free, no key): TreasuryDirect auction API (www.treasurydirect.gov/TA_WS, current within a day) for the last
+~5 months, and Treasury Fiscal Data API (api.fiscaldata.treasury.gov, history; it can lag by weeks)
   /v1/accounting/od/auctions_query     results of every marketable auction (bid-to-cover, who bought, high yield)
   /v1/accounting/od/upcoming_auctions  announced auctions not yet held
 
@@ -30,11 +31,13 @@ try:
 except ImportError:
     from .common import get
 
-VERSION = "auctions v1.0 (2026-11-26)"
+VERSION = "auctions v1.1 (2026-11-26)"
 HERE = Path(__file__).resolve().parent
 FD = "https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v1/accounting/od/"
+TD_UP = "https://www.treasurydirect.gov/TA_WS/securities/upcoming?format=json"  # announced only; coupons appear about a week ahead
+TD = "https://www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&days={days}&type={kind}"
 COUPON_TYPES = ("Note", "Bond", "TIPS Note", "TIPS Bond")
-PRIOR_N, RECENT_DAYS = 6, 14
+PRIOR_N, RECENT_DAYS, STALE_DAYS = 6, 14, 10
 
 
 def _f(x):
@@ -50,6 +53,34 @@ def fetch(endpoint, params):
         rows += d.get("data", [])
         if page >= (d.get("meta", {}).get("total-pages") or 1): return rows
         page += 1
+
+
+def treasurydirect(days=150):
+    """Recent results from TreasuryDirect (current within a day; Fiscal Data can lag by weeks), mapped to Fiscal Data field names."""
+    out = []
+    for kind in ("Note", "Bond", "TIPS"):
+        for x in json.loads(get(TD.format(days=days, kind=kind))):
+            if x.get("floatingRate") == "Yes": continue
+            n = lambda k: _f(x.get(k)) or 0.0
+            comp = n("primaryDealersCompetitiveParAwarded") + n("directBiddersCompetitiveParAwarded") + n("indirectBiddersCompetitiveParAwarded")
+            tips = x.get("inflationProtected") == "Yes"
+            out.append({"auction_date": (x.get("auctionDate") or x.get("competitiveAuctionCloseDate") or "")[:10], "cusip": x.get("cusip"),
+                        "security_type": ("TIPS " if tips else "") + (x.get("securityType") or ""), "security_term": x.get("securityTerm"),
+                        "issue_date": (x.get("issueDate") or "")[:10], "maturity_date": (x.get("maturityDate") or "")[:10],
+                        "bid_to_cover_ratio": x.get("bidToCoverRatio"), "comp_accepted": comp or None,
+                        "primary_dealer_accepted": x.get("primaryDealersCompetitiveParAwarded"),
+                        "indirect_bidder_accepted": x.get("indirectBiddersCompetitiveParAwarded"), "high_yield": x.get("highYield"),
+                        "offering_amt": x.get("offeringAmount"), "inflation_index_security": "Yes" if tips else "No",
+                        "reopening": x.get("reopening"), "src": "TreasuryDirect"})
+    return out
+
+
+def merge(fd_rows, td_rows):
+    """Fiscal Data for history, TreasuryDirect wins where both have the same auction."""
+    key = lambda r: (r.get("cusip"), (r.get("auction_date") or "")[:10])
+    m = {key(r): r for r in fd_rows if (r.get("bid_to_cover_ratio") or "null") != "null" and _f(r.get("high_yield")) is not None}
+    m.update({key(r): r for r in td_rows if _f(r.get("bid_to_cover_ratio")) is not None})
+    return list(m.values())
 
 
 def term_years(r):
@@ -86,13 +117,14 @@ def score(a, prior):
     zb, zd = out.get("btc_z"), out.get("dealer_pct_z")
     out["verdict"] = ("weak" if (zb is not None and zb <= -1) and (zd is not None and zd >= 1) else
                       "strong" if (zb is not None and zb >= 1) and (zd is not None and zd <= -1) else
-                      "soft" if (zb is not None and zb <= -1) or (zd is not None and zd >= 1) else "normal")
+                      "soft" if (zb is not None and zb <= -1.5) or (zd is not None and zd >= 1.5) else "normal")
     out["prior_n"] = len(prior)
     return out
 
 
 def analyse(rows, today):
-    coupons = [metrics(r) for r in rows if r.get("security_type") in COUPON_TYPES and r.get("bid_to_cover_ratio") not in (None, "", "null")]
+    coupons = [metrics(r) for r in rows if r.get("security_type") in COUPON_TYPES and _f(r.get("bid_to_cover_ratio")) is not None
+               and _f(r.get("high_yield")) is not None]  # no high yield = floating-rate note, skipped
     coupons.sort(key=lambda a: a["date"])
     scored = []
     for i, a in enumerate(coupons):
@@ -120,29 +152,35 @@ def run(today=None):
     try:
         rows = fetch("auctions_query", {"filter": f"auction_date:gte:{(today - timedelta(days=800)).isoformat()},auction_date:lte:{today.isoformat()}",
                                         "sort": "auction_date"})
+        try: rows = merge(rows, treasurydirect())
+        except Exception as e: res["gaps"].append(f"TreasuryDirect recent results: {type(e).__name__}: {e}"); rows = merge(rows, [])
+        rows = [r for r in rows if (r.get("auction_date") or "") <= today.isoformat()]
         scored, recent = analyse(rows, today)
         res["recent"] = recent
         res["last_by_term"] = {f"{a['kind']} {a['years']}y": a for a in scored}  # latest auction of each term
         res["counts"] = {"coupon_auctions": len(scored), "since": scored[0]["date"] if scored else None}
+        res["latest_result"] = scored[-1]["date"] if scored else None
+        if res["latest_result"] and (today - date.fromisoformat(res["latest_result"])).days > STALE_DAYS:
+            res["gaps"].append(f"Treasury Fiscal Data is behind: newest coupon auction with results is {res['latest_result']}; later auctions are missing, not normal")
     except Exception as e:
         res["recent"], res["error"] = [], f"{type(e).__name__}: {e}"; res["gaps"].append(f"auction results: {res['error']}")
     try:
-        up = fetch("upcoming_auctions", {"sort": "auction_date"})
-        res["upcoming"] = [{"date": u.get("auction_date"), "type": u.get("security_type"), "term": u.get("security_term"),
-                            "size_usd": _f(u.get("offering_amt")), "announced": u.get("announcemt_date")}
-                           for u in up if u.get("security_type") in COUPON_TYPES][:12]
+        up = json.loads(get(TD_UP))
+        res["upcoming"] = [{"date": (u.get("auctionDate") or u.get("competitiveAuctionCloseDate") or "")[:10], "type": u.get("securityType"),
+                            "term": u.get("securityTerm"), "size_usd": _f(u.get("offeringAmount")), "announced": (u.get("announcementDate") or "")[:10]}
+                           for u in up if u.get("securityType") in ("Note", "Bond", "TIPS")][:12]
     except Exception as e:
         res["upcoming"] = []; res["gaps"].append(f"upcoming auctions: {type(e).__name__}: {e}")
     res["flags"] = flags(res["recent"])
     res["gaps"].append("Auction tail (high yield vs 1 pm when-issued yield): needs intraday when-issued quotes, not free; dealer share and bid-to-cover used instead")
-    res["source"] = FD + "auctions_query"
+    res["source"] = [TD.format(days="N", kind="Note|Bond|TIPS"), FD + "auctions_query"]
     return res
 
 
 def desk_docs(res, day):
     keep = ("date", "term", "kind", "years", "high_yield", "btc", "btc_avg", "btc_z", "dealer_pct", "dealer_pct_avg", "dealer_pct_z",
             "indirect_pct", "indirect_pct_avg", "verdict", "size_usd")
-    meta = {"updated": day, "version": VERSION, "recent": [{k: a.get(k) for k in keep} for a in res.get("recent", [])],
+    meta = {"updated": day, "version": VERSION, "latest_result": res.get("latest_result"), "recent": [{k: a.get(k) for k in keep} for a in res.get("recent", [])],
             "last_by_term": {t: {k: a.get(k) for k in keep} for t, a in (res.get("last_by_term") or {}).items()},
             "upcoming": res.get("upcoming", []), "flags": res["flags"], "gaps": res["gaps"], "source": res["source"]}
     held = [a for a in res.get("recent", []) if a["date"] == day]
@@ -151,7 +189,8 @@ def desk_docs(res, day):
 
 def summary(r):
     L = [f"TREASURY AUCTIONS {r['generated_utc']} UTC (analysis only, not investment advice)"]
-    for a in r.get("recent", []):
+    L.append(f"  newest result on file: {r.get('latest_result')}")
+    for a in (r.get("recent") or list((r.get("last_by_term") or {}).values())):
         L.append(f"  {a['date']} {a['term']} {a['kind']}: yield {a['high_yield']}%, bid-to-cover {a['btc']} (avg {a.get('btc_avg')}), "
                  f"dealers {a['dealer_pct']}% (avg {a.get('dealer_pct_avg')}), indirect {a['indirect_pct']}% -> {a['verdict']}")
     for u in r.get("upcoming", []): L.append(f"  upcoming {u['date']} {u['term']} {u['type']}" + (f" ${u['size_usd'] / 1e9:.0f}B" if u.get("size_usd") else ""))

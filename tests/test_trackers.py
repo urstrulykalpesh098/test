@@ -119,6 +119,14 @@ class Auctions(unittest.TestCase):
         self.assertTrue(auctions.flags(recent)[0].startswith("Weak 9-Year 10-Month"))
 
 
+    def test_merge_prefers_treasurydirect(self):
+        fd = [dict(_auction("2026-11-10", 2.3, 10), cusip="X"), dict(_auction("2026-11-12", "null", 10), cusip="Y")]
+        td = [dict(_auction("2026-11-10", 2.5, 9), cusip="X", src="TreasuryDirect")]
+        m = auctions.merge(fd, td)
+        self.assertEqual(len(m), 1)                 # the null-result row is dropped
+        self.assertEqual(m[0]["src"], "TreasuryDirect")
+
+
 class Divergence(unittest.TestCase):
     def test_fires_and_backtests(self):
         ds = [f"2026-{1 + i // 28:02d}-{1 + i % 28:02d}" for i in range(200)]
