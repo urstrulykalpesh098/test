@@ -378,7 +378,7 @@ function spark(){
 function hero(){
   const S=D.snapshots[D.snapshots.length-1],p=S.p;
   $('finding').textContent=S.story.slice(0,2).map(t=>t.replace(/ Weakest tested link:.*$/,'').replace(/ Dashed steps.*$/,'')).join(' ');
-  $('asof').textContent=`Week of ${D.as_of}. Built ${D.built_utc} UTC from the desk's nightly data. Context only, not advice.`;
+  $('asof').textContent=`Week of ${D.as_of}. Built ${D.built_utc} UTC from the desk's nightly data${D._fresh?', refreshed by the close run':' (as published)'}. Context only, not advice.`;
   const hot=Object.values(p).filter(x=>x>=.75).length,cool=Object.values(p).filter(x=>x<=-.75).length,pass=Object.values(S.e).filter(x=>x==='pass').length,tested=D.edges.filter(e=>e.kind==='tested'),strong=tested.filter(e=>e.strength==='strong').length;
   $('figs').innerHTML=[[hot,'stations under pressure'],[cool,'stations easing'],[pass,'routes passing pressure'],[`${strong} of ${tested.length}`,'tested routes strong on history']].map(([a,b])=>`<div><b>${esc(a)}</b><span>${esc(b)}</span></div>`).join('');
 }
@@ -407,6 +407,20 @@ function boot(d){
   quiz();askSetup();hero();setIdx(last);
   const ro=new ResizeObserver(()=>{draw();spark()});ro.observe($('map'));
 }
-fetch('godseye.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(boot).catch(err=>{$('finding').innerHTML='<span class="err">Could not load the map data ('+esc(err.message)+').</span>'});
+const timeout=(p,ms)=>Promise.race([p,new Promise(r=>setTimeout(()=>r(null),ms))]);
+async function nightly(){
+  try{const db=await timeout(window.claude?.use?.('db'),8000);if(!db)return null;
+    const snapDoc=await timeout(db.doc('godseye/latest').get(),8000);if(!snapDoc||!snapDoc.exists)return null;
+    const x=snapDoc.data();const d=typeof x.json==='string'?JSON.parse(x.json):null;return d&&Array.isArray(d.snapshots)?d:null}catch(e){return null}
+}
+function merge(base,n){
+  if(!n)return base;
+  const by=new Map(base.snapshots.map(s=>[s.date,s]));
+  for(const s of n.snapshots)by.set(s.date,s);
+  const snaps=[...by.values()].sort((a,b)=>a.date<b.date?-1:1).slice(-Math.max(base.snapshots.length,n.snapshots.length));
+  return Object.assign({},base,{version:n.version,built_utc:n.built_utc,as_of:n.as_of,method:n.method||base.method,nodes:n.nodes||base.nodes,edges:n.edges||base.edges,off_map:n.off_map||base.off_map,snapshots:snaps,_fresh:true});
+}
+Promise.all([fetch('godseye.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}),nightly()])
+  .then(([base,n])=>boot(merge(base,n))).catch(err=>{$('finding').innerHTML='<span class="err">Could not load the map data ('+esc(err.message)+').</span>'});
 }
 </script>
