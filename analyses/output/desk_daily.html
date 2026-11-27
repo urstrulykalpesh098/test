@@ -156,7 +156,7 @@ footer b{color:var(--tx)}
 <div class="door-top"><h2>Today at a glance</h2><span class="light none" id="light">Checking runs…</span></div>
 <div class="door-grid">
 <div><h3>Next session's calls</h3><div id="dcalls"><div class="empty">The close run posts the next session's calls here.</div></div></div>
-<div><h3>Last graded</h3><p class="line" id="dlast">–</p><h3 style="margin-top:12px">Context</h3><p class="line" id="dctx">–</p><div id="dhealth"></div></div>
+<div><h3>Last graded</h3><p class="line" id="dlast">–</p><h3 style="margin-top:12px">Skill or luck</h3><p class="line" id="dskill">–</p><h3 style="margin-top:12px">Context</h3><p class="line" id="dctx">–</p><div id="dhealth"></div></div>
 </div>
 <div class="drill">Go deeper: <a href="https://claude.ai/artifact/7jU3VUdjX9x22fNqXoYbCL" target="_blank" rel="noopener">every call (Ledger)</a><a href="https://claude.ai/artifact/M2T7uHbVzqydb38BcrRi8F" target="_blank" rel="noopener">weekly score (Scorecard)</a><a href="https://claude.ai/artifact/R7i5cJx8SC6fpW9oQm7ZcM" target="_blank" rel="noopener">history and lab (HQ)</a><a href="https://claude.ai/artifact/NL7yQRq1UYSwBeSemnB6Dm" target="_blank" rel="noopener">specialist debate (Desk Room)</a><a href="https://claude.ai/artifact/7L9ApUMePWy4aWrt4ZY5kW" target="_blank" rel="noopener">CFA card</a></div>
 </section>
@@ -256,6 +256,10 @@ function renderDoor(){
   else if(L.call){$('dcalls').innerHTML='<p class="line">'+esc(L.call)+'</p>'}
   var g=null;for(var i=S.days.length-1;i>=0;i--){if(S.days[i].grades&&S.days[i].grades.n){g=S.days[i];break}}
   $('dlast').innerHTML=g?'<b>'+g.grades.hits+' of '+g.grades.n+'</b> calls came true on '+esc(g.date)+(g.grades.brier!=null?' <span class="mut">(Brier '+g.grades.brier.toFixed(3)+'; 0.25 = coin flip)</span>':''):'No graded day yet.';
+  var K=S.meta.skill,KA=K&&K.types&&K.types.all;
+  if(KA&&KA.n){var kc={skill:'up',worse:'dn'}[KA.verdict]||'am',kw={skill:'Looks like skill',worse:'Desk is worse than its baselines',noise:'Can\'t tell: edge near zero'}[KA.verdict]||('Too early to tell: need ~'+KA.more_calls_needed+' more graded calls');
+    $('dskill').innerHTML='<b class="'+kc+'">'+esc(kw)+'</b> <span class="mut">(desk '+KA.desk_brier.toFixed(3)+' vs baselines '+KA.base_brier.toFixed(3)+' on '+KA.n+' calls over '+KA.days+' days, FRED closes; ahead in '+Math.round(KA.share_desk_ahead*100)+'% of 10,000 replays)</span> <a href="https://claude.ai/artifact/M2T7uHbVzqydb38BcrRi8F#skill" target="_blank" rel="noopener">details</a>'}
+  else $('dskill').textContent='The skill meter appears after the next close run.';
   var cr=S.meta.credit||{},hy=(cr.spreads||{}).BAMLH0A0HYM2,fl=S.meta.flows||{},bits=[];
   if(hy&&hy.last!=null)bits.push('High-yield spread '+hy.last.toFixed(2)+'% ('+bp(hy.chg_20)+' in 20 days)');
   var nf=(fl.flags||[]).length+(cr.flags||[]).length;bits.push(nf?nf+' flow/credit flag'+(nf>1?'s':'')+' up (see below)':'no flow or credit flags');

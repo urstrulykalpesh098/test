@@ -12,3 +12,5 @@ Refresh (the Sunday self-review does this every week, or by hand):
 3. Upload `scorecard_rows.json` to the page as an asset, then `update` its `datasets/weeks` with the new `/_blob/` url and `updated {at, by}`.
 
 Caveats: several calls resolve on the same day, so the n of independent outcomes is far smaller than the call count. A falling month flatters down-leaning rules. Not investment advice.
+
+Skill or luck section (27 Nov 2026): dataset `skill` is `python3 analyses/desk/skill.py --pred <predictions dir> --rows skill_rows.json` (pulls FRED itself, or `--history analyses/data/history`). Upload it as an asset and update `datasets/skill` source.url and updated, the same way as `weeks`.
