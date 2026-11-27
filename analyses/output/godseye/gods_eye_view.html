@@ -90,6 +90,31 @@ tr.pick:hover{background:var(--panel)}
 .rbar{display:inline-block;height:9px;border-radius:5px;vertical-align:middle;margin-right:6px}
 .off{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));margin-top:14px}
 .off div{border-top:2px solid var(--rule);padding-top:8px;font-size:15px}
+.plain{display:grid;gap:24px}
+@media(min-width:900px){.plain{grid-template-columns:minmax(0,7fr) minmax(0,5fr)}}
+.plain .say p{font-size:17px;max-width:62ch;margin-top:12px}
+.plain .say p b{font-weight:700}
+.why{border-left:3px solid var(--lens);padding:2px 0 2px 14px;margin-top:18px;color:var(--mute);font-size:15px}
+.walk{list-style:none;margin:10px 0 0;padding:0;counter-reset:w;display:grid;gap:8px}
+.walk li{counter-increment:w;display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px;align-items:start;cursor:pointer;padding:8px;border-radius:10px;border:1px solid var(--rule);background:var(--bg)}
+.walk li::before{content:counter(w);display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--sky);color:#fff;font-weight:700;font-size:14px}
+.walk li.on{border-color:var(--ink)}
+.walk li span{font-size:15px}
+.quiz{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));margin-top:14px}
+.qz{border:1px solid var(--rule);border-radius:12px;padding:14px 16px;background:var(--panel)}
+.qz p{font-weight:600;margin:0 0 8px}
+.qz .opts{display:grid;gap:6px}
+.qz button{border-radius:8px;text-align:left}
+.qz button.right{background:color-mix(in srgb,var(--good) 18%,var(--bg));border-color:var(--good)}
+.qz button.wrong{background:color-mix(in srgb,var(--bad) 14%,var(--bg));border-color:var(--bad)}
+.qz .fb{font-size:14px;margin-top:8px;color:var(--mute)}
+.chat{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.msg{padding:10px 14px;border-radius:10px;max-width:80ch;white-space:pre-wrap;font-size:15px}
+.msg.me{align-self:flex-end;background:var(--ink);color:var(--bg)}
+.msg.ai{background:var(--bg);border:1px solid var(--rule)}
+.ask{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.ask textarea{flex:1 1 260px;font:16px "Libre Franklin",sans-serif;padding:10px 12px;border-radius:8px;border:1px solid var(--mute);background:var(--bg);color:var(--ink);min-height:48px;resize:vertical}
+.ask button{border-radius:8px;background:var(--ink);color:var(--bg);border-color:var(--ink);font-weight:600}
 footer{font-size:14px;color:var(--mute)}
 .err{color:var(--bad)}
 @media(max-width:640px){.fig{height:1040px}.time{grid-template-columns:minmax(0,1fr)}table{font-size:13px}th,td{padding:6px 4px}.hide-s{display:none}}
@@ -105,7 +130,22 @@ footer{font-size:14px;color:var(--mute)}
  </div>
 </section>
 
-<section class="band" style="border:0">
+<section class="band" style="border:0" id="plainband">
+ <div class="in plain">
+  <div class="say">
+   <h2>What's going on, in plain words</h2>
+   <div id="plain"><p>Loading…</p></div>
+   <p class="why"><b>Why "God's Eye View"?</b> Most screens show one market at a time. From up here you see all of them at once, and which way trouble or relief is travelling between them. That's the point: not more data, but seeing how the pieces you already watch are connected.</p>
+  </div>
+  <div>
+   <h3>Walk me through it</h3>
+   <p class="sub">Tap a step to light it up on the map below.</p>
+   <ol class="walk" id="walk"></ol>
+  </div>
+ </div>
+</section>
+
+<section class="band" style="border:0;padding-top:0">
  <div class="in">
   <h2>Where money and stress are moving</h2>
   <p class="sub">Each station is a market the desk already tracks. Tap a station or a route to see its numbers and the evidence behind the connection. Thick routes held up strongly on history; dashed ones are theory with no free data to test them.</p>
@@ -134,6 +174,27 @@ footer{font-size:14px;color:var(--mute)}
     <ul class="story" id="story" style="margin-top:12px"></ul>
    </div>
   </div>
+ </div>
+</section>
+
+<section class="band" id="askband">
+ <div class="in">
+  <h2>Ask me about the map</h2>
+  <p class="sub">Ask anything in your own words. I answer from the numbers on this page (the week you're looking at), say which ones I used, and tell you when something is a guess. Not advice.</p>
+  <div class="card" style="margin-top:12px">
+   <div class="chips" id="askchips"></div>
+   <div class="chat" id="chat"></div>
+   <form class="ask" id="askF"><label for="askQ" class="sub" style="flex-basis:100%">Your question</label><textarea id="askQ" placeholder="Why does credit matter for stocks?"></textarea><button id="askB">Ask</button></form>
+   <p class="sub" id="askNote"></p>
+  </div>
+ </div>
+</section>
+
+<section class="band" id="quizband">
+ <div class="in">
+  <h2>Check yourself</h2>
+  <p class="sub">Guess first, then see what 15 years of data say. The answers come from the evidence table, not from textbooks.</p>
+  <div class="quiz" id="quiz"></div>
  </div>
 </section>
 
@@ -208,12 +269,87 @@ function draw(){
   }
   s.innerHTML=h;
 }
+const PL={
+fed_bs:['the Fed\'s balance sheet','the Fed is draining money from the system','the Fed is putting money into the system'],
+fed_rate:['the Fed\'s interest rate','borrowing is getting more expensive','borrowing is getting cheaper'],
+rrp:['the spare cash parked at the Fed','that spare-cash cushion is running thin','there is plenty of spare cash'],
+auctions:['demand at US government bond sales','buyers are less keen on new government bonds','new government bonds are selling easily'],
+oil:['oil prices','oil is getting more expensive','oil is getting cheaper'],
+repo:['overnight borrowing between banks and funds','overnight cash is getting scarce','overnight cash is easy to get'],
+infl:['what investors expect inflation to be','people expect more inflation','people expect less inflation'],
+yields:['the 10-year US interest rate','long-term money is getting more expensive','long-term money is getting cheaper'],
+real:['interest rates after inflation','money is earning more after inflation, which weighs on growth stocks','money is earning less after inflation'],
+dollar:['the US dollar','the dollar is strengthening, which squeezes the rest of the world','the dollar is weakening'],
+fincond:['how easy it is to borrow and raise money','money is getting harder to raise','money is getting easier to raise'],
+credit:['what risky companies pay to borrow','lenders are getting nervous and charging risky companies more','lenders are relaxed'],
+vol:['the market\'s fear gauge','short-term fear is spiking above long-term fear','fear is fading'],
+positioning:['how big investors are betting','bets are crowded on one side, so a reversal could be sharp','bets are spread out'],
+margin:['money borrowed to buy stocks','a lot of stock is bought with borrowed money','borrowed money in stocks is modest'],
+spx:['US stocks (S&P 500)','stocks are falling','stocks are rising'],
+ndx:['tech stocks (Nasdaq)','tech stocks are falling','tech stocks are rising'],
+etf:['money moving through stock funds','funds are being forced to sell or money is leaving','money is flowing into stock funds'],
+cad:['the loonie (USD/CAD)','the Canadian dollar is weakening','the Canadian dollar is strengthening']};
+const num=id=>{const v=snap().v[id]||'';const m=v.split(/ pct| Today| Canada lens| CCC| VIX9D| Crowding| Last /)[0];return m.replace(/, \d+(st|nd|rd|th)$/,'').trim()};
+const plainState=id=>{const p=snap().p[id];if(p==null)return null;return p>=.75?PL[id][1]:p<=-.75?PL[id][2]:'nothing unusual in '+PL[id][0]};
+function plainHtml(){
+  const S=snap(),hot=Object.entries(S.p).filter(([,v])=>v>=.75).sort((a,b)=>b[1]-a[1]),cool=Object.entries(S.p).filter(([,v])=>v<=-.75);
+  const out=[];
+  out.push(`<p>${hot.length?`This week <b>${hot.length} of ${Object.keys(S.p).length}</b> markets on the map show stress, and <b>${cool.length}</b> show relief. The loudest: ${hot.slice(0,3).map(([k])=>esc(PL[k][0])).join(', ')}.`:'This week the map is quiet: no market is under unusual pressure.'}</p>`);
+  for(const c of (S.chains||[])){
+    const steps=c.path.map((id,i)=>{const n=num(id);return `${i?'then ':''}${esc(plainState(id))}${n?` <span class="sub">(${esc(PL[id][0])}: ${esc(n)})</span>`:''}`});
+    out.push(`<p>${c.dir==='stress'?'<b>The trouble is travelling.</b> ':'<b>Relief is travelling too.</b> '}${steps.join(', ')}. Each step here has happened together often in the past, so this is a familiar pattern, not a random mix.</p>`);
+  }
+  const gaps=D.edges.filter(e=>S.e[e.id]==='gap');
+  if(gaps.length){const e=gaps[0];out.push(`<p><b>Something hasn't caught up:</b> ${esc(plainState(e.a))}, but ${esc(PL[e.b][0])} hasn't reacted yet. Either it catches up, or the first move fades. The map can't tell you which.</p>`)}
+  out.push(`<p class="sub">What this is not: a prediction. These markets tend to move together, but almost none of them reliably moves first, so the map explains the week rather than calling the next one.</p>`);
+  $('plain').innerHTML=out.join('');
+  const walk=[];for(const c of (S.chains||[])){for(let i=0;i<c.path.length;i++){const id=c.path[i];walk.push({id,edge:i?c.path[i-1]+'>'+id:null,t:(i?'Next, ':'It starts with ')+PL[id][0]+': '+plainState(id)+'.'})}}
+  if(!walk.length)hot.slice(0,3).forEach(([k])=>walk.push({id:k,edge:null,t:PL[k][0]+': '+plainState(k)+'.'}));
+  $('walk').innerHTML=walk.map((w,i)=>`<li data-w="${i}"><span>${esc(w.t.charAt(0).toUpperCase()+w.t.slice(1))}</span></li>`).join('')||'<li><span>Nothing is moving together this week.</span></li>';
+  $('walk').querySelectorAll('[data-w]').forEach(li=>li.onclick=()=>{const w=walk[+li.dataset.w];$('walk').querySelectorAll('li').forEach(x=>x.classList.toggle('on',x===li));w.edge?pick('e',w.edge):pick('n',w.id);$('map').scrollIntoView({behavior:'smooth',block:'center'})});
+}
+function quiz(){
+  const E=id=>D.edges.find(e=>e.id===id);
+  const Q=[['credit>spx','Lenders get nervous and junk-bond spreads widen. In the same month, US stocks usually…',['fall','rise','show no pattern']],
+   ['oil>cad','Oil jumps. USD/CAD usually…',['falls (the loonie gets stronger)','rises (the loonie gets weaker)','shows no pattern']],
+   ['rrp>repo','The spare cash parked at the Fed drains away. Over the next month, overnight borrowing costs usually…',['jump','drop','show no clear pattern']],
+   ['yields>spx','The 10-year interest rate rises. US stocks usually…',['fall','rise','it depends on the era']]];
+  $('quiz').innerHTML=Q.map(([id,q,o],i)=>`<div class="qz" data-q="${i}"><p>${esc(q)}</p><div class="opts">${o.map((t,j)=>`<button data-o="${j}">${esc(t)}</button>`).join('')}</div><div class="fb" hidden></div></div>`).join('');
+  $('quiz').querySelectorAll('.qz').forEach(box=>{const [id,,o]=Q[+box.dataset.q],e=E(id),r=e.test.r;
+    const right=e.stable==='flips sign by era'&&o.length===3&&/era/.test(o[2])?2:Math.abs(r)<.2?2:(r<0?0:1);
+    box.querySelectorAll('button').forEach(b=>b.onclick=()=>{box.querySelectorAll('button').forEach((x,j)=>{x.disabled=true;x.classList.toggle('right',j===right);if(x===b&&j!==right)x.classList.add('wrong')});
+      const f=box.querySelector('.fb');f.hidden=false;f.textContent=`${+b.dataset.o===right?'Right. ':'Not quite. '}Since ${e.test.since.slice(0,4)}, the two moved together with r = ${r} over ${e.test.n} months-long periods (${e.strength}, ${e.stable}). By era: ${e.eras.map(x=>x.era+' '+x.r).join(', ')}.`;});});
+}
+let sampleFn=null,busy=false,hist=[];
+const CHIPS=['Explain this week like I\'m new to markets','Why does credit matter for stocks?','What would prove this stress story wrong?','What does USD/CAD rising mean for someone in Toronto?'];
+function bubble(cls,text){const d=document.createElement('div');d.className='msg '+cls;d.textContent=text;$('chat').appendChild(d);return d}
+const TOOLS=[
+ {name:'week',description:'The map for the week the viewer is looking at: each station\'s pressure score (+ stress, - easing, roughly -3 to 3) and reading, which routes are passing pressure or show a gap, the rule-written story and chains.',inputSchema:{type:'object',properties:{}},execute:()=>{const S=snap();return JSON.stringify({date:S.date,pressure:S.p,readings:S.v,routes:S.e,story:S.story,chains:S.chains})}},
+ {name:'route',description:'Evidence for one route, by id like "credit>spx": mechanism, type (tested/inferred/mechanical), correlation, eras, lead and gap tests.',inputSchema:{type:'object',properties:{id:{type:'string'}},required:['id']},execute:({id})=>{const e=D.edges.find(x=>x.id===id);if(!e)throw new Error('unknown route; ids: '+D.edges.map(x=>x.id).join(', '));return JSON.stringify(e)}},
+ {name:'stations',description:'All stations: id, name, what it measures, source.',inputSchema:{type:'object',properties:{}},execute:()=>JSON.stringify(D.nodes.map(n=>({id:n.id,label:n.label,what:n.what,src:n.src})))},
+ {name:'history',description:'Pressure score of one station for every week over the last 3 years.',inputSchema:{type:'object',properties:{id:{type:'string'}},required:['id']},execute:({id})=>JSON.stringify(D.snapshots.map(s=>[s.date,s.p[id]??null]))}];
+async function ask(q){
+  q=(q||$('askQ').value).trim();if(!q||busy||!sampleFn)return;busy=true;$('askB').disabled=true;$('askQ').value='';
+  bubble('me',q);const out=bubble('ai','Thinking...');hist.push({role:'user',content:q});
+  const sys=`You are Claude, explaining the "God's Eye View" page of Rk's Eye View market research desk. Rk lives in Toronto and is learning markets (CFA Level I). Use the tools to read the real numbers for the week shown (${snap().date}). Answer in plain, friendly English a non-expert understands, under 170 words, short sentences, no jargon without a one-line meaning. Name the numbers you used. Say clearly what is measured, what is a historical pattern (give its strength), and what is your guess. This map shows co-movement, not cause, and nothing on it reliably predicts. Never give buy/sell or personal financial advice; end with "Context only, not advice." when you discuss markets.\n\nQuestion: `;
+  const msgs=hist.slice(-6).map((m,i,a)=>i===a.length-1?{role:'user',content:sys+m.content}:m);
+  try{const r=await sampleFn(msgs,{tools:TOOLS,cache:false,onText:({text})=>{out.textContent=text||'Thinking...'}});out.textContent=r.text;hist.push({role:'assistant',content:r.text})}
+  catch(e){hist.pop();out.classList.add('err');out.textContent=e&&e.code==='not_granted'?'Asking Claude was not allowed for this page.':e&&e.code==='rate_limited'?'Too many questions just now. Try again in a minute.':'Something went wrong answering that.'}
+  busy=false;$('askB').disabled=false;
+}
+function askSetup(){
+  $('askchips').innerHTML=CHIPS.map((c,i)=>`<button type="button" data-i="${i}">${esc(c)}</button>`).join('');
+  $('askchips').addEventListener('click',e=>{const b=e.target.closest('button');if(b)ask(CHIPS[+b.dataset.i])});
+  $('askF').addEventListener('submit',e=>{e.preventDefault();ask()});
+  $('askB').disabled=true;$('askNote').textContent='Connecting…';
+  Promise.resolve(window.claude?.use?.('sample')).then(s=>{sampleFn=s||null;$('askB').disabled=!sampleFn;$('askNote').textContent=sampleFn?'':'Asking isn\'t available in this view. Open the page on claude.ai, signed in.'}).catch(()=>{$('askNote').textContent='Asking isn\'t available in this view.'});
+}
 function pick(t,id){sel={t,id};draw();detail();}
 function detail(){
   const S=snap(),c=$('detail');if(!sel){c.innerHTML='';return}
   if(sel.t==='n'){
     const n=N(sel.id),p=S.p[n.id],links=D.edges.filter(e=>e.a===n.id||e.b===n.id);
-    c.innerHTML=`<h3>${esc(n.label)}</h3><p class="sub">${esc(n.what)}</p><dl class="kv"><dt>Reading</dt><dd>${esc(S.v[n.id]||(n.tracker?'Tracker reading is only available for the latest week.':'No data for this week.'))}</dd><dt>Pressure</dt><dd>${p==null?'n/a':(p>0?'+':'')+p.toFixed(2)+' ('+word(p)+')'}</dd><dt>Measured by</dt><dd>${esc(n.src)}</dd><dt>Type</dt><dd>${n.tracker?'Measured today by a desk tracker; no history kept':'Measured, with history back to the source start'}</dd></dl>`+
+    c.innerHTML=`<h3>${esc(n.label)}</h3><p class="sub">${esc(n.what)}</p>${p!=null?`<p><b>In plain words:</b> ${esc(plainState(n.id).charAt(0).toUpperCase()+plainState(n.id).slice(1))}.</p>`:''}<dl class="kv"><dt>Reading</dt><dd>${esc(S.v[n.id]||(n.tracker?'Tracker reading is only available for the latest week.':'No data for this week.'))}</dd><dt>Pressure</dt><dd>${p==null?'n/a':(p>0?'+':'')+p.toFixed(2)+' ('+word(p)+')'}</dd><dt>Measured by</dt><dd>${esc(n.src)}</dd><dt>Type</dt><dd>${n.tracker?'Measured today by a desk tracker; no history kept':'Measured, with history back to the source start'}</dd></dl>`+
       `<h3 style="margin-top:14px;font-size:16px">Routes</h3><div class="eras">${links.map(e=>`<div class="era" style="grid-template-columns:minmax(0,1fr) auto;cursor:pointer" data-go="${esc(e.id)}"><span>${esc(N(e.a).label)} → ${esc(N(e.b).label)}</span><span class="tag t-${e.kind}" style="margin:0">${esc(e.kind==='tested'?e.strength:e.kind==='inferred'?'theory only':'mechanical')}</span></div>`).join('')}</div>`;
   }else{
     const e=D.edges.find(x=>x.id===sel.id),st=edgeState(e),t=e.test,gt=e.gap_test;
@@ -256,7 +392,7 @@ function table(){
   $('ev').querySelectorAll('[data-go]').forEach(el=>el.onclick=()=>{pick('e',el.dataset.go);$('map').scrollIntoView({behavior:'smooth',block:'center'})});
 }
 function setIdx(i){idx=Math.max(0,Math.min(D.snapshots.length-1,i));$('slider').value=idx;$('tdate').textContent=(idx===D.snapshots.length-1?'This week · ':'Week of ')+snap().date;
-  document.querySelectorAll('#chips button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.i===idx)));draw();detail();storyHtml();spark();table();}
+  document.querySelectorAll('#chips button').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.i===idx)));draw();detail();storyHtml();spark();table();plainHtml();}
 function boot(d){
   D=d;const last=D.snapshots.length-1;$('slider').max=last;
   $('chips').innerHTML=EPIS.map(([t,v])=>{let i=v==null?last:typeof v==='number'?last+v:D.snapshots.findIndex(s=>s.date===v);return i<0?'':`<button data-i="${i}" aria-pressed="false">${esc(t)}</button>`}).join('');
@@ -268,7 +404,7 @@ function boot(d){
   sel=first?{t:'e',id:first.id}:{t:'n',id:'credit'};
   $('off').innerHTML=D.off_map.map(o=>`<div><b>${esc(o.name)}</b><br>${esc(o.why)}</div>`).join('');
   $('foot').innerHTML=`<p><b>Method.</b> ${esc(D.method)}</p><p>${esc(D.version)} · analyses/godseye/godseye.py on the desk branch · ${esc(D.disclaimer)}</p>`;
-  hero();setIdx(last);
+  quiz();askSetup();hero();setIdx(last);
   const ro=new ResizeObserver(()=>{draw();spark()});ro.observe($('map'));
 }
 fetch('godseye.json').then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(boot).catch(err=>{$('finding').innerHTML='<span class="err">Could not load the map data ('+esc(err.message)+').</span>'});

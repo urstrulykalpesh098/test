@@ -470,7 +470,9 @@ def build():
                 es[e["id"]] = "pass"
             elif abs(pa) >= 1.25 and (not aligned or abs(pb) < 0.4) and (e["kind"] != "tested" or e["w"] >= 0.2):
                 es[e["id"]] = "gap"
-        snaps.append(dict(date=grid[i], p=p, v=v, e=es, story=story(p, es, edges, nodes, is_today)))
+        chains = []
+        lines = story(p, es, edges, nodes, is_today, chains)
+        snaps.append(dict(date=grid[i], p=p, v=v, e=es, story=lines, chains=chains))
     if snaps:
         for k, t in extras.items():
             if k in snaps[-1]["v"]:
@@ -494,7 +496,7 @@ def node_name(nodes, i):
     return nodes[i]["label"]
 
 
-def story(p, es, edges, nodes, is_today):
+def story(p, es, edges, nodes, is_today, chains=None):
     s = []
     hot = sorted([(v, k) for k, v in p.items() if v >= 0.75], reverse=True)
     cool = sorted([(v, k) for k, v in p.items() if v <= -0.75])
@@ -534,6 +536,8 @@ def story(p, es, edges, nodes, is_today):
         if not path:
             continue
         chain = " to ".join([nodes[path[0]["a"]]["label"]] + [nodes[e["b"]]["label"] for e in path])
+        if chains is not None:
+            chains.append(dict(dir=dirn, path=[path[0]["a"]] + [e["b"] for e in path]))
         tested = [e for e in path if e["kind"] == "tested"]
         note = ""
         if tested:
