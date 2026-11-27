@@ -79,6 +79,8 @@ def main(argv=None):
         gp = ROOT / "analyses" / "output" / "godseye" / "godseye.json"
         gp.parent.mkdir(parents=True, exist_ok=True)
         gp.write_text(json.dumps(gd, separators=(",", ":")))
+        # small doc the close run copies into the God's Eye page db (godseye/latest); hub/ is committed nightly
+        (HUB.parent / "godseye_latest.json").write_text(json.dumps(godseye.latest_doc(gd), separators=(",", ":")))
         print("god's eye view:", gp, gp.stat().st_size, "bytes")
     except Exception as e:  # the map is context only; never fail the nightly run over it
         print("god's eye view skipped:", e)

@@ -565,6 +565,14 @@ def story(p, es, edges, nodes, is_today, chains=None):
     return s
 
 
+def latest_doc(d, keep=8):
+    """Small nightly doc for the page's db (godseye/latest): the last few weeks plus edges and nodes.
+    The page merges these weeks onto the history published with it."""
+    return dict(version=d["version"], built_utc=d["built_utc"], as_of=d["as_of"], disclaimer=d["disclaimer"],
+                method=d["method"], nodes=d["nodes"], edges=d["edges"], off_map=d["off_map"],
+                snapshots=d["snapshots"][-keep:])
+
+
 def readout(d):
     t = d["snapshots"][-1]
     lines = [f"GOD'S EYE VIEW {d['as_of']} ({d['disclaimer']})"]
@@ -579,10 +587,13 @@ def readout(d):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default=str(OUT / "godseye" / "godseye.json"))
+    ap.add_argument("--latest", default=str(OUT / "hub" / "godseye_latest.json"))
     a = ap.parse_args()
     d = build()
     Path(a.out).parent.mkdir(parents=True, exist_ok=True)
     Path(a.out).write_text(json.dumps(d, separators=(",", ":")))
+    Path(a.latest).parent.mkdir(parents=True, exist_ok=True)
+    Path(a.latest).write_text(json.dumps(latest_doc(d), separators=(",", ":")))
     print(readout(d))
 
 
